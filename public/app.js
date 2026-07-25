@@ -14,39 +14,37 @@ function el(tag, cls, text) {
   return n;
 }
 
+/* Tercer campo = en qué zona vive la fila. El pipeline es maquinaria (①la
+ * fuente); los 5 canales son el plan (③), donde su fila lleva la barra de mix. */
 const ROLES = [
-  ["panorama", "Panorama"],
-  ["miner_map", "Oído · map"],
-  ["miner_reduce", "Oído · reduce"],
-  ["angles", "Banco de ángulos"],
-  ["strategist", "Estratega"],
-  ["paid", "Paid"],
-  ["organic", "Orgánico"],
-  ["creators", "Creators"],
-  ["email", "Email"],
-  ["blog", "Blog"],
-  ["generator", "Generador"],
-  ["mutator", "Mutación"],
-  ["memory", "Memoria"],
-];
-
-const PHASES = [
-  ["ingesta", "ingesta"],
-  ["panorama", "panorama"],
-  ["oido", "oído"],
-  ["angulos", "ángulos"],
-  ["estrategia", "estrategia"],
-  ["ejercito", "ejército"],
-  ["evolution", "evolución"],
-  ["memoria", "memoria"],
+  ["panorama", "Panorama", "org"],
+  ["miner_map", "Oído · map", "org"],
+  ["miner_reduce", "Oído · reduce", "org"],
+  ["angles", "Banco de ángulos", "org"],
+  ["strategist", "Estratega", "org"],
+  ["generator", "Generador", "org"],
+  ["mutator", "Mutación", "org"],
+  ["memory", "Memoria", "org"],
+  ["paid", "Paid", "army"],
+  ["organic", "Orgánico", "army"],
+  ["creators", "Creators", "army"],
+  ["email", "Email", "army"],
+  ["blog", "Blog", "army"],
 ];
 
 const nodes = new Map();
-const steps = new Map();
 /** role → última nota de inventario ("18 insights"). Alimenta la tira de cierre. */
 const tallies = new Map();
 /** angle_id → payload del ángulo. Da los chips de evidencia/familia a los ads. */
 const angles = new Map();
+/** insight.id → payload. Da el chip de frecuencia a la cabeza del hilo. */
+const insights = new Map();
+/** angle_id → { wrap, ads }. Un hilo por ángulo. */
+const threads = new Map();
+/** TODAS las citas con respaldo real. Sirve para marcar un ad sin evidencia. */
+const evidenceQuotes = new Set();
+/** Ids de artefacto vistos. Reemplaza contar hijos de un contenedor único. */
+const artIds = new Set();
 /** Marca + dominio para el pie de consultor de cada artefacto. */
 let brand = null;
 /** Umbral de graduación, leído de la estrategia. Colorea la sparkline. */
@@ -55,25 +53,21 @@ let roasMin = 3.5;
 let firstPaintDone = false;
 /** true = servidor local con SSE · false = deploy estático reproduciendo el NDJSON. */
 let hasBackend = false;
+/** Costo acumulado. La tira de cierre lo lee de aquí, no del DOM ya formateado. */
+let costUsd = 0;
 
 /* ───────────────────────── organigrama ───────────────────────── */
 
-function buildOrg() {
-  const org = $("org");
-  for (const [id, label] of ROLES) {
-    const row = el("div", "agent idle");
+function buildRoster() {
+  for (const [id, label, host] of ROLES) {
+    const row = el("div", host === "army" ? "agent chrow idle" : "agent idle");
     row.append(el("span", "dot"), el("span", "name", label), el("span", "note"));
-    org.appendChild(row);
+    if (host === "army") row.dataset.ch = id;
+    $(host).appendChild(row);
     nodes.set(id, row);
   }
 }
 
-/**
- * El subtítulo de un agente es SIEMPRE un inventario contable, nunca un estado.
- * "18 insights", jamás "corriendo" ni "listo" — esa es la diferencia entre un
- * dashboard y una bandeja de entrada. El filtro `/^\d/` lo garantiza aunque el
- * pipeline real mande otra cosa.
- */
 function setAgent(role, state, note) {
   const row = nodes.get(role);
   if (!row) return;
@@ -90,41 +84,15 @@ function setAgent(role, state, note) {
   }
 }
 
-/* ───────────────────────── stepper de fases ───────────────────────── */
-
-function buildStepper() {
-  const box = $("stepper");
-  PHASES.forEach(([id, label], i) => {
-    if (i) box.appendChild(el("span", "sep", "›"));
-    const s = el("span", "step", label);
-    s.dataset.state = "next";
-    box.appendChild(s);
-    steps.set(id, s);
-  });
-}
-
-function setPhase(name) {
-  const idx = PHASES.findIndex(([id]) => id === name);
-  if (idx < 0) return;
-  PHASES.forEach(([id], i) => {
-    const s = steps.get(id);
-    s.dataset.state = i < idx ? "past" : i === idx ? "now" : "next";
-  });
-}
-
 /* ───────────────────────── el terminal ─────────────────────────
- * Dos estados del mismo componente: protagonista durante la corrida, y una
- * línea en el header al terminar. Las líneas se tipean; el prefijo "> " de la
- * narración y la sangría ámbar de la prueba literal son puro CSS.
+ * El proceso es el detalle, no el protagonista: vive en una línea de 32px y
+ * se despliega en un cajón que NO toca la rejilla. Un stepper lineal se borró
+ * a propósito — contradice un circuito.
  */
 
 const queue = [];
 let typing = false;
 let lastRole = null;
-
-function setStage(stage) {
-  document.body.dataset.stage = stage;
-}
 
 function enqueue(role, line, kind) {
   queue.push({ role, line, kind });
@@ -171,7 +139,7 @@ function paint(item, animate, done) {
   box.appendChild(row);
   while (box.childElementCount > 500) box.removeChild(box.firstChild);
 
-  setTicker(item.line);
+  setTicker(item.line, item.kind);
 
   const stick = () => {
     if (wasBottom) box.scrollTop = box.scrollHeight;
@@ -203,8 +171,10 @@ function paint(item, animate, done) {
   tick();
 }
 
-function setTicker(line) {
-  $("ticker").textContent = `> ${line}`;
+function setTicker(line, kind) {
+  const t = $("ticker");
+  t.textContent = `${kind === "literal" ? "› " : "> "}${line}`;
+  t.dataset.kind = kind || "say";
 }
 
 /* ───────────────────────── cobertura ───────────────────────── */
@@ -309,26 +279,76 @@ function summarize(kind, p) {
   }
 }
 
-function addArtifact(env) {
-  const box = $("artifacts");
-  if (box.classList.contains("empty")) {
-    box.classList.remove("empty");
-    box.textContent = "";
-  }
+/**
+ * Cada artefacto se monta en la zona a la que pertenece, no en una lista única.
+ * Los ángulos abren un HILO y sus ads cuelgan debajo: eso es la cadena
+ * cita → hook → ad, que es el argumento del producto dibujado.
+ */
+function threadFor(id) {
+  let t = threads.get(id);
+  if (t) return t;
+  for (const n of $("chain").querySelectorAll(".skel-thread")) n.remove();
+  $("chain-promise").hidden = true;
+  const wrap = el("section", "thread");
+  wrap.id = `th-${id}`;
+  /* head va ANTES que ads: el ángulo (la cita) encabeza el hilo y los ads
+     cuelgan debajo. Montar el ángulo en `wrap` lo dejaba DEBAJO del contenedor
+     de ads, con el "sin ad" flotando encima de la cita. */
+  const head = el("div", "thread-head");
+  const ads = el("div", "thread-ads");
+  wrap.append(head, ads);
+  $("chain").appendChild(wrap);
+  t = { wrap: head, ads };
+  threads.set(id, t);
+  return t;
+}
 
-  // Índices que alimentan a otras tarjetas y a la sparkline.
-  if (env.kind === "brand_research" && env.payload?.brand_brief) brand = env.payload.brand_brief;
-  if (env.kind === "angle" && env.payload?.id) angles.set(env.payload.id, env.payload);
-  if (env.kind === "strategy" && env.payload?.testing_plan?.graduation?.roas_min) {
-    roasMin = env.payload.testing_plan.graduation.roas_min;
+function chBody(ch) {
+  const row = document.querySelector(`[data-ch="${ch}"]`);
+  return row ? row.parentElement : $("plan-art");
+}
+
+function mountFor(env, p) {
+  switch (env.kind) {
+    case "brand_research": return $("brand-art");
+    case "insight": return $("chain-insights");
+    case "angle": return threadFor(p.id).wrap;
+    case "ad_draft": return threadFor(p.angle_id).ads;
+    case "strategy": return $("plan-art");
+    default: return $("plan-art");
+  }
+}
+
+function addArtifact(env) {
+  const p0 = env.payload || {};
+
+  // Índices que alimentan a otras tarjetas, a la sparkline y a la verificación.
+  if (env.kind === "brand_research" && p0.brand_brief) {
+    brand = p0.brand_brief;
+    renderBrand(p0);
+  }
+  if (env.kind === "angle" && p0.id) {
+    angles.set(p0.id, p0);
+    if (p0.source_quote) evidenceQuotes.add(p0.source_quote);
+  }
+  if (env.kind === "insight" && p0.id) {
+    for (const ev of p0.evidence || []) evidenceQuotes.add(ev.quote_redacted);
+    insights.set(p0.id, p0);
+    $("ins-count").textContent = String(insights.size);
+  }
+  if (env.kind === "strategy") {
+    if (p0.testing_plan?.graduation?.roas_min) roasMin = p0.testing_plan.graduation.roas_min;
+    renderPlan(p0);
+    renderCiclo(p0);
   }
 
   let card = $(`art-${env.id}`);
   const isNew = !card;
   if (!card) {
     card = el("div", "art");
+    // El id NO cambia jamás: de él cuelgan evoRow().onclick, markApproved() y HANDLERS.go.
     card.id = `art-${env.id}`;
-    box.prepend(card);
+    mountFor(env, p0).appendChild(card);
   }
   card.textContent = "";
   card.dataset.status = env.status;
@@ -407,8 +427,93 @@ function addArtifact(env) {
   };
   card.appendChild(btn);
 
-  const n = box.querySelectorAll(".art").length;
-  $("art-count").textContent = String(n);
+  artIds.add(env.id);
+  $("art-count").textContent = String(artIds.size);
+}
+
+
+/* ───────────────── ① la fuente ─────────────────
+ * Lo que hace que la FASE 1 entregue un resultado y no una promesa: con solo
+ * la web ya hay marca, vertical, tono y formatos con su evidencia rotulada.
+ */
+
+const EV_LABEL = {
+  own_metrics: "métrica propia",
+  category_benchmark: "benchmark",
+  visible_content: "visible en el sitio",
+};
+
+function renderBrand(p) {
+  const b = p.brand_brief;
+  if (!b) return;
+  const box = $("brand-art");
+  box.textContent = "";
+  box.appendChild(el("div", "brand-name", b.name));
+  box.appendChild(el("div", "brand-meta", `${b.vertical} · ${b.audience}`));
+  if (b.tone) box.appendChild(el("div", "brand-tone", b.tone));
+
+  const f = $("formats");
+  f.textContent = "";
+  for (const x of p.formats_ranked || []) {
+    const row = el("div", "fmt");
+    row.appendChild(el("span", "fmt-name", `${x.format} · ${x.platform}`));
+    const ev = el("span", `badge ev-${x.evidence}`, EV_LABEL[x.evidence] ?? x.evidence);
+    row.appendChild(ev);
+    row.appendChild(el("div", "fmt-signal", x.signal));
+    f.appendChild(row);
+  }
+}
+
+/* ───────────────── ③ el plan ─────────────────
+ * La barra de mix ES la fila del canal, no un elemento aparte. Un canal que el
+ * Estratega no activó se apaga: se ve que el mix MANDA sobre quién ejecuta.
+ */
+
+function renderPlan(p) {
+  $("plan-note").hidden = true;
+  const activos = new Set();
+  for (const c of p.channel_mix || []) {
+    activos.add(c.channel);
+    const row = document.querySelector(`[data-ch="${c.channel}"]`);
+    if (!row) continue;
+    const pct = Math.round((c.effort_share || 0) * 100);
+    row.style.setProperty("--share", pct);
+    let tag = row.querySelector(".pct");
+    if (!tag) {
+      tag = el("span", "pct");
+      row.appendChild(tag);
+    }
+    tag.textContent = `${pct}%`;
+    row.title = c.role_in_mix || "";
+  }
+  for (const [id, , host] of ROLES) {
+    if (host !== "army") continue;
+    const row = document.querySelector(`[data-ch="${id}"]`);
+    if (row && !activos.has(id)) row.classList.add("off");
+  }
+
+  const t = p.testing_plan;
+  if (!t) return;
+  $("pt-budget").textContent = `$${t.budget_per_adset_usd}/día · ${t.n_ads} ads`;
+  $("pt-lane").textContent = `${Math.round((t.lane_pct_max || 0) * 100)}% del spend`;
+  $("pt-grad").textContent = `ROAS ${t.graduation?.roas_min}x · ${t.graduation?.purchases_min} compras`;
+  const k = $("pt-kills");
+  k.textContent = "";
+  for (const r of t.kill_rules || []) {
+    k.appendChild(el("div", "kill", `tier ${r.tier} · ${r.condition} → ${r.action}`));
+  }
+}
+
+/* ───────────────── ⑥ el riel de retorno ─────────────────
+ * Lo que Okara no puede dibujar: la corrida anterior entrando a esta.
+ */
+
+function renderCiclo(p) {
+  const applied = p.memory_applied || [];
+  $("ciclo-run").textContent = applied.length ? "corrida 2" : "corrida 1";
+  $("ciclo-applied").textContent = applied.length
+    ? `aplicó ${applied.length} aprendizajes · ${applied[0]}`
+    : "";
 }
 
 function markApproved(id) {
@@ -441,7 +546,6 @@ let evoReady = false;
 function ensureEvoGrid() {
   if (evoReady) return;
   evoReady = true;
-  document.body.dataset.evo = "on";
   const grid = $("evo-grid");
   if (grid.childElementCount) return;
   for (let i = 0; i < 6; i++) {
@@ -483,9 +587,12 @@ function evoRow(id) {
   const parent = parentOf(id);
   if (parent) row.classList.add("child");
 
+  const MUT = { h: "mutó el hook", f: "mutó el formato" };
   const name = el("span", "adid");
   if (parent) name.appendChild(el("span", "lineage", "└─ "));
   name.appendChild(el("span", null, id));
+  // "Aparecieron dos filas" pasa a "se reprodujo, y esto mutó cada hijo".
+  if (parent) name.appendChild(el("span", "mut", MUT[id.slice(-1)] ?? "mutó"));
   row.append(
     name,
     el("span", "spark-cell"),
@@ -589,7 +696,7 @@ function renderSummary() {
     evo ? `${evo.dead} muertos` : null,
     evo ? `${evo.grad} graduado` : null,
     evo ? `${evo.kids} hijos` : null,
-    $("cost").textContent,
+    `$${costUsd.toFixed(2)}`,
   ].filter(Boolean);
   const box = $("summary");
   box.textContent = parts.join("  ·  ");
@@ -607,16 +714,14 @@ const HANDLERS = {
       b.textContent = `▶ ${e.detail}`;
       return;
     }
-    setStage("run");
-    setPhase(e.name);
     $("phase").textContent = e.detail ? `${e.name} · ${e.detail}` : e.name;
-    if (e.name === "evolution") ensureEvoGrid();
     enqueue("darwin", `— ${e.name}${e.detail ? " · " + e.detail : ""} —`, "phase");
   },
   agent: (e) => setAgent(e.role, e.state, e.note),
   log: (e) => enqueue(e.role, e.line, e.kind),
   cost: (e) => {
-    $("cost").textContent = `$${e.total_usd.toFixed(2)}`;
+    costUsd = e.total_usd;
+    $("cost").textContent = `$${costUsd.toFixed(2)}`;
   },
   coverage: (e) => renderCoverage(e.entries),
   artifact: (e) => addArtifact(e.envelope),
@@ -626,7 +731,7 @@ const HANDLERS = {
   memory: renderMemory,
   done: () => {
     $("phase").textContent = "listo";
-    setStage("review");
+    document.body.dataset.done = "1";
     renderSummary();
   },
 };
@@ -895,8 +1000,8 @@ function showAsk(runId) {
  * esperar a que EventSource falle: EventSource reintenta solo, para siempre.
  */
 async function boot() {
-  buildOrg();
-  buildStepper();
+  buildRoster();
+  ensureEvoGrid();
   setTimeout(() => {
     firstPaintDone = true;
   }, 1500);
@@ -920,5 +1025,12 @@ async function boot() {
 
 boot();
 
-// El ticker reabre el terminal: en el Q&A siempre preguntan "¿qué hizo ahí?".
-$("ticker").onclick = () => setStage("run");
+/* El ticker abre el cajón: en el Q&A siempre preguntan "¿qué hizo ahí?". */
+$("ticker").onclick = () => {
+  const b = document.body;
+  b.dataset.log = b.dataset.log === "open" ? "" : "open";
+  if (b.dataset.log) $("log").scrollTop = $("log").scrollHeight;
+};
+addEventListener("keydown", (e) => {
+  if (e.key === "Escape") document.body.dataset.log = "";
+});

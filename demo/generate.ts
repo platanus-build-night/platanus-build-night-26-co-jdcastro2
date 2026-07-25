@@ -559,7 +559,15 @@ art("strategy", "strategist", {
     "con métricas propias, no con benchmark prestado. Paid se lleva 40% porque es el único canal " +
     "que da veredicto en días. Creators pesa 20% porque el testimonio es la única prueba que la " +
     "marca no puede escribirse a sí misma. Nada de esto pronostica CAC: no hay historial que lo sostenga.",
-  memory_applied: [],
+  /* El fixture SE NARRA como corrida 2 — su propio markdown de memoria dice
+   * "static muere en las dos corridas" y runs/memory/dosmicos.json trae runs:2.
+   * Dejarlo vacío hacía que el riel de retorno saliera en blanco justo en el
+   * momento del pitch: el bucle quedaba en una flecha sin contenido. */
+  memory_applied: [
+    "problem_solution × reel graduó a 3.7x en la corrida anterior: repetir la apuesta",
+    "static murió en las dos corridas: no volver a gastarle la primera ronda",
+    "ugc_video sostiene sin escalar: mantenerlo con presupuesto plano, no matarlo",
+  ],
 });
 beat(1500);
 bus.tally("strategist", 5, "canales");

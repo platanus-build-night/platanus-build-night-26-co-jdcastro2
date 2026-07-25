@@ -1,0 +1,11 @@
+{
+  "name": "darwin-hyperframes",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "npx --yes hyperframes@0.7.71 present .",
+    "studio": "npx --yes hyperframes@0.7.71 preview",
+    "check": "npx --yes hyperframes@0.7.71 check",
+    "publish": "npx --yes hyperframes@0.7.71 publish"
+  }
+}

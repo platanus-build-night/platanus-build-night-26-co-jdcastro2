@@ -6,102 +6,195 @@
     <title>DARWIN — el marketing evoluciona solo</title>
     <link rel="stylesheet" href="style.css" />
   </head>
-  <body data-stage="idle">
+  <body>
     <header>
       <h1>DARWIN</h1>
       <p class="tagline">el marketing evoluciona solo</p>
-      <!-- El terminal colapsado. Durante la corrida es protagonista (#terminal);
-           al terminar se reduce a esta línea y el espacio pasa a los resultados. -->
-      <button id="ticker" type="button" title="abrir el terminal"></button>
       <div class="meters">
         <span id="phase" class="pill">esperando</span>
+        <span id="art-count" class="pill count">0</span>
         <span id="cost" class="pill cost">$0.000</span>
         <span id="conn" class="pill off">sin conexión</span>
       </div>
     </header>
 
-    <div id="stepper"></div>
+    <!-- La narración: UNA línea, permanente. El proceso es el detalle, no el
+         protagonista. Se abre en un cajón que NO toca la rejilla. -->
+    <div id="tickbar">
+      <button id="ticker" type="button" title="abrir la narración completa">
+        &gt; esperando la primera señal
+      </button>
+      <span class="tick-hint">narración ⌄</span>
+    </div>
+
     <div id="banner" class="banner" hidden></div>
 
     <main>
-      <section class="panel agents" id="org-panel">
-        <h2>el ejército</h2>
-        <div id="org"></div>
-      </section>
+      <!-- ① DE DÓNDE SALIÓ ─────────────────────────────────────── -->
+      <section class="zone" id="z-fuente">
+        <div class="zone-head"><h2>① la fuente</h2></div>
+        <div class="zone-body">
+          <div id="brand-art" class="slot"><div class="skel-block"></div></div>
 
-      <section class="panel terminal" id="terminal">
-        <div id="log"></div>
-      </section>
+          <h3>formatos que rinden</h3>
+          <div id="formats" class="slot"><div class="skel-block"></div></div>
 
-      <section class="panel side" id="side">
-        <!-- La invitación a entregar las conversaciones. Vive DENTRO del panel,
-             no como modal a pantalla completa: quien acaba de lanzar un
-             producto todavía no tiene clientes, y taparle el panorama que sí
-             acaba de recibir lo deja en un callejón sin salida. -->
-        <div id="ask" class="ask" hidden>
-          <p class="ask-eyebrow">hasta aquí llego con tu web</p>
-          <h3 class="ask-title">ahora dame lo que te escriben tus clientes</h3>
-          <p class="ask-body">
-            Con tu sitio sé qué vendes y qué formato te rinde. Lo que <em>no</em> sé es qué te
-            piden ni con qué palabras lo dicen.
-          </p>
-          <label class="ask-drop" for="convs">
-            <input id="convs" type="file" accept=".txt,.csv,text/plain,text/csv" hidden />
-            <span id="convs-label">arrastra el export · o haz clic</span>
-          </label>
-          <p id="ask-note" class="note"></p>
-          <button id="ask-go" type="button" disabled>extraer mis ángulos</button>
-          <button id="ask-later" type="button" class="ask-later">
-            todavía no tengo clientes
-          </button>
-          <p class="ask-foot">
-            WhatsApp → chat → ⋮ → Exportar chat → Sin archivos multimedia.
-            <br />
-            Teléfonos y nombres se redactan antes de que ningún modelo los vea.
-          </p>
+          <h3>cobertura</h3>
+          <!-- Las 6 fuentes se conocen de antemano: escribirlas aquí es honesto
+               y hace que la zona esté llena en t=0. -->
+          <div id="coverage" class="coverage">
+            <div class="cov pending"><span class="mark">·</span><span class="src">web</span></div>
+            <div class="cov pending"><span class="mark">·</span><span class="src">conversaciones</span></div>
+            <div class="cov pending"><span class="mark">·</span><span class="src">posts CSV</span></div>
+            <div class="cov pending"><span class="mark">·</span><span class="src">reseñas CSV</span></div>
+            <div class="cov pending"><span class="mark">·</span><span class="src">benchmarks de categoría</span></div>
+            <div class="cov pending"><span class="mark">·</span><span class="src">IG scraping</span></div>
+          </div>
+
+          <h3>el pipeline</h3>
+          <div id="org"></div>
         </div>
-
-        <!-- Lo que queda cuando dicen "todavía no". Un recordatorio de una
-             línea, reversible, que no estorba. -->
-        <button id="ask-mini" class="ask-mini" hidden type="button">
-          + entregar conversaciones para extraer ángulos
-        </button>
-
-        <h2>cobertura</h2>
-        <div id="coverage" class="coverage empty">sin corrida</div>
-        <h2>artefactos <span id="art-count" class="count"></span></h2>
-        <div id="artifacts" class="empty">sin corrida</div>
-        <h2 id="mem-title" hidden>memoria</h2>
-        <div id="memory" hidden></div>
       </section>
 
-      <!-- El rótulo del invariante #7 va escrito aquí, no lo genera el JS:
-           que la simulación esté rotulada no puede depender de que llegue un evento. -->
-      <section class="panel evo" id="evolution">
-        <div class="evo-head">
-          <h2>evolución</h2>
-          <span class="evo-label"
-            >simulación con supuestos de categoría · no es un pronóstico</span
-          >
+      <!-- ② LA CADENA — la zona dominante ──────────────────────── -->
+      <section class="zone" id="z-cadena">
+        <div class="zone-head">
+          <h2>
+            ② la cadena ·
+            <span class="h2sub">lo que dijo tu clienta → el ad que salió de ahí</span>
+          </h2>
+        </div>
+        <div class="zone-body">
+          <!-- El ask vive exactamente en el hueco donde van a caer las citas. -->
+          <div id="ask" class="ask" hidden>
+            <p class="ask-eyebrow">hasta aquí llego con tu web</p>
+            <h3 class="ask-title">ahora dame lo que te escriben tus clientes</h3>
+            <p class="ask-body">
+              Con tu sitio sé qué vendes y qué formato te rinde. Lo que <em>no</em> sé es qué te
+              piden ni con qué palabras lo dicen.
+            </p>
+            <label class="ask-drop" for="convs">
+              <input id="convs" type="file" accept=".txt,.csv,text/plain,text/csv" hidden />
+              <span id="convs-label">arrastra el export · o haz clic</span>
+            </label>
+            <p id="ask-note" class="note"></p>
+            <button id="ask-go" type="button" disabled>extraer mis ángulos</button>
+            <button id="ask-later" type="button" class="ask-later">
+              todavía no tengo clientes
+            </button>
+            <p class="ask-foot">
+              WhatsApp → chat → ⋮ → Exportar chat → Sin archivos multimedia.
+              <br />
+              Teléfonos y nombres se redactan antes de que ningún modelo los vea.
+            </p>
+          </div>
+          <button id="ask-mini" class="ask-mini" hidden type="button">
+            + entregar conversaciones para extraer ángulos
+          </button>
+
+          <div id="chain">
+            <p id="chain-promise" class="promise-copy">
+              Aquí va la voz de tu clienta, textual. Cada ad de DARWIN nace de una de estas
+              frases y la carga pegada para siempre: si no hay cita, el schema rechaza el ad.
+            </p>
+            <!-- Hilos fantasma: enseñan la FORMA del argumento antes de que exista. -->
+            <div class="thread skel-thread">
+              <span class="skel q"></span><span class="arrow">↓</span
+              ><span class="skel h"></span><span class="arrow">↓</span
+              ><span class="skel a"></span>
+            </div>
+            <div class="thread skel-thread">
+              <span class="skel q"></span><span class="arrow">↓</span
+              ><span class="skel h"></span><span class="arrow">↓</span
+              ><span class="skel a"></span>
+            </div>
+            <div class="thread skel-thread">
+              <span class="skel q"></span><span class="arrow">↓</span
+              ><span class="skel h"></span><span class="arrow">↓</span
+              ><span class="skel a"></span>
+            </div>
+          </div>
+
+          <details id="chain-raw">
+            <summary>la materia prima · <span id="ins-count">—</span> insights</summary>
+            <div id="chain-insights"></div>
+          </details>
+        </div>
+      </section>
+
+      <!-- ③ EL PLAN ────────────────────────────────────────────── -->
+      <section class="zone" id="z-plan">
+        <div class="zone-head">
+          <h2>③ el plan · <span class="h2sub">solo corren los canales que el mix activó</span></h2>
+        </div>
+        <div class="zone-body">
+          <div id="army"></div>
+          <p id="plan-note" class="promise-copy">
+            el mix lo decide el Estratega, y el Estratega necesita tus conversaciones.
+          </p>
+          <h3>plan de testing</h3>
+          <div id="plan-test" class="kv">
+            <div><span>1 ad =</span><b>1 ad set</b></div>
+            <div><span>presupuesto</span><b id="pt-budget">—</b></div>
+            <div><span>techo de testing</span><b id="pt-lane">—</b></div>
+            <div><span>gradúa</span><b id="pt-grad">—</b></div>
+          </div>
+          <details id="plan-rules">
+            <summary>3 reglas de muerte</summary>
+            <div id="pt-kills"></div>
+          </details>
+          <div id="plan-art" class="slot"></div>
+        </div>
+      </section>
+
+      <!-- ④ LA ARENA — ancho casi completo, presente desde t=0 ─── -->
+      <section class="zone" id="z-arena">
+        <div class="zone-head evo-head">
+          <h2>④ selección natural</h2>
+          <!-- Invariante #7: estático. Que el sim esté rotulado no puede
+               depender de que llegue un evento. -->
+          <span class="evo-label">simulación con supuestos de categoría · no es un pronóstico</span>
           <span id="evo-day" class="evo-day">día —/7</span>
           <span id="evo-tally" class="evo-tally">—</span>
         </div>
         <div class="evo-cols">
-          <span>ad</span>
-          <span>roas acum.</span>
-          <span class="num">roas</span>
-          <span class="num">compras</span>
-          <span class="num">atc</span>
-          <span class="num">gasto COP</span>
-          <span class="num">freq</span>
-          <span>regla que se disparó</span>
+          <span>ad</span><span>roas acum.</span><span class="num">roas</span
+          ><span class="num">compras</span><span class="num">atc</span
+          ><span class="num">gasto COP</span><span class="num">freq</span
+          ><span>regla que se disparó</span>
         </div>
-        <div id="evo-grid"></div>
+        <div class="zone-body" id="evo-grid"></div>
+        <p id="arena-promise" class="promise-copy">
+          Cada ad se lleva su propio ad set y su propio presupuesto. A los 7 días los que no
+          compran mueren. El que gradúa no se queda quieto: se reproduce en 2 hijos, cada uno
+          mutando UNA sola variable — el hook o el formato. De ahí sale el nombre.
+        </p>
       </section>
+
+      <!-- ⑤ LA MEMORIA ─────────────────────────────────────────── -->
+      <section class="zone" id="z-memoria">
+        <div class="zone-head"><h2 id="mem-title">⑤ la memoria</h2></div>
+        <div class="zone-body">
+          <div id="memory"></div>
+          <p id="mem-promise" class="promise-copy">
+            Aquí se escribe qué ángulo × formato × canal graduó y cuál murió. La próxima
+            corrida arranca leyendo esto.
+          </p>
+        </div>
+      </section>
+
+      <!-- ⑥ EL RIEL DE RETORNO — lo que cierra el bucle ────────── -->
+      <div id="z-ciclo">
+        <span class="ciclo-back">↰</span>
+        <span id="ciclo-run">corrida 1</span>
+        <span class="ciclo-rail"></span>
+        <span id="ciclo-applied"></span>
+        <span id="summary" class="summary" hidden></span>
+      </div>
     </main>
 
-
-    <div id="summary" class="summary" hidden></div>
+    <!-- Overlay, NO zona de la rejilla: abrirlo no cambia la forma de nada. -->
+    <div id="logdrawer"><div id="log"></div></div>
 
     <script src="app.js"></script>
   </body>

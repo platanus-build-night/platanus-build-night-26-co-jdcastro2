@@ -1,0 +1,29 @@
+{
+  "duration": 8,
+  "maxStaticSec": 2,
+  "assertions": [
+    {
+      "kind": "appearsBy",
+      "selector": "#cover-glyph-d",
+      "bySec": 1.8
+    },
+    {
+      "kind": "appearsBy",
+      "selector": "#cover-kicker",
+      "bySec": 2.2
+    },
+    {
+      "kind": "before",
+      "a": "#cover-meta",
+      "b": "#cover-kicker"
+    },
+    {
+      "kind": "staysInFrame",
+      "selector": "#cover-stage"
+    },
+    {
+      "kind": "keepsMoving",
+      "withinSelector": "#cover-surface"
+    }
+  ]
+}
