@@ -1,4 +1,6 @@
-node_modules/
+# Sin barra final a propósito: los worktrees lo tienen como SYMLINK, y
+# "node_modules/" solo matchea directorios de verdad — el symlink se colaría.
+node_modules
 .env
 runs/*
 !runs/demo/
