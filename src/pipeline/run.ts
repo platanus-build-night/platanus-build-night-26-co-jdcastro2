@@ -11,6 +11,8 @@
  * que el bus (un singleton de módulo) llegue al SSE. Sin él la corrida solo
  * queda grabada en runs/<id>/events.ndjson, lista para `npm run demo`.
  */
+import { resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { config } from "../../config/darwin.config";
 import { runArmy, toSimAdsWithFit } from "../army";
 import { bus } from "../bus";
@@ -25,18 +27,22 @@ import { miner } from "./miner";
 import { panorama } from "./panorama";
 import { strategist } from "./strategist";
 
-/* ─────────────────────────── argumentos ─────────────────────────── */
+/* ─────────────────────────── entrada ───────────────────────────
+ * El pipeline es una FUNCIÓN, no solo un CLI: el worker lo invoca directo con
+ * la corrida que sacó de Supabase. El CLI de abajo es un envoltorio.
+ */
 
-const argv = process.argv.slice(2);
-const arg = (name: string) => {
-  const i = argv.indexOf(`--${name}`);
-  return i >= 0 ? argv[i + 1] : undefined;
-};
-const flag = (name: string) => argv.includes(`--${name}`);
-
-const brandName = arg("brand") ?? "la marca";
-const brandUrl = arg("url") ?? "";
-const runId = arg("run") ?? `run-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "")}`;
+export interface RunOptions {
+  brandName: string;
+  brandUrl?: string;
+  runId?: string;
+  conversations?: string;
+  posts?: string;
+  reviews?: string;
+  site?: string;
+  /** Graba runs/<id>/events.ndjson. El worker lo apaga: su verdad es Supabase. */
+  record?: boolean;
+}
 
 /* ─────────────────────────── utilidades ─────────────────────────── */
 
@@ -83,22 +89,21 @@ async function fetchSite(url: string): Promise<string> {
   }
 }
 
-async function main() {
-  if (flag("serve")) {
-    // Importar server.ts lo arranca. Debe ir ANTES de emitir nada para que el
-    // backlog del SSE tenga la corrida completa.
-    await import("../server");
-  }
+export async function runPipeline(opts: RunOptions) {
+  const brandName = opts.brandName;
+  const brandUrl = opts.brandUrl ?? "";
+  const runId =
+    opts.runId ?? `run-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "")}`;
 
-  bus.record(`runs/${runId}/events.ndjson`);
+  if (opts.record !== false) bus.record(`runs/${runId}/events.ndjson`);
 
   /* ── 1. ingesta ── */
   bus.phase("ingesta", "leyendo lo que ya existe · sin red");
   const base = ingest({
-    conversations: arg("conversations"),
-    posts: arg("posts"),
-    reviews: arg("reviews"),
-    site: arg("site"),
+    conversations: opts.conversations,
+    posts: opts.posts,
+    reviews: opts.reviews,
+    site: opts.site,
     brandName,
   });
 
@@ -218,15 +223,50 @@ async function main() {
   bus.say("darwin", `corrida completa · $${cost.total.toFixed(2)} · nada se publicó sin GO humano`);
   bus.emit({ type: "done", run_id: runId });
 
-  if (!flag("serve")) {
-    console.log(`\n  grabado en runs/${runId}/events.ndjson`);
-    console.log(`  míralo con:  npx tsx src/server.ts --replay runs/${runId}/events.ndjson\n`);
+  return { runId, cost: cost.total, ads: out.ads.length, outcome };
+}
+
+/* ─────────────────────────── el CLI ───────────────────────────
+ * `npm run pipeline -- --brand X --url Y --conversations Z [--serve]`
+ * Solo corre cuando este archivo es el entrypoint; el worker importa
+ * runPipeline() directamente.
+ */
+
+async function cli() {
+  const argv = process.argv.slice(2);
+  const arg = (n: string) => {
+    const i = argv.indexOf(`--${n}`);
+    return i >= 0 ? argv[i + 1] : undefined;
+  };
+
+  if (argv.includes("--serve")) {
+    // Importar server.ts lo arranca. Va ANTES de emitir nada para que el
+    // backlog del SSE tenga la corrida completa.
+    await import("../server");
+  }
+
+  const res = await runPipeline({
+    brandName: arg("brand") ?? "la marca",
+    brandUrl: arg("url"),
+    runId: arg("run"),
+    conversations: arg("conversations"),
+    posts: arg("posts"),
+    reviews: arg("reviews"),
+    site: arg("site"),
+  });
+
+  if (!argv.includes("--serve")) {
+    console.log(`\n  grabado en runs/${res.runId}/events.ndjson`);
+    console.log(`  míralo con:  npx tsx src/server.ts --replay runs/${res.runId}/events.ndjson\n`);
   }
 }
 
-main().catch((err) => {
-  // Un stub sin implementar llega acá con el nombre del worktree que falta.
-  bus.agent("darwin", "error", String(err?.message ?? err));
-  console.error(`\n  ✕ ${err?.message ?? err}\n`);
-  process.exit(1);
-});
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+  cli().catch((err) => {
+    // Un stub sin implementar llega acá con el nombre del worktree que falta.
+    bus.agent("darwin", "error", String(err?.message ?? err));
+    console.error(`\n  ✕ ${err?.message ?? err}\n`);
+    process.exit(1);
+  });
+}
+
