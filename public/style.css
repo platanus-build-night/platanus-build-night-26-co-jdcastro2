@@ -122,8 +122,12 @@ body:not(.landing) main {
     "fuente cadena  plan"
     "arena  arena   memoria"
     "ciclo  ciclo   ciclo";
-  grid-template-columns: 300px minmax(320px, 1fr) 340px;
-  grid-template-rows: minmax(0, 1fr) minmax(206px, 30vh) 30px;
+  grid-template-columns: 308px minmax(320px, 1fr) 330px;
+  /* El riel del ciclo sube de 30px a los 76 del diseño: ahí vive el argumento
+     del bucle y a 30px no cabía. La primera fila queda elástica y no fija en
+     330px como el diseño — con header + tickbar + 330 + 318 + 76 se desborda
+     en un proyector de 768. */
+  grid-template-rows: minmax(0, 1fr) minmax(280px, 0.9fr) 76px;
   gap: 1px;
   background: var(--line);
 }
@@ -1308,3 +1312,31 @@ body.landing { min-width: 0; }
 @keyframes dwArmA { 0%, 100% { transform: rotate(12deg) } 50% { transform: rotate(-12deg) } }
 @keyframes dwArmB { 0%, 100% { transform: rotate(-12deg) } 50% { transform: rotate(12deg) } }
 @keyframes dwPulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.3 } }
+
+/* El riel ganó altura: que el contenido la use en vez de quedar centrado en el aire. */
+#z-ciclo {
+  align-items: center;
+  border-top: 1px solid var(--line-2);
+}
+#z-ciclo #summary { color: var(--text); opacity: 0.75; }
+
+/* ── el header no puede empujar fuera de pantalla ──
+ * La píldora de fase lleva el `detail` completo ("panorama · qué vende la marca
+ * y qué formato le rinde") con nowrap. A 1600px cabe; a 1024 —el proyector—
+ * empujaba el costo y la conexión fuera del viewport. Se descubrió midiendo,
+ * no mirando: a 1600 no se nota. */
+#phase {
+  max-width: 42ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+header { min-width: 0; }
+.meters { min-width: 0; }
+@media (max-width: 1200px) {
+  .tagline { display: none; }
+  #phase { max-width: 26ch; }
+}
+@media (max-width: 900px) {
+  #phase { display: none; }
+}
