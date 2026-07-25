@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 64" role="img" aria-labelledby="title desc">
+  <title id="title">DARWIN favicon</title>
+  <desc id="desc">Optically simplified adaptive D and survivor signal for very small sizes.</desc>
+  <g fill="none" stroke="#12110F" stroke-linecap="butt" stroke-linejoin="miter">
+    <path stroke-width="5" d="M9 7V57"/>
+    <path stroke-width="5" d="M9 7H26C46 7 57 17 57 29"/>
+    <path stroke-width="5" d="M57 37C57 48 46 57 26 57H9"/>
+    <path stroke-width="4" d="M22 33H63"/>
+  </g>
+  <circle cx="68" cy="33" r="3.5" fill="#12110F"/>
+</svg>

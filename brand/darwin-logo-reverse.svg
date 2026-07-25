@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1480 320" role="img" aria-labelledby="title desc">
+  <title id="title">DARWIN reverse logo</title>
+  <desc id="desc">Light Darwin wordmark and adaptive D symbol for dark backgrounds.</desc>
+  <g fill="none" stroke="#F2EFE7" stroke-linecap="butt" stroke-linejoin="miter">
+    <g aria-label="Adaptive D mark">
+      <path stroke-width="18" d="M54 38V282"/>
+      <path stroke-width="18" d="M54 38H132C220 38 270 86 270 148"/>
+      <path stroke-width="18" d="M270 190C270 238 222 282 132 282H54"/>
+      <path stroke-width="11" d="M94 169H154L194 111H224"/>
+      <path stroke-width="11" d="M154 169H308"/>
+      <path stroke-width="11" d="M154 169L194 227H224"/>
+      <path stroke-width="11" d="M230 99V123M230 215V239"/>
+    </g>
+    <circle cx="320" cy="169" r="8" fill="#F2EFE7" stroke="none"/>
+    <g aria-label="DARWIN wordmark" stroke-width="24">
+      <path d="M390 70V250H432C485 250 515 220 515 160S485 70 432 70H390"/>
+      <path d="M555 250L622 70L689 250M579 186H665"/>
+      <path d="M735 250V70H790C832 70 858 93 858 127S832 184 790 184H735M790 184L867 250"/>
+      <path d="M910 70L950 250L1000 122L1050 250L1090 70"/>
+      <path d="M1140 70V250"/>
+      <path d="M1195 250V70L1370 250V70"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DARWIN — El marketing evoluciona solo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --stage-bg: #030403;
+      --slide-bg: #050705;
+      --bone: #e9e7dc;
+      --acid: #b6ff3b;
+      --orange: #ff6a2f;
+      --line: #2b332b;
+      --muted: #8f988d;
+    }
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; background: var(--stage-bg, #000); }
+    .deck-viewport { position: fixed; inset: 0; overflow: hidden; background: var(--stage-bg, #000); }
+    .deck-stage {
+      position: absolute; left: 0; top: 0; width: 1920px; height: 1080px;
+      overflow: hidden; transform-origin: 0 0; background: var(--slide-bg, #fff);
+    }
+    .slide {
+      position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden;
+      display: block; visibility: hidden; opacity: 0; pointer-events: none;
+      background: var(--slide-bg, #fff);
+    }
+    .slide.active, .slide.visible { visibility: visible; opacity: 1; pointer-events: auto; z-index: 1; }
+    img, video, canvas, svg { max-width: 100%; max-height: 100%; }
+    .deck-controls {
+      position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 1000;
+    }
+    @media print {
+      html, body { width: 1920px; height: auto; overflow: visible; background: #fff; }
+      .deck-viewport { position: static; overflow: visible; background: #fff; }
+      .deck-stage { position: static; width: auto; height: auto; transform: none !important; background: none; }
+      .slide {
+        position: relative; display: block !important; visibility: visible !important;
+        opacity: 1 !important; pointer-events: auto !important; width: 1920px; height: 1080px;
+        break-after: page; page-break-after: always;
+      }
+      .slide:last-child { break-after: auto; page-break-after: auto; }
+      .deck-controls { display: none !important; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .2s !important; }
+    }
+
+    /* === LIVING SIGNAL === */
+    .signal {
+      color: var(--bone); font-family: "DM Mono", monospace;
+      background:
+        linear-gradient(rgba(182,255,59,.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(182,255,59,.045) 1px, transparent 1px),
+        #050705;
+      background-size: 72px 72px;
+    }
+    .signal::before {
+      content: ""; position: absolute; inset: 0;
+      background: radial-gradient(circle at 71% 46%, rgba(182,255,59,.08), transparent 28%);
+    }
+    .nav {
+      position: absolute; left: 58px; right: 58px; top: 46px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding-bottom: 17px; border-bottom: 1px solid var(--line);
+      color: var(--muted); font-size: 14px; letter-spacing: .14em; text-transform: uppercase;
+      animation: fade .55s ease-out both;
+    }
+    .nav b { color: var(--acid); font-weight: 500; }
+    .hero {
+      position: absolute; left: 72px; top: 235px; width: 880px; z-index: 3;
+    }
+    .hero .index {
+      display: block; margin-bottom: 34px; color: var(--acid);
+      font-size: 15px; letter-spacing: .16em; text-transform: uppercase;
+      animation: rise .45s .18s ease-out both;
+    }
+    h1 {
+      margin: 0; font-family: "Instrument Serif", serif; font-weight: 400;
+      font-size: 238px; line-height: .73; letter-spacing: -.07em;
+      animation: focus-in .95s .25s cubic-bezier(.16,1,.3,1) both;
+    }
+    .tagline {
+      margin: 65px 0 0 9px; color: #bec4ba;
+      font-family: "Instrument Serif", serif; font-size: 48px; font-style: italic;
+      animation: rise .6s .84s ease-out both;
+    }
+    .tree {
+      position: absolute; right: 52px; top: 142px; width: 870px; height: 760px;
+      border-left: 1px solid var(--line);
+      animation: tree-in .8s .3s ease-out both;
+    }
+    .root {
+      position: absolute; left: 84px; top: 350px; width: 66px; height: 66px;
+      display: grid; place-items: center; border: 1px solid var(--acid); border-radius: 50%;
+      background: #080b08; color: var(--acid); font-size: 12px; z-index: 2;
+      box-shadow: 0 0 40px rgba(182,255,59,.11);
+      animation: pulse 2.8s 1.2s ease-in-out infinite;
+    }
+    .branch {
+      position: absolute; left: 150px; top: 382px; height: 1px;
+      width: var(--w); background: var(--line); transform-origin: left center;
+      transform: rotate(var(--r)); animation: branch-grow .65s calc(.52s + var(--i) * .11s) ease-out both;
+    }
+    .branch::after {
+      content: ""; position: absolute; right: -8px; top: -8px; width: 16px; height: 16px;
+      border: 1px solid var(--acid); border-radius: 50%; background: #050705;
+      box-shadow: 0 0 18px rgba(182,255,59,.16);
+    }
+    .branch.kill::after { border-color: var(--orange); box-shadow: none; }
+    .branch.winner::after {
+      width: 28px; height: 28px; right: -14px; top: -14px;
+      background: var(--acid); box-shadow: 0 0 35px rgba(182,255,59,.42);
+    }
+    .label {
+      position: absolute; left: calc(150px + var(--lx)); top: calc(382px + var(--ly));
+      color: var(--muted); font-size: 12px; letter-spacing: .08em; text-transform: uppercase;
+      animation: fade .4s calc(.98s + var(--i) * .08s) ease-out both;
+    }
+    .label b { display: block; margin-bottom: 5px; color: var(--bone); font-size: 16px; font-weight: 400; }
+    .label.kill b { color: var(--orange); }
+    .label.winner b { color: var(--acid); }
+    .legend {
+      position: absolute; right: 58px; bottom: 46px; display: flex; gap: 34px;
+      color: var(--muted); font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
+      animation: fade .5s 1.3s ease-out both;
+    }
+    .legend span::before {
+      content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 10px; border-radius: 50%;
+      border: 1px solid var(--acid);
+    }
+    .legend span:nth-child(2)::before { background: var(--acid); }
+    .legend span:nth-child(3)::before { border-color: var(--orange); }
+    .footer {
+      position: absolute; left: 58px; bottom: 45px; color: var(--muted);
+      font-size: 12px; letter-spacing: .13em; text-transform: uppercase;
+      animation: fade .5s 1.2s ease-out both;
+    }
+    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes rise { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes focus-in {
+      from { opacity: 0; filter: blur(22px); transform: scale(1.04); }
+      to { opacity: 1; filter: blur(0); transform: scale(1); }
+    }
+    @keyframes tree-in { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes branch-grow { from { transform: rotate(var(--r)) scaleX(0); } to { transform: rotate(var(--r)) scaleX(1); } }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(182,255,59,.08); }
+      50% { box-shadow: 0 0 55px rgba(182,255,59,.28); }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck-viewport">
+    <div class="deck-stage">
+      <section class="slide signal active">
+        <header class="nav">
+          <span><b>●</b> DARWIN / Distribution OS</span>
+          <span>Evidence-native · Human controlled</span>
+          <span>Build Night Bogotá · 02:00</span>
+        </header>
+        <div class="hero">
+          <span class="index">A living system for growth</span>
+          <h1>DARWIN</h1>
+          <p class="tagline">El marketing evoluciona solo.</p>
+        </div>
+        <div class="tree" aria-hidden="true">
+          <div class="root">VOICE</div>
+          <i class="branch" style="--w:270px;--r:-38deg;--i:0"></i>
+          <i class="branch kill" style="--w:315px;--r:-12deg;--i:1"></i>
+          <i class="branch winner" style="--w:430px;--r:17deg;--i:2"></i>
+          <i class="branch" style="--w:350px;--r:43deg;--i:3"></i>
+          <div class="label" style="--lx:190px;--ly:-183px;--i:0"><b>ANGLE 01</b>gift / ugc</div>
+          <div class="label kill" style="--lx:282px;--ly:-78px;--i:1"><b>KILLED</b>0 atc / rule 1</div>
+          <div class="label winner" style="--lx:410px;--ly:124px;--i:2"><b>WINNER → GEN 2</b>roas 4.1×</div>
+          <div class="label" style="--lx:255px;--ly:238px;--i:3"><b>ANGLE 04</b>comfort / static</div>
+        </div>
+        <footer class="footer">Extract → deploy → select → remember</footer>
+        <div class="legend"><span>Testing</span><span>Winner</span><span>Dead</span></div>
+      </section>
+    </div>
+  </main>
+  <script>
+    function scaleStage() {
+      const stage = document.querySelector('.deck-stage');
+      const scale = Math.min(innerWidth / 1920, innerHeight / 1080);
+      stage.style.transform = `translate(${(innerWidth - 1920 * scale) / 2}px, ${(innerHeight - 1080 * scale) / 2}px) scale(${scale})`;
+    }
+    addEventListener('resize', scaleStage); scaleStage();
+  </script>
+</body>
+</html>

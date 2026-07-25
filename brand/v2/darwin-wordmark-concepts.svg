@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">DARWIN wordmark studies</title>
+  <desc id="desc">Three restrained typography-only directions for the DARWIN identity.</desc>
+  <rect width="1600" height="1000" fill="#F1EFE8"/>
+
+  <g font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+    <text x="92" y="70" fill="#77736B" font-size="15" font-weight="500" letter-spacing="3.5">DARWIN / WORDMARK STUDY</text>
+    <text x="1508" y="70" fill="#77736B" font-size="15" font-weight="500" letter-spacing="3.5" text-anchor="end">NO SYMBOLS</text>
+
+    <text x="92" y="146" fill="#77736B" font-size="14" font-weight="500" letter-spacing="2.5">01 · INSTITUTIONAL</text>
+    <text x="84" y="356" fill="#11110F" font-size="232" font-weight="700" letter-spacing="-13">DARWIN</text>
+    <text x="1508" y="344" fill="#77736B" font-size="14" font-weight="500" letter-spacing="2.5" text-anchor="end">SOLID / DIRECT</text>
+
+    <rect x="0" y="414" width="1600" height="276" fill="#11110F"/>
+    <text x="92" y="465" fill="#8D8980" font-size="14" font-weight="500" letter-spacing="2.5">02 · EDITORIAL SYSTEM</text>
+    <text x="84" y="632" fill="#F1EFE8" font-family="Avenir Next, Avenir, sans-serif" font-size="188" font-weight="500" letter-spacing="5">DARWIN</text>
+    <circle cx="1428" cy="594" r="13" fill="#D48F66"/>
+    <text x="1508" y="635" fill="#8D8980" font-size="14" font-weight="500" letter-spacing="2.5" text-anchor="end">ONE SIGNAL</text>
+
+    <text x="92" y="760" fill="#77736B" font-size="14" font-weight="500" letter-spacing="2.5">03 · NATURAL INTELLIGENCE</text>
+    <text x="84" y="924" fill="#11110F" font-family="New York, Times New Roman, serif" font-size="192" font-weight="600" letter-spacing="-5">Darwin</text>
+    <text x="1508" y="912" fill="#77736B" font-size="14" font-weight="500" letter-spacing="2.5" text-anchor="end">HUMAN / INTELLECTUAL</text>
+  </g>
+</svg>

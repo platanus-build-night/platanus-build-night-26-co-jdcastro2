@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DARWIN — el marketing evoluciona solo</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body data-stage="idle">
+    <header>
+      <h1>DARWIN</h1>
+      <p class="tagline">el marketing evoluciona solo</p>
+      <!-- El terminal colapsado. Durante la corrida es protagonista (#terminal);
+           al terminar se reduce a esta línea y el espacio pasa a los resultados. -->
+      <button id="ticker" type="button" title="abrir el terminal"></button>
+      <div class="meters">
+        <span id="phase" class="pill">esperando</span>
+        <span id="cost" class="pill cost">$0.000</span>
+        <span id="conn" class="pill off">sin conexión</span>
+      </div>
+    </header>
+
+    <div id="stepper"></div>
+    <div id="banner" class="banner" hidden></div>
+
+    <main>
+      <section class="panel agents" id="org-panel">
+        <h2>el ejército</h2>
+        <div id="org"></div>
+      </section>
+
+      <section class="panel terminal" id="terminal">
+        <div id="log"></div>
+      </section>
+
+      <section class="panel side" id="side">
+        <h2>cobertura</h2>
+        <div id="coverage" class="coverage empty">sin corrida</div>
+        <h2>artefactos <span id="art-count" class="count"></span></h2>
+        <div id="artifacts" class="empty">sin corrida</div>
+        <h2 id="mem-title" hidden>memoria</h2>
+        <div id="memory" hidden></div>
+      </section>
+
+      <!-- El rótulo del invariante #7 va escrito aquí, no lo genera el JS:
+           que la simulación esté rotulada no puede depender de que llegue un evento. -->
+      <section class="panel evo" id="evolution">
+        <div class="evo-head">
+          <h2>evolución</h2>
+          <span class="evo-label"
+            >simulación con supuestos de categoría · no es un pronóstico</span
+          >
+          <span id="evo-day" class="evo-day">día —/7</span>
+          <span id="evo-tally" class="evo-tally">—</span>
+        </div>
+        <div class="evo-cols">
+          <span>ad</span>
+          <span>roas acum.</span>
+          <span class="num">roas</span>
+          <span class="num">compras</span>
+          <span class="num">atc</span>
+          <span class="num">gasto COP</span>
+          <span class="num">freq</span>
+          <span>regla que se disparó</span>
+        </div>
+        <div id="evo-grid"></div>
+      </section>
+    </main>
+
+    <div id="summary" class="summary" hidden></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

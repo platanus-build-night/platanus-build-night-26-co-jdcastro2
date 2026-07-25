@@ -1,0 +1,32 @@
+{
+  "name": "darwin",
+  "version": "0.1.0",
+  "description": "DARWIN — el marketing evoluciona solo. Ejército de agentes que extrae ángulos de venta de evidencia real y los hace competir bajo selección natural.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "server": "tsx src/server.ts",
+    "pipeline": "tsx src/pipeline/run.ts",
+    "demo": "tsx src/server.ts --replay runs/demo/events.ndjson",
+    "gen": "tsx demo/generate.ts",
+    "check": "tsx scripts/check-schemas.ts && tsx scripts/check-ingest.ts && tsx scripts/check-evolution.ts",
+    "check:ingest": "tsx scripts/check-ingest.ts",
+    "check:evolution": "tsx scripts/check-evolution.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.115.0",
+    "@hono/node-server": "^2.0.11",
+    "hono": "^4.12.32",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "tsx": "^4.23.1",
+    "typescript": "^7.0.2"
+  }
+}

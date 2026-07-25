@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1030 220" role="img" aria-labelledby="title desc">
+  <title id="title">DARWIN wordmark</title>
+  <desc id="desc">Custom geometric DARWIN wordmark without a font dependency.</desc>
+  <g transform="translate(-370 -50)" fill="none" stroke="#12110F" stroke-width="24" stroke-linecap="butt" stroke-linejoin="miter">
+    <path d="M390 70V250H432C485 250 515 220 515 160S485 70 432 70H390"/>
+    <path d="M555 250L622 70L689 250M579 186H665"/>
+    <path d="M735 250V70H790C832 70 858 93 858 127S832 184 790 184H735M790 184L867 250"/>
+    <path d="M910 70L950 250L1000 122L1050 250L1090 70"/>
+    <path d="M1140 70V250"/>
+    <path d="M1195 250V70L1370 250V70"/>
+  </g>
+</svg>

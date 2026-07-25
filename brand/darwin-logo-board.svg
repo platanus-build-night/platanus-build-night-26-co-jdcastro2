@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">DARWIN logo system</title>
+  <desc id="desc">Presentation board for the DARWIN adaptive D logo, showing primary, reverse, icon, and accent versions.</desc>
+  <defs>
+    <g id="mark-ink" fill="none" stroke="#12110F" stroke-linecap="butt" stroke-linejoin="miter">
+      <path stroke-width="18" d="M54 38V282"/>
+      <path stroke-width="18" d="M54 38H132C220 38 270 86 270 148"/>
+      <path stroke-width="18" d="M270 190C270 238 222 282 132 282H54"/>
+      <path stroke-width="11" d="M94 169H154L194 111H224"/>
+      <path stroke-width="11" d="M154 169H308"/>
+      <path stroke-width="11" d="M154 169L194 227H224"/>
+      <path stroke-width="11" d="M230 99V123M230 215V239"/>
+      <circle cx="320" cy="169" r="8" fill="#12110F" stroke="none"/>
+    </g>
+    <g id="mark-reverse" fill="none" stroke="#F2EFE7" stroke-linecap="butt" stroke-linejoin="miter">
+      <path stroke-width="18" d="M54 38V282"/>
+      <path stroke-width="18" d="M54 38H132C220 38 270 86 270 148"/>
+      <path stroke-width="18" d="M270 190C270 238 222 282 132 282H54"/>
+      <path stroke-width="11" d="M94 169H154L194 111H224"/>
+      <path stroke-width="11" d="M154 169H308"/>
+      <path stroke-width="11" d="M154 169L194 227H224"/>
+      <path stroke-width="11" d="M230 99V123M230 215V239"/>
+      <circle cx="320" cy="169" r="8" fill="#F2EFE7" stroke="none"/>
+    </g>
+    <g id="wordmark-ink" fill="none" stroke="#12110F" stroke-width="24" stroke-linecap="butt" stroke-linejoin="miter">
+      <path d="M390 70V250H432C485 250 515 220 515 160S485 70 432 70H390"/>
+      <path d="M555 250L622 70L689 250M579 186H665"/>
+      <path d="M735 250V70H790C832 70 858 93 858 127S832 184 790 184H735M790 184L867 250"/>
+      <path d="M910 70L950 250L1000 122L1050 250L1090 70"/>
+      <path d="M1140 70V250"/>
+      <path d="M1195 250V70L1370 250V70"/>
+    </g>
+    <g id="wordmark-reverse" fill="none" stroke="#F2EFE7" stroke-width="24" stroke-linecap="butt" stroke-linejoin="miter">
+      <path d="M390 70V250H432C485 250 515 220 515 160S485 70 432 70H390"/>
+      <path d="M555 250L622 70L689 250M579 186H665"/>
+      <path d="M735 250V70H790C832 70 858 93 858 127S832 184 790 184H735M790 184L867 250"/>
+      <path d="M910 70L950 250L1000 122L1050 250L1090 70"/>
+      <path d="M1140 70V250"/>
+      <path d="M1195 250V70L1370 250V70"/>
+    </g>
+  </defs>
+
+  <rect width="1600" height="1000" fill="#F2EFE7"/>
+  <text x="110" y="84" fill="#706C63" font-family="Arial, Helvetica, sans-serif" font-size="18" letter-spacing="4">DARWIN · IDENTITY 01</text>
+  <g transform="translate(82 118) scale(1.02)">
+    <use href="#mark-ink"/>
+    <use href="#wordmark-ink"/>
+  </g>
+  <text x="111" y="495" fill="#12110F" font-family="Georgia, serif" font-size="34" font-style="italic">La selección deja una señal.</text>
+  <text x="111" y="535" fill="#706C63" font-family="Arial, Helvetica, sans-serif" font-size="17" letter-spacing="1.2">VARIACIÓN → SELECCIÓN → MEMORIA</text>
+
+  <rect x="110" y="606" width="670" height="286" rx="4" fill="#12110F"/>
+  <g transform="translate(155 636) scale(.42)">
+    <use href="#mark-reverse"/>
+    <use href="#wordmark-reverse"/>
+  </g>
+  <text x="155" y="848" fill="#AAA69C" font-family="Arial, Helvetica, sans-serif" font-size="15" letter-spacing="2">REVERSE · WAR ROOM</text>
+
+  <rect x="820" y="606" width="260" height="286" rx="4" fill="#E7E2D7"/>
+  <g transform="translate(836 624) scale(.67)">
+    <use href="#mark-ink"/>
+  </g>
+  <text x="852" y="848" fill="#706C63" font-family="Arial, Helvetica, sans-serif" font-size="15" letter-spacing="2">ICON · APP</text>
+
+  <rect x="1120" y="606" width="370" height="286" rx="4" fill="#D48F66"/>
+  <g transform="translate(1134 635) scale(.64)">
+    <use href="#mark-ink"/>
+  </g>
+  <circle cx="1339" cy="743" r="5.2" fill="#F2EFE7"/>
+  <text x="1152" y="848" fill="#5E3D2C" font-family="Arial, Helvetica, sans-serif" font-size="15" letter-spacing="2">SURVIVOR ACCENT</text>
+</svg>

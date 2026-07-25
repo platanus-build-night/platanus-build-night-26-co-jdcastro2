@@ -1,0 +1,211 @@
+{
+  "_meta": {
+    "que_es": "Formatos que rinden por vertical. Esto es lo que le permite a DARWIN decir algo útil sobre formatos cuando la marca no tiene historia propia suficiente — y es lo que reemplaza al scraping de Instagram como dependencia.",
+    "honestidad": "Son heurísticas curadas a mano, no un estudio. Cada entrada declara su fuente. NO hay estadísticas atribuidas a terceros: o sale de operación propia, o se declara como patrón de categoría. Si una marca tiene su propio posts.csv, sus números SIEMPRE mandan sobre esto.",
+    "fuentes": {
+      "operacion_propia": "Operación de paid + orgánico en e-commerce colombiano, 2024-2025. Números directos.",
+      "patron_categoria": "Patrón observado de forma consistente en la categoría, sin medición propia. Tratar como dirección, no como dato."
+    },
+    "como_usarlo": "El Panorama busca el vertical por nombre o alias. Si no hay match, cae a 'general'."
+  },
+
+  "verticals": {
+    "moda": {
+      "aliases": ["ropa", "pijamas", "textil", "fashion", "apparel", "vestuario", "lencería"],
+      "formats": [
+        {
+          "platform": "instagram",
+          "format": "ugc_video",
+          "claim": "El video de una clienta real usando la prenda supera a la producción de estudio. En categorías de contacto con el cuerpo (pijama, ropa interior, básicos) la duda del comprador es de tacto y caída, y eso solo lo resuelve ver a alguien real puesto.",
+          "recommendation": "Si no tienes UGC, es el primer formato a producir. Un solo video de clienta rinde más que tres estáticos de estudio.",
+          "strength": 0.9,
+          "source": "operacion_propia"
+        },
+        {
+          "platform": "instagram",
+          "format": "reel",
+          "claim": "El reel de producto en uso (no de producto quieto) es el que genera alcance nuevo. La diferencia está en el movimiento del producto, no en la edición.",
+          "recommendation": "Muestra la prenda moviéndose y puesta en los primeros 2 segundos. Nada de logo en el frame inicial.",
+          "strength": 0.85,
+          "source": "operacion_propia"
+        },
+        {
+          "platform": "instagram",
+          "format": "carousel",
+          "claim": "El carrusel funciona para resolver objeciones concretas (tallaje, materiales, cuidado), no para descubrimiento. Rinde con audiencia que ya te conoce.",
+          "recommendation": "Úsalo en retargeting y para la objeción de talla, no para prospección fría.",
+          "strength": 0.55,
+          "source": "operacion_propia"
+        },
+        {
+          "platform": "instagram",
+          "format": "static",
+          "claim": "El estático sigue siendo el más barato de producir y el mejor para probar ÁNGULOS rápido: aísla el mensaje sin que la edición contamine el resultado.",
+          "recommendation": "Úsalo como banco de pruebas de hooks. Lo que gane en estático, prodúcelo en video.",
+          "strength": 0.6,
+          "source": "operacion_propia"
+        },
+        {
+          "platform": "tiktok",
+          "format": "ugc_video",
+          "claim": "El contenido que no parece anuncio supera al que sí lo parece por un margen amplio. La producción alta penaliza.",
+          "recommendation": "Cámara en mano, luz natural, sin música de stock. Si parece un ad, ya perdió.",
+          "strength": 0.8,
+          "source": "patron_categoria"
+        }
+      ]
+    },
+
+    "hogar": {
+      "aliases": ["casa", "decoración", "muebles", "cocina", "home", "textil hogar"],
+      "formats": [
+        {
+          "platform": "instagram",
+          "format": "reel",
+          "claim": "El antes/después es el formato dominante. La categoría vende transformación de espacio, y ese contraste es literalmente visible.",
+          "recommendation": "Estructura el reel como antes → después en menos de 8 segundos.",
+          "strength": 0.88,
+          "source": "patron_categoria"
+        },
+        {
+          "platform": "instagram",
+          "format": "ugc_video",
+          "claim": "El producto en la casa real de alguien vence al render y al estudio. El comprador está estimando si le cabe y si le combina.",
+          "recommendation": "Pide a creadores grabar en su propio espacio, sin ordenar de más.",
+          "strength": 0.8,
+          "source": "patron_categoria"
+        },
+        {
+          "platform": "instagram",
+          "format": "carousel",
+          "claim": "Rinde para medidas, materiales y combinaciones — la información que evita la devolución.",
+          "recommendation": "Slide 1 con el espacio terminado, resto con especificaciones.",
+          "strength": 0.65,
+          "source": "patron_categoria"
+        },
+        {
+          "platform": "instagram",
+          "format": "static",
+          "claim": "El estático de ambiente completo funciona para prospección si el espacio es aspiracional pero alcanzable.",
+          "recommendation": "Ambiente completo, no producto recortado en fondo blanco.",
+          "strength": 0.55,
+          "source": "patron_categoria"
+        }
+      ]
+    },
+
+    "belleza": {
+      "aliases": ["skincare", "cosmética", "maquillaje", "cuidado personal", "beauty"],
+      "formats": [
+        {
+          "platform": "instagram",
+          "format": "ugc_video",
+          "claim": "El testimonio con resultado visible es el formato central de la categoría. La prueba social pesa más que cualquier claim de la marca.",
+          "recommendation": "Rostro real, resultado real, sin filtro. El filtro destruye la credibilidad del resultado.",
+          "strength": 0.92,
+          "source": "patron_categoria"
+        },
+        {
+          "platform": "tiktok",
+          "format": "ugc_video",
+          "claim": "La rutina paso a paso genera guardados y retención, que es lo que dispara el alcance orgánico.",
+          "recommendation": "Formato 'mi rutina de X', con el producto integrado, no protagonista.",
+          "strength": 0.85,
+          "source": "patron_categoria"
+        },
+        {
+          "platform": "instagram",
+          "format": "carousel",
+          "claim": "El carrusel educativo (ingredientes, para qué tipo de piel) construye autoridad y sirve para la objeción técnica.",
+          "recommendation": "Educación primero, producto al final.",
+          "strength": 0.7,
+          "source": "patron_categoria"
+        },
+        {
+          "platform": "instagram",
+          "format": "reel",
+          "claim": "El antes/después rinde pero es el formato con más riesgo de rechazo de plataforma en esta categoría.",
+          "recommendation": "Evita claims médicos o de resultado garantizado; muestra sin prometer.",
+          "strength": 0.6,
+          "source": "patron_categoria"
+        }
+      ]
+    },
+
+    "food": {
+      "aliases": ["comida", "alimentos", "bebidas", "snacks", "café", "restaurante"],
+      "formats": [
+        {
+          "platform": "instagram",
+          "format": "reel",
+          "claim": "El primer plano del producto en movimiento (vertido, corte, vapor) es el formato de mayor alcance de la categoría.",
+          "recommendation": "Primeros 2 segundos en macro y en movimiento. Sin intro.",
+          "strength": 0.9,
+          "source": "patron_categoria"
+        },
+        {
+          "platform": "tiktok",
+          "format": "ugc_video",
+          "claim": "La reacción genuina al primer bocado o sorbo convierte mejor que la producción cuidada.",
+          "recommendation": "Una sola toma, reacción sin guion.",
+          "strength": 0.82,
+          "source": "patron_categoria"
+        },
+        {
+          "platform": "instagram",
+          "format": "static",
+          "claim": "El estático rinde para oferta y combo, no para descubrimiento.",
+          "recommendation": "Resérvalo para promociones con fecha.",
+          "strength": 0.5,
+          "source": "patron_categoria"
+        },
+        {
+          "platform": "instagram",
+          "format": "story",
+          "claim": "La story con encuesta o pregunta genera la respuesta directa que alimenta el banco de ángulos.",
+          "recommendation": "Úsala como fuente de research, no solo como canal.",
+          "strength": 0.6,
+          "source": "patron_categoria"
+        }
+      ]
+    },
+
+    "general": {
+      "aliases": [],
+      "formats": [
+        {
+          "platform": "instagram",
+          "format": "ugc_video",
+          "claim": "En e-commerce de consumo, el contenido de cliente real es consistentemente el formato con mejor retorno en paid. Es también el que menos marcas producen.",
+          "recommendation": "Si no tienes UGC, es la brecha más rentable que puedes cerrar esta semana.",
+          "strength": 0.85,
+          "source": "operacion_propia"
+        },
+        {
+          "platform": "instagram",
+          "format": "reel",
+          "claim": "El video corto vertical es el formato con mayor alcance incremental frente al estático.",
+          "recommendation": "Producto en uso, primeros 2 segundos sin marca.",
+          "strength": 0.75,
+          "source": "operacion_propia"
+        },
+        {
+          "platform": "instagram",
+          "format": "static",
+          "claim": "El estático es el mejor banco de pruebas de ángulos: barato, rápido, y aísla el mensaje.",
+          "recommendation": "Prueba hooks en estático antes de invertir en producción de video.",
+          "strength": 0.6,
+          "source": "operacion_propia"
+        },
+        {
+          "platform": "instagram",
+          "format": "carousel",
+          "claim": "Rinde en retargeting y para resolver objeciones, rara vez en prospección fría.",
+          "recommendation": "No lo uses para audiencias frías.",
+          "strength": 0.5,
+          "source": "operacion_propia"
+        }
+      ]
+    }
+  }
+}
