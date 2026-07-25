@@ -332,3 +332,18 @@ footer a { color: var(--ink-3); white-space: nowrap; }
   .field { flex-wrap: wrap; }
   section { padding-top: 90px; }
 }
+
+/* El camino rápido: la corrida grabada. Para quien no quiere esperar los
+   ~6 minutos de una corrida real, y para el escenario. */
+.or-recorded {
+  margin-top: 10px;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.or-recorded a {
+  color: var(--green);
+  border-bottom: 1px solid rgba(111, 207, 135, 0.35);
+  padding-bottom: 1px;
+}
