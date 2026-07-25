@@ -8,6 +8,7 @@
     "node": ">=22"
   },
   "scripts": {
+    "start": "tsx src/worker.ts --auto",
     "dev": "tsx watch src/server.ts",
     "server": "tsx src/server.ts",
     "pipeline": "tsx src/pipeline/run.ts",
@@ -29,11 +30,11 @@
     "@anthropic-ai/sdk": "^0.115.0",
     "@hono/node-server": "^2.0.11",
     "hono": "^4.12.32",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "tsx": "^4.23.1"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
-    "tsx": "^4.23.1",
     "typescript": "^7.0.2"
   }
 }

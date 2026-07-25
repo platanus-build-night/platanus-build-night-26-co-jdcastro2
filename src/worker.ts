@@ -74,9 +74,42 @@ const sb: SupabaseConfig = cfg;
 
 /* ─────────────────────────── el ciclo ─────────────────────────── */
 
+/* ─────────────────────── freno de gasto diario ───────────────────────
+ * En --auto (que es como corre hospedado) nadie mira la consola: cualquiera
+ * que abra el link gasta plata real. El hard stop de $4 protege UNA corrida;
+ * esto protege el día. Al llegar al tope el worker deja de tomar trabajo y lo
+ * dice — el demo se apaga hasta mañana en vez de vaciar la cuenta.
+ */
+const DAILY_CAP = Number(process.env.DARWIN_DAILY_CAP ?? 10);
+let capReported = false;
+
+async function spentToday(): Promise<number> {
+  const since = new Date();
+  since.setHours(0, 0, 0, 0);
+  const rows = await db.select<{ cost_usd: string | number }>(
+    sb,
+    "runs",
+    `created_at=gte.${since.toISOString()}&select=cost_usd`,
+  );
+  return rows.reduce((s, r) => s + Number(r.cost_usd ?? 0), 0);
+}
+
 /** Fase 2 primero: una marca que ya entregó sus conversaciones está esperando
  *  lo que de verdad vino a buscar, y esa espera pesa más que una fase 1 nueva. */
 async function nextQueued(): Promise<RunRow | null> {
+  const spent = await spentToday();
+  if (spent >= DAILY_CAP) {
+    if (!capReported) {
+      console.log(
+        `\n  ⛔ tope diario alcanzado: $${spent.toFixed(2)} de $${DAILY_CAP}. ` +
+          `No tomo más corridas hoy.\n     Sube DARWIN_DAILY_CAP si esto es a propósito.\n`,
+      );
+      capReported = true;
+    }
+    return null;
+  }
+  capReported = false;
+
   const full = await db.select<RunRow>(
     sb,
     "runs",
