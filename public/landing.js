@@ -12,6 +12,32 @@
 
 const CFG = window.DARWIN_CFG ?? {};
 const $ = (id) => document.getElementById(id);
+
+/* Modo demo (`?demo=1`): el formulario acepta la URL y en vez de encolar una
+ * corrida lleva al war room a reproducir la corrida grabada.
+ *
+ * Existe porque en un escenario la corrida de verdad es una mala demo: la
+ * primera fase son ~60 segundos donde no pasa casi nada en pantalla, y depende
+ * de que el worker esté despierto y de que el wifi del venue aguante. El modo
+ * demo enseña el circuito completo en 48 segundos, sin red y sin gastar tokens.
+ *
+ * No es un "modo mentira": el war room rotula la grabación con la marca real de
+ * la que salió, y dice qué dirección se pidió. Lo que se enseña es una corrida
+ * real de Dosmicos, no un análisis inventado de la página del que mira. */
+const DEMO = (() => {
+  // Pegajoso durante la sesión del navegador: en un escenario, volver atrás o
+  // apretar el logo no puede devolverte sin avisar a la corrida lenta que
+  // depende de la red del venue. Se apaga con ?demo=0 o cerrando la pestaña.
+  const q = new URLSearchParams(location.search).get("demo");
+  try {
+    if (q === "1") sessionStorage.setItem("darwin_demo", "1");
+    if (q === "0") sessionStorage.removeItem("darwin_demo");
+    return sessionStorage.getItem("darwin_demo") === "1";
+  } catch {
+    return q === "1"; // sessionStorage bloqueado (modo privado estricto)
+  }
+})();
+const REPLAY_URL = "war-room.html?speed=10";
 const el = (tag, cls, text) => {
   const n = document.createElement(tag);
   if (cls) n.className = cls;
@@ -406,14 +432,26 @@ async function submit(ev) {
     $("url").focus();
     return;
   }
+  // Sin backend configurado no hay a dónde encolar, pero sí hay algo que
+  // enseñar. Mejor la corrida grabada que un callejón sin salida.
   if (!CFG.url || !CFG.key) {
-    setStatus("falta configurar el backend (SUPABASE_URL / SUPABASE_ANON_KEY en el build)", "err");
+    setStatus(`${parsed.host} · sin backend configurado, abro una corrida grabada`);
+    location.href = `${REPLAY_URL}&demo=${encodeURIComponent(parsed.host)}`;
     return;
   }
 
   S.busy = true;
   $("go").disabled = true;
   $("go").textContent = "LEYENDO…";
+
+  /* La dirección viaja al war room aunque la corrida sea grabada: ahí se dice
+   * qué se pidió y de dónde salió lo que se está viendo. */
+  if (DEMO) {
+    setStatus(`${parsed.host} · abriendo una corrida completa grabada`);
+    location.href = `${REPLAY_URL}&demo=${encodeURIComponent(parsed.host)}`;
+    return;
+  }
+
   setStatus(`encolando ${parsed.host} · DARWIN va a leer tu página`);
 
   try {
@@ -440,7 +478,14 @@ async function submit(ev) {
     const [run] = await res.json();
     location.href = `war-room.html?run=${run.id}`;
   } catch (err) {
-    setStatus(err.message ?? String(err), "err");
+    /* La cola llena o el worker dormido no pueden dejar la página muerta: se
+     * dice qué pasó y se ofrece la corrida grabada en el mismo renglón. */
+    setStatus(`${err.message ?? String(err)} · `, "err");
+    const a = el("a", "st-link", "ver una corrida completa grabada →");
+    a.href = `${REPLAY_URL}&demo=${encodeURIComponent(parsed.host)}`;
+    // Va DENTRO de status-line: el próximo setStatus lo borra con el texto y
+    // no se apilan enlaces si el usuario reintenta.
+    $("status-line").appendChild(a);
     S.busy = false;
     $("go").disabled = false;
     $("go").textContent = "ANALIZAR GRATIS";
@@ -455,6 +500,7 @@ renderTrace();
 renderSim();
 idleStatus();
 
+$("demo-flag").hidden = !DEMO;
 $("gate-form").addEventListener("submit", submit);
 $("url").addEventListener("focus", () => $("gate-form").classList.add("focus"));
 $("url").addEventListener("blur", () => $("gate-form").classList.remove("focus"));

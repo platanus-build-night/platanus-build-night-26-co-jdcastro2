@@ -180,6 +180,32 @@ function renderBrand(p) {
   brand = b;
   if (b.url || b.name) $("brand-host").textContent = (b.url || b.name).replace(/^https?:\/\//, "");
   $("brand-sub").textContent = [b.vertical, b.audience].filter(Boolean).join(" · ");
+  paintReplayBanner();
+}
+
+/**
+ * El rótulo de la grabación.
+ *
+ * `?demo=<host>` viene de la puerta: alguien escribió su dirección y apretó
+ * ANALIZAR. Se dicen las dos cosas — qué pidió y de qué marca es de verdad lo
+ * que está viendo. Rotular una corrida de Dosmicos con la página de otro sería
+ * exactamente el marketing inventado del que DARWIN se diferencia, así que el
+ * nombre sale del artefacto del Panorama y no de una constante.
+ */
+function paintReplayBanner() {
+  const asked = new URLSearchParams(location.search).get("demo");
+  if (!asked) return;
+  const b = $("banner");
+  if (b.hidden) return;
+  const host = (brand?.url || brand?.name || "").replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const norm = (x) => x.toLowerCase().replace(/^www\./, "");
+  if (!host) {
+    b.textContent = `▶ PEDISTE ${asked} · abriendo una corrida completa ya grabada`;
+  } else if (norm(host) === norm(asked)) {
+    b.textContent = `▶ ${host} · corrida real grabada, sin recortes`;
+  } else {
+    b.textContent = `▶ PEDISTE ${asked} · lo que sigue es una corrida REAL de ${host}, grabada y sin recortes · la tuya se ve igual con tus datos`;
+  }
 }
 
 /* ───────────────────────── ② la cadena ───────────────────────── */
@@ -682,6 +708,9 @@ const HANDLERS = {
       const b = $("banner");
       b.hidden = false;
       b.textContent = `▶ REPLAY · ${e.detail}`;
+      // El nombre real de la marca grabada llega con el artefacto del Panorama,
+      // no ahora: el banner se completa ahí (renderBrand).
+      paintReplayBanner();
       return;
     }
     $("ciclo-phase").textContent = e.name;
