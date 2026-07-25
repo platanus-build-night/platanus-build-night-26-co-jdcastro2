@@ -22,7 +22,8 @@
     "check:fetch": "tsx scripts/check-fetch.ts",
     "worker": "tsx src/worker.ts",
     "check:keys": "tsx scripts/check-keys.ts",
-    "check:models": "tsx scripts/check-models.ts"
+    "check:models": "tsx scripts/check-models.ts",
+    "check:privacy": "tsx scripts/check-privacy.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",

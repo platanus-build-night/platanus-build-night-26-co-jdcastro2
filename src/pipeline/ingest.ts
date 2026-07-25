@@ -172,6 +172,108 @@ export interface ParsedChats {
   brand: string | null;
 }
 
+/* ──────────────── export de plataforma (CSV una-fila-por-mensaje) ────────────────
+ *
+ * Formato de Elsa y similares: cada fila es un mensaje, con conversation_id,
+ * sender_type y content ya resueltos. Es mejor materia prima que un export de
+ * WhatsApp porque la agrupación y la dirección vienen dadas.
+ *
+ * DOS COSAS DE PRIVACIDAD QUE NO SON OPCIONALES, porque este texto va a un
+ * modelo de terceros:
+ *
+ *  1. `customer_name` y `customer_identifier` NUNCA entran al pipeline. Se leen
+ *     solo para construir la lista de nombres a censurar y se descartan.
+ *  2. Esos nombres se borran del CONTENIDO por coincidencia exacta. Medido
+ *     sobre un export real: redact() por heurística cazaba 2 de 353 nombres;
+ *     la lista los caza todos. Los emails y teléfonos sí los resuelve redact().
+ */
+
+/** Columnas típicas; se buscan con tolerancia porque cada plataforma cambia una. */
+const CSV_ALIASES = {
+  conv: ["conversation_id", "conversation", "thread_id", "chat_id"],
+  sender: ["sender_type", "sender", "role", "author_type"],
+  direction: ["direction"],
+  content: ["content", "text", "body", "message"],
+  type: ["message_type", "type"],
+  name: ["customer_name", "contact_name", "name"],
+  ts: ["sent_at_utc", "sent_at", "created_at", "timestamp"],
+};
+
+const col = (row: Record<string, string>, names: readonly string[]) => {
+  for (const n of names) if (row[n] !== undefined) return row[n];
+  return undefined;
+};
+
+/** ¿Este CSV es un export de conversaciones y no de posts o reseñas? */
+export function looksLikeConversationCsv(raw: string): boolean {
+  const head = raw.slice(0, 2000).toLowerCase();
+  return CSV_ALIASES.conv.some((c) => head.includes(c)) && head.includes("content");
+}
+
+export function parseConversationsCsv(raw: string): ParsedChats {
+  const rows = parseCSV(raw);
+  if (!rows.length) return { conversations: [], redactions: 0, messages: 0, brand: null };
+
+  // Los nombres se usan SOLO para censurar. No viajan a ningún lado.
+  const names = new Set<string>();
+  for (const r of rows) {
+    const n = (col(r, CSV_ALIASES.name) ?? "").trim();
+    // Menos de 3 caracteres da falsos positivos que destrozarían el texto.
+    if (n.length >= 3) names.add(n);
+  }
+  // Los largos primero: censurar "Gladys" antes que "Gladys Cañas" dejaría el apellido.
+  const ordered = [...names].sort((a, b) => b.length - a.length);
+
+  const byConv = new Map<string, Conversation["messages"]>();
+  let redactions = 0;
+  let messages = 0;
+
+  for (const r of rows) {
+    const convId = (col(r, CSV_ALIASES.conv) ?? "").trim();
+    const text = (col(r, CSV_ALIASES.content) ?? "").trim();
+    if (!convId || !text) continue;
+
+    // Fuera lo que no es lenguaje: imágenes, audios, reacciones, botones.
+    const type = (col(r, CSV_ALIASES.type) ?? "text").toLowerCase();
+    if (type && !["text", "template", ""].includes(type)) continue;
+
+    let clean = text;
+    for (const n of ordered) {
+      if (clean.includes(n)) {
+        clean = clean.split(n).join("[nombre]");
+        redactions++;
+      }
+    }
+    const red = redact(clean);
+    redactions += red.count;
+
+    /* sender_type manda sobre direction: un export puede traer "outbound" tanto
+     * del humano de la marca como de su bot, y los dos son lado marca. */
+    const sender = (col(r, CSV_ALIASES.sender) ?? "").toLowerCase();
+    const direction = (col(r, CSV_ALIASES.direction) ?? "").toLowerCase();
+    const from: Conversation["messages"][number]["from"] =
+      sender === "user" || sender === "customer" || sender === "contact"
+        ? "customer"
+        : sender === "agent" || sender === "ai" || sender === "bot" || sender === "assistant"
+          ? "brand"
+          : direction === "inbound"
+            ? "customer"
+            : "brand";
+
+    const list = byConv.get(convId) ?? [];
+    list.push({ ts: (col(r, CSV_ALIASES.ts) ?? "").trim(), from, text: red.text });
+    byConv.set(convId, list);
+    messages++;
+  }
+
+  const conversations: Conversation[] = [...byConv.entries()].map(([conv_id, msgs]) => ({
+    conv_id,
+    messages: msgs,
+  }));
+
+  return { conversations, redactions, messages, brand: null };
+}
+
 /**
  * Acepta:
  *  - una carpeta de exports (cada .txt = una conversación) — lo que tiene un negocio real
@@ -444,7 +546,12 @@ export function ingest(input: IngestInput): IngestResult {
   let messages = 0;
 
   if (input.conversations && existsSync(input.conversations)) {
-    const parsed = parseWhatsApp(input.conversations, input.brandName);
+    // Un export de plataforma (una fila por mensaje) o un .txt de WhatsApp.
+    // Se decide por el contenido, no por la extensión: el archivo manda.
+    const head = readFileSync(input.conversations, "utf8").slice(0, 4000);
+    const parsed = looksLikeConversationCsv(head)
+      ? parseConversationsCsv(readFileSync(input.conversations, "utf8"))
+      : parseWhatsApp(input.conversations, input.brandName);
     conversations = parsed.conversations;
     redactions += parsed.redactions;
     messages = parsed.messages;
