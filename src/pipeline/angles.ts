@@ -84,8 +84,18 @@ ${JSON.stringify(insights, null, 1)}`,
     const hit = haystack.some((h) => h === n || h.includes(n) || n.includes(h));
     if (!hit) {
       bus.say("angles", `descarto "${a.hook_text}": su cita no aparece en la evidencia`);
+      return false;
     }
-    return hit;
+    /* Un hook que es la cita recortada NO es un ángulo: es un eco.
+     * Medido en la primera corrida real: 2 de 9 ángulos devolvían la frase del
+     * cliente casi tal cual ("La ruana de pollito y con el nombre" → idéntico).
+     * El schema no puede detectarlo porque ambos campos son strings válidos. */
+    const h = norm(a.hook_text);
+    if (n.includes(h) || h === n) {
+      bus.say("angles", `descarto "${a.hook_text}": repite la cita en vez de invertirla`);
+      return false;
+    }
+    return true;
   });
 
   if (!kept.length) {

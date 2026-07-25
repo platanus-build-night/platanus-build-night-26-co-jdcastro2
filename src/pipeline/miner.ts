@@ -69,9 +69,28 @@ export const miner: MinerFn = async (ctx: RunContext) => {
     );
   }
 
+  /* Los lotes se arman por PRESUPUESTO DE CARACTERES, no por número de
+   * conversaciones. `batch_size` fue calibrado para exports de WhatsApp, donde
+   * un hilo son 4 mensajes cortos; en un export de plataforma un hilo puede
+   * traer 20 mensajes y 25 hilos se van a 11k tokens — que es lo que hizo
+   * expirar la primera corrida real. El tope de caracteres aguanta las dos
+   * formas de dato sin tocar el playbook. */
+  const CHAR_BUDGET = 14_000;
   const size = config.miner_funnel.batch_size;
   const batches: Conversation[][] = [];
-  for (let i = 0; i < useful.length; i += size) batches.push(useful.slice(i, i + size));
+  let cur: Conversation[] = [];
+  let curChars = 0;
+  for (const c of useful) {
+    const chars = c.messages.reduce((s, m) => s + m.text.length + 12, 40);
+    if (cur.length && (curChars + chars > CHAR_BUDGET || cur.length >= size)) {
+      batches.push(cur);
+      cur = [];
+      curChars = 0;
+    }
+    cur.push(c);
+    curChars += chars;
+  }
+  if (cur.length) batches.push(cur);
 
   bus.say(
     "miner_map",

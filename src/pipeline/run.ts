@@ -225,10 +225,9 @@ export async function runPipeline(opts: RunOptions) {
   bus.phase("angulos", "invertir la frase del cliente en promesa");
   bus.agent("angles", "thinking");
   const angleBank = await buildAngles(ctx, { insights, research });
-  for (const a of angleBank) {
-    bus.show("angles", "invirtiendo", `"${a.source_quote}" → "${a.hook_text}"`);
-    art("angle", "angles", a, a.source_quote, `art_angle_${a.id}`);
-  }
+  // La narración la hace angles.ts, que es quien conoce el trabajo. Aquí solo
+  // se emiten los artefactos: narrar también duplicaba cada inversión en pantalla.
+  for (const a of angleBank) art("angle", "angles", a, a.source_quote, `art_angle_${a.id}`);
   bus.tally("angles", angleBank.length, "ángulos con cita");
 
   /* ── 4. estrategia, con la memoria de corridas anteriores ── */

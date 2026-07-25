@@ -103,7 +103,10 @@ export async function callOpenRouter<T>(opts: ORCallOptions<T>): Promise<T> {
         max_tokens: opts.maxTokens,
         usage: { include: true },
       }),
-      signal: AbortSignal.timeout(180_000),
+      /* 3 minutos no alcanzaban: un modelo de razonamiento con un lote grande
+       * del miner los supera sin problema, y el timeout mataba la corrida
+       * entera. Configurable porque depende del modelo que se elija. */
+      signal: AbortSignal.timeout(Number(process.env.DARWIN_TIMEOUT_MS ?? 420_000)),
     });
 
     const text = await res.text();

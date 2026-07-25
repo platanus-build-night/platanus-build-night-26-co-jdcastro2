@@ -97,26 +97,47 @@ Formato:
   de las citas, no inventados. "riff" es lo que queda libre para que la creadora
   hable con sus palabras.
 
-Escribe ${config.testing.n_ads_first_round} ads. Cubre los ángulos de más
-evidencia primero. Puedes hacer DOS ads del mismo ángulo si cambias el formato
-—es un test legítimo de formato— pero nunca dos iguales.`,
+PROHIBIDO FABRICAR TESTIMONIOS. El "sub" es voz de MARCA, no de cliente. No
+escribas en primera persona como si una clienta contara su experiencia ("la pedí
+y llegó a tiempo") salvo que sea una cita textual del material. Inventar un
+testimonio es exactamente lo que DARWIN existe para no hacer: si nadie lo dijo,
+no puede sonar a que alguien lo dijo. La voz de cliente va en "ugc_brief.riff",
+que es un guion para que una persona real lo diga con sus palabras.
+
+Escribe ${config.testing.n_ads_first_round} ads cubriendo al menos
+${Math.max(4, config.testing.n_ads_first_round - 2)} ÁNGULOS DISTINTOS.
+Priorizar los de más evidencia está bien, pero seis ads del mismo tema no son un
+test de ángulo: son un test de formato disfrazado, y desperdician la ronda.
+Como máximo DOS ads por ángulo, y solo si cambian de formato.`,
     user: brief(ctx, angles, strategy, research),
     schema: AdsOut,
     toolName: "entregar_ads",
   });
 
   const byQuote = new Map(angles.map((a) => [norm(a.source_quote), a]));
+  /* Máximo 2 ads por ángulo. Medido en la primera corrida real: con 9 ángulos
+   * disponibles el modelo escribió 6 ads sobre solo 3, y los 3 del mismo tema.
+   * El prompt lo pide; esto lo garantiza. */
+  const perAngle = new Map<string, number>();
   const kept = ads.filter((ad, i) => {
     const n = norm(ad.source_quote);
     const ok = [...byQuote.keys()].some((k) => k === n || k.includes(n) || n.includes(k));
-    if (!ok) bus.say("paid", `descarto "${ad.headline}": su cita no coincide con ningún ángulo`);
-    else
-      bus.show(
-        "paid",
-        ad.id || `ad_${i + 1}`,
-        `headline ${ad.headline.length}/${config.ad_limits.headline_max} · ${ad.format}`,
-      );
-    return ok;
+    if (!ok) {
+      bus.say("paid", `descarto "${ad.headline}": su cita no coincide con ningún ángulo`);
+      return false;
+    }
+    const used = perAngle.get(ad.angle_id) ?? 0;
+    if (used >= 2) {
+      bus.say("paid", `descarto "${ad.headline}": ya hay 2 ads del ángulo ${ad.angle_id}`);
+      return false;
+    }
+    perAngle.set(ad.angle_id, used + 1);
+    bus.show(
+      "paid",
+      ad.id || `ad_${i + 1}`,
+      `headline ${ad.headline.length}/${config.ad_limits.headline_max} · ${ad.format} · ${ad.angle_id}`,
+    );
+    return true;
   });
 
   if (!kept.length) {
