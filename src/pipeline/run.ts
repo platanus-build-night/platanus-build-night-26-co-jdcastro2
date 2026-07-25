@@ -89,6 +89,64 @@ async function fetchSite(url: string): Promise<string> {
   }
 }
 
+/**
+ * FASE 1 — solo con la URL.
+ *
+ * Es todo lo que se puede saber de una marca sin oír a sus clientes: qué vende
+ * y qué formato le rinde. Deliberadamente NO produce ángulos ni anuncios,
+ * porque sin evidencia eso sería inventarlo — que es exactamente lo que DARWIN
+ * existe para no hacer.
+ *
+ * Cuesta ~$0.02 y existe para que la puerta de entrada no pida un archivo antes
+ * del primer clic.
+ */
+export async function runPanorama(opts: RunOptions) {
+  const brandName = opts.brandName;
+  const brandUrl = opts.brandUrl ?? "";
+  const runId = opts.runId ?? `run-${Date.now()}`;
+  if (opts.record !== false) bus.record(`runs/${runId}/events.ndjson`);
+
+  bus.phase("ingesta", "leyendo la web de la marca");
+  bus.say("ingesta", `descargando ${brandUrl || "(sin url)"}`);
+  const site_text = await fetchSite(brandUrl);
+  if (site_text) bus.show("ingesta", "web", `${site_text.length} caracteres leídos`);
+  else bus.say("ingesta", "no pude leer la web — necesito al menos eso para empezar");
+
+  const data = {
+    conversations: [],
+    posts: [],
+    reviews: [],
+    site_text,
+    stats: {
+      conversations_total: 0,
+      conversations_with_customer_msg: 0,
+      messages_total: 0,
+      posts_total: 0,
+      reviews_total: 0,
+      pii_redactions: 0,
+    },
+  };
+  const ctx: RunContext = { runId, brand: { name: brandName, url: brandUrl }, data };
+
+  bus.phase("panorama", "qué vende la marca y qué formato le rinde");
+  bus.agent("panorama", "thinking");
+  const research = await panorama(ctx);
+  art("brand_research", "panorama", research);
+  bus.tally("panorama", research.formats_ranked.length, "formatos");
+  bus.emit({ type: "coverage", entries: research.coverage });
+
+  /* El momento que define el producto: DARWIN dice explícitamente hasta dónde
+   * llega sin evidencia, en vez de rellenar el hueco inventando. */
+  bus.say("darwin", "hasta aquí llego con tu web: sé qué vendes y qué formato te rinde");
+  bus.say(
+    "darwin",
+    "lo que NO sé es qué te dicen tus clientas. Dame ese export y dejo de adivinar",
+  );
+
+  return { runId, research, cost: cost.total };
+}
+
+/** FASE 2 — con las conversaciones. Aquí DARWIN deja de adivinar. */
 export async function runPipeline(opts: RunOptions) {
   const brandName = opts.brandName;
   const brandUrl = opts.brandUrl ?? "";

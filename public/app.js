@@ -740,6 +740,138 @@ async function probeBackend() {
   }
 }
 
+/* ── fuente C: una corrida real en Supabase ──
+ * Polling incremental (seq=gt.N) en vez de websockets: sin dependencias, sin
+ * bundler, y aguanta mejor una red mala. Los eventos son la fuente de verdad;
+ * `runs.status` solo dice en qué punto del flujo estamos.
+ */
+const CFG = window.DARWIN_CFG ?? {};
+const sbHeaders = () => ({ apikey: CFG.key, authorization: `Bearer ${CFG.key}` });
+
+async function pollSupabase(runId) {
+  const conn = $("conn");
+  let lastSeq = -1;
+  let asked = false;
+  let finished = false;
+
+  const tick = async () => {
+    try {
+      const [events, runs] = await Promise.all([
+        fetch(
+          `${CFG.url}/rest/v1/events?run_id=eq.${runId}&seq=gt.${lastSeq}&order=seq.asc&select=seq,payload`,
+          { headers: sbHeaders(), cache: "no-store" },
+        ).then((r) => r.json()),
+        fetch(`${CFG.url}/rest/v1/runs?id=eq.${runId}&select=status,error,cost_usd`, {
+          headers: sbHeaders(),
+          cache: "no-store",
+        }).then((r) => r.json()),
+      ]);
+
+      for (const row of events) {
+        lastSeq = row.seq;
+        handle(row.payload);
+      }
+
+      const run = runs[0];
+      if (!run) {
+        conn.textContent = "corrida no encontrada";
+        conn.className = "pill off";
+        return;
+      }
+
+      const label = {
+        queued: "en cola",
+        running: "en vivo",
+        awaiting_conversations: "esperándote",
+        queued_full: "en cola",
+        done: "listo",
+        error: "error",
+        rejected: "rechazada",
+      };
+      conn.textContent = label[run.status] ?? run.status;
+      conn.className = `pill ${run.status === "error" ? "off" : "on"}`;
+
+      if (run.status === "awaiting_conversations" && !asked) {
+        asked = true;
+        showAsk(runId);
+      }
+      if (run.status === "running" || run.status === "queued_full") hideAsk();
+
+      if (run.status === "error") {
+        const b = $("banner");
+        b.hidden = false;
+        b.textContent = `✕ ${run.error ?? "la corrida falló"}`;
+        finished = true;
+      }
+      if (run.status === "done") finished = true;
+    } catch (err) {
+      console.error("poll", err);
+    }
+    // Rápido mientras algo se mueve; lento cuando ya no hay nada que esperar.
+    setTimeout(tick, finished ? 5000 : 900);
+  };
+
+  conn.textContent = "conectando";
+  conn.className = "pill off";
+  tick();
+}
+
+/* ── el momento del producto: pedir las conversaciones ── */
+
+function hideAsk() {
+  $("ask").hidden = true;
+}
+
+function showAsk(runId) {
+  const box = $("ask");
+  const input = $("convs");
+  const btn = $("ask-go");
+  const note = (m, kind) => {
+    const el = $("ask-note");
+    el.textContent = m ?? "";
+    el.dataset.kind = kind ?? "";
+  };
+  let text = null;
+
+  box.hidden = false;
+
+  input.onchange = async () => {
+    const file = input.files?.[0];
+    if (!file) return;
+    // 4 MB es el tope de la columna; un export típico de 400 chats pesa ~1 MB.
+    if (file.size > 4_000_000) {
+      note("el archivo pesa más de 4 MB · exporta el chat SIN archivos multimedia", "err");
+      return;
+    }
+    text = await file.text();
+    const lines = text.split("\n").length;
+    $("convs-label").textContent = `${file.name} · ${(file.size / 1024).toFixed(0)} KB · ${lines} líneas`;
+    note("");
+    btn.disabled = false;
+  };
+
+  btn.onclick = async () => {
+    if (!text) return;
+    btn.disabled = true;
+    btn.textContent = "subiendo…";
+    try {
+      const res = await fetch(`${CFG.url}/rest/v1/runs?id=eq.${runId}`, {
+        method: "PATCH",
+        headers: { ...sbHeaders(), "content-type": "application/json", prefer: "return=minimal" },
+        // La política de RLS solo permite este salto exacto:
+        // awaiting_conversations → queued_full con phase 2.
+        body: JSON.stringify({ conversations: text, status: "queued_full", phase: 2 }),
+      });
+      if (!res.ok) throw new Error(`el servidor respondió ${res.status}`);
+      hideAsk();
+    } catch (err) {
+      note(err.message ?? String(err), "err");
+      btn.disabled = false;
+      btn.textContent = "extraer mis ángulos";
+    }
+  };
+}
+
 /**
  * Elige la fuente y arranca. Se decide con una petición explícita en vez de
  * esperar a que EventSource falle: EventSource reintenta solo, para siempre.
@@ -750,6 +882,10 @@ async function boot() {
   setTimeout(() => {
     firstPaintDone = true;
   }, 1500);
+
+  // Una corrida real de Supabase manda sobre todo lo demás.
+  const runId = new URLSearchParams(location.search).get("run");
+  if (runId && CFG.url && CFG.key) return pollSupabase(runId);
 
   hasBackend = await probeBackend();
   if (hasBackend) return connectSSE();

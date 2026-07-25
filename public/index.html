@@ -67,6 +67,30 @@
       </section>
     </main>
 
+    <!-- El momento que define el producto. Aparece cuando el Panorama terminó:
+         DARWIN dice hasta dónde llegó con la web y pide lo que le falta. -->
+    <div id="ask" class="ask" hidden>
+      <div class="ask-box">
+        <p class="ask-eyebrow">hasta aquí llego con tu web</p>
+        <h2 class="ask-title">ahora dame lo que te escriben tus clientes</h2>
+        <p class="ask-body">
+          Con tu sitio sé qué vendes y qué formato te rinde. Lo que <em>no</em> sé es qué te
+          piden, qué les preocupa ni con qué palabras lo dicen. Eso está en tu WhatsApp.
+        </p>
+        <label class="ask-drop" for="convs">
+          <input id="convs" type="file" accept=".txt,text/plain" hidden />
+          <span id="convs-label">arrastra el export de WhatsApp · o haz clic</span>
+        </label>
+        <p id="ask-note" class="note"></p>
+        <button id="ask-go" type="button" disabled>extraer mis ángulos</button>
+        <p class="ask-foot">
+          WhatsApp → chat → ⋮ → Exportar chat → Sin archivos multimedia.
+          <br />
+          Los teléfonos y nombres se redactan antes de que ningún modelo los vea.
+        </p>
+      </div>
+    </div>
+
     <div id="summary" class="summary" hidden></div>
 
     <script src="app.js"></script>

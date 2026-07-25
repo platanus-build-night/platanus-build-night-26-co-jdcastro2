@@ -22,7 +22,7 @@ import { createInterface } from "node:readline/promises";
 import { config } from "../config/darwin.config";
 import { bus } from "./bus";
 import { cost } from "./llm";
-import { runPipeline } from "./pipeline/run";
+import { runPanorama, runPipeline } from "./pipeline/run";
 import { attachSupabaseSink, patchRun } from "./sink/supabase";
 import { db, supabaseFromEnv, type SupabaseConfig } from "./supabase";
 
@@ -43,8 +43,12 @@ interface RunRow {
   brand_url: string | null;
   conversations: string | null;
   status: string;
+  phase: number | null;
   created_at: string;
 }
+
+/** queued = fase 1 (solo url) · queued_full = fase 2 (con conversaciones) */
+const phaseOf = (r: RunRow) => (r.status === "queued_full" ? 2 : 1);
 
 const cfg = supabaseFromEnv();
 if (!cfg) {
@@ -61,8 +65,12 @@ if (!cfg) {
   process.exit(1);
 }
 
-if (!process.env.ANTHROPIC_API_KEY) {
-  console.error("\n  ✕ Falta ANTHROPIC_API_KEY en .env — el worker no puede ejecutar nada.\n");
+const NEEDED_KEY =
+  (process.env.DARWIN_PROVIDER ?? "anthropic").toLowerCase() === "openrouter"
+    ? "OPENROUTER_API_KEY"
+    : "ANTHROPIC_API_KEY";
+if (!process.env[NEEDED_KEY]) {
+  console.error(`\n  ✕ Falta ${NEEDED_KEY} en .env — el worker no puede ejecutar nada.\n`);
   process.exit(1);
 }
 
@@ -70,25 +78,33 @@ const sb: SupabaseConfig = cfg;
 
 /* ─────────────────────────── el ciclo ─────────────────────────── */
 
+/** Fase 2 primero: una marca que ya entregó sus conversaciones está esperando
+ *  lo que de verdad vino a buscar, y esa espera pesa más que una fase 1 nueva. */
 async function nextQueued(): Promise<RunRow | null> {
-  const rows = await db.select<RunRow>(
+  const full = await db.select<RunRow>(
+    sb,
+    "runs",
+    "status=eq.queued_full&order=created_at.asc&limit=1",
+  );
+  if (full[0]) return full[0];
+  const first = await db.select<RunRow>(
     sb,
     "runs",
     "status=eq.queued&claimed_by=is.null&order=created_at.asc&limit=1",
   );
-  return rows[0] ?? null;
+  return first[0] ?? null;
 }
 
 async function confirm(run: RunRow): Promise<boolean> {
   const convs = (run.conversations ?? "").length;
   console.log(`
-  ── nueva corrida ──────────────────────────────────
+  ── ${phaseOf(run) === 1 ? "fase 1 · panorama (solo web)" : "fase 2 · corrida completa"} ──
     marca         ${run.brand_name}
     url           ${run.brand_url || "(ninguna)"}
     conversaciones ${convs ? `${(convs / 1024).toFixed(0)} KB` : "(ninguna)"}
     encolada      ${new Date(run.created_at).toLocaleString("es-CO")}
 
-    costo estimado ~$2 · hard stop $${config.pii ? "" : ""}${process.env.DARWIN_HARD_STOP ?? 4}
+    costo estimado ${phaseOf(run) === 1 ? "~$0.02" : "~$0.50"} · hard stop $${process.env.DARWIN_HARD_STOP ?? 4}
   ───────────────────────────────────────────────────`);
 
   if (AUTO) {
@@ -106,7 +122,7 @@ async function confirm(run: RunRow): Promise<boolean> {
  * de compare-and-swap: si otro worker la tomó primero, no devuelve filas.
  */
 async function claim(run: RunRow): Promise<boolean> {
-  const rows = await db.update<RunRow>(sb, "runs", `id=eq.${run.id}&status=eq.queued`, {
+  const rows = await db.update<RunRow>(sb, "runs", `id=eq.${run.id}&status=eq.${run.status}`, {
     status: "running",
     claimed_by: WORKER_ID,
     claimed_at: new Date().toISOString(),
@@ -121,6 +137,28 @@ async function execute(run: RunRow) {
   cost.reset();
 
   try {
+    if (phaseOf(run) === 1) {
+      /* Fase 1: solo la web. Termina pidiendo las conversaciones, no fallando
+       * por no tenerlas. */
+      const res = await runPanorama({
+        brandName: run.brand_name,
+        brandUrl: run.brand_url ?? undefined,
+        runId: run.id,
+        record: false,
+      });
+      await sink.flush();
+      await patchRun(sb, run.id, {
+        status: "awaiting_conversations",
+        phase: 1,
+        cost_usd: Number(res.cost.toFixed(4)),
+        claimed_by: null,
+      });
+      console.log(
+        `\n  ◐ ${run.brand_name} · panorama listo · $${res.cost.toFixed(3)} · esperando conversaciones\n`,
+      );
+      return;
+    }
+
     let conversations: string | undefined;
     if (run.conversations) {
       conversations = join(dir, "conversations.txt");

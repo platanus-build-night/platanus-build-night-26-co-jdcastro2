@@ -771,3 +771,266 @@ body[data-stage="review"] .art {
     transition: none !important;
   }
 }
+
+/* ═════════════════════ la puerta de entrada ═════════════════════
+ * Misma paleta y misma tipografía que el war room: quien entra por aquí y
+ * pasa al dashboard tiene que sentir que es el mismo sistema, no dos productos.
+ */
+
+body.landing {
+  display: block;
+  height: auto;
+  min-height: 100vh;
+}
+
+/* La landing reusa <main> y <header>, que arriba están cableados al layout del
+ * war room (grid de 3 columnas y flex de encabezado). Sin este reset, el grid
+ * comprime el texto a una columna de un carácter de ancho. */
+body.landing main {
+  display: block;
+  grid-template-columns: none;
+  grid-template-rows: none;
+  grid-template-areas: none;
+  background: none;
+  flex: none;
+  min-height: 0;
+  gap: 0;
+}
+body.landing header {
+  display: block;
+  padding: 0;
+  border: 0;
+  flex: none;
+}
+
+.gate {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 12vh 24px 80px;
+}
+
+.gate-head h1 {
+  font-size: 34px;
+  letter-spacing: 0.34em;
+  margin: 0;
+}
+.gate-head .tagline {
+  margin: 6px 0 0;
+  color: var(--dim);
+}
+
+.pitch {
+  margin: 40px 0 34px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+#gate-form label {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+  margin-bottom: 8px;
+}
+
+.field {
+  display: flex;
+  gap: 8px;
+}
+
+#url {
+  flex: 1;
+  min-width: 0;
+  padding: 13px 14px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  color: var(--text);
+  font: 16px/1.4 var(--mono);
+}
+#url:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+#url::placeholder {
+  color: var(--dim);
+  opacity: 0.6;
+}
+
+#go {
+  padding: 13px 22px;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  color: var(--bg);
+  font: 14px/1 var(--mono);
+  letter-spacing: 0.16em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#go:hover:not(:disabled) {
+  background: transparent;
+  color: var(--accent);
+}
+#go:disabled {
+  background: var(--line);
+  border-color: var(--line);
+  color: var(--dim);
+  cursor: default;
+}
+
+.note {
+  margin: 10px 0 0;
+  min-height: 18px;
+  font-size: 12.5px;
+  color: var(--dim);
+}
+.note[data-kind="err"] {
+  color: var(--dead);
+}
+
+.steps {
+  list-style: none;
+  margin: 44px 0 0;
+  padding: 0;
+}
+.steps li {
+  display: flex;
+  gap: 14px;
+  padding: 13px 0;
+  border-top: 1px solid var(--line);
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text);
+  opacity: 0.85;
+}
+/* El paso 2 es el argumento del producto: es el único que se resalta. */
+.steps li:nth-child(2) {
+  opacity: 1;
+  color: var(--text);
+}
+.steps li:nth-child(2) .n {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.steps .n {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  color: var(--dim);
+}
+
+.foot {
+  margin: 40px 0 0;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--warn);
+}
+
+@media (max-width: 560px) {
+  .gate {
+    padding-top: 7vh;
+  }
+  .field {
+    flex-direction: column;
+  }
+}
+
+/* ═══════════ pedir las conversaciones ═══════════
+ * No es un modal de error: es el argumento del producto. Por eso ocupa la
+ * pantalla y por eso el texto dice explícitamente qué NO sabe todavía. */
+
+.ask {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  background: rgba(10, 12, 15, 0.93);
+  padding: 24px;
+}
+.ask-box {
+  max-width: 560px;
+  width: 100%;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--accent);
+  border-radius: 4px;
+  padding: 28px;
+}
+.ask-eyebrow {
+  margin: 0;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.ask-title {
+  margin: 8px 0 14px;
+  font-size: 21px;
+  line-height: 1.3;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--accent);
+  font-weight: 400;
+}
+.ask-body {
+  margin: 0 0 20px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--text);
+  opacity: 0.85;
+}
+.ask-body em {
+  color: var(--warn);
+  font-style: normal;
+}
+.ask-drop {
+  display: block;
+  padding: 26px 16px;
+  border: 1px dashed var(--line);
+  border-radius: 3px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--dim);
+  cursor: pointer;
+}
+.ask-drop:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+#ask-go {
+  width: 100%;
+  margin-top: 14px;
+  padding: 12px;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  color: var(--bg);
+  font: 14px/1 var(--mono);
+  letter-spacing: 0.16em;
+  cursor: pointer;
+}
+#ask-go:disabled {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--dim);
+  cursor: default;
+}
+.ask-foot {
+  margin: 16px 0 0;
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--text);
+  opacity: 0.45;
+}
