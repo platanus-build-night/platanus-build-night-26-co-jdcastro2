@@ -5,6 +5,7 @@
  *   npm run server            # servidor vivo
  *   npm run demo              # reproduce la corrida oficial grabada
  */
+import "./env"; // PRIMERO: ver src/env.ts
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
@@ -14,11 +15,6 @@ import { bus } from "./bus";
 import { cost } from "./llm";
 import type { ArtifactEnvelope, DarwinEvent } from "./schemas";
 
-try {
-  process.loadEnvFile(".env");
-} catch {
-  // sin .env el server igual levanta; solo las llamadas a la API fallarán
-}
 
 const PORT = Number(process.env.PORT ?? 3000);
 const PUBLIC = join(process.cwd(), "public");

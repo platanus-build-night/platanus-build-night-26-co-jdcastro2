@@ -15,6 +15,7 @@
  *
  * Estados: queued → (tu aprobación) → running → done | error
  */
+import "./env"; // PRIMERO: los imports se evalúan antes que las sentencias
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -26,11 +27,6 @@ import { runPanorama, runPipeline } from "./pipeline/run";
 import { attachSupabaseSink, patchRun } from "./sink/supabase";
 import { db, supabaseFromEnv, type SupabaseConfig } from "./supabase";
 
-try {
-  process.loadEnvFile(".env");
-} catch {
-  /* sin .env se usa el entorno */
-}
 
 const argv = process.argv.slice(2);
 const AUTO = argv.includes("--auto");

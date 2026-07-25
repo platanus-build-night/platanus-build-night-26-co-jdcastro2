@@ -11,6 +11,7 @@
  * que el bus (un singleton de módulo) llegue al SSE. Sin él la corrida solo
  * queda grabada en runs/<id>/events.ndjson, lista para `npm run demo`.
  */
+import "../env"; // PRIMERO: los imports se evalúan antes que las sentencias
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { config } from "../../config/darwin.config";
