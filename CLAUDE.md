@@ -115,3 +115,25 @@ npm run typecheck
 `gen` es idempotente y **assertea el beat del demo**: si la semilla deja de producir
 4 muertos · 1 graduado · 2 hijos, sale con código 1 en vez de grabar un fixture mudo.
 Corre `gen` después de tocar `AD_SPEC`: la semilla depende del batch exacto.
+
+## Worktrees (varias sesiones en paralelo)
+
+```bash
+./scripts/wt.sh pipeline     # rama wt/pipeline en ../darwin-wt/pipeline
+./scripts/wt.sh --list
+./scripts/wt.sh --rm pipeline
+```
+
+`git worktree add` a secas NO sirve acá: el worktree nace sin `node_modules` (gitignored),
+sin `.env`, y peleando por el puerto 3000 con las demás sesiones. El script symlinkea
+`node_modules` desde la raíz — seguro porque el proyecto no tiene addons nativos `.node` —
+y le asigna a cada worktree un puerto propio y determinista en `.env`.
+
+`runs/demo/events.ndjson` está versionado, así que todo worktree puede correr `npm run demo`
+sin regenerar nada.
+
+**Reparto sin choques.** Lo que falta toca archivos disjuntos: `pipeline/` (las 4 etapas +
+`run.ts`), `army.ts` y `memory/store.ts`. Los tres solo LEEN de `schemas.ts`, `bus.ts`,
+`llm.ts` y `config/`. El riesgo real no son los conflictos de archivos sino las **firmas**:
+`run.ts` tiene que llamar al ejército y a la memoria, así que esas firmas se acuerdan en `main`
+ANTES de repartir. Si dos worktrees tocan `package.json` o este archivo, ahí sí hay conflicto.
