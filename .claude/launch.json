@@ -4,8 +4,21 @@
     {
       "name": "darwin-demo",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "demo"],
+      "runtimeArgs": [
+        "run",
+        "demo"
+      ],
       "port": 3000,
+      "autoPort": true
+    },
+    {
+      "name": "darwin-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "preview:web"
+      ],
+      "port": 4000,
       "autoPort": true
     }
   ]

@@ -6,3 +6,6 @@ runs/*
 !runs/demo/
 .DS_Store
 *.log
+web/
+.vercel
+.env*

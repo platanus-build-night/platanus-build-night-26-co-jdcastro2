@@ -16,7 +16,9 @@
     "check": "tsx scripts/check-schemas.ts && tsx scripts/check-ingest.ts && tsx scripts/check-evolution.ts",
     "check:ingest": "tsx scripts/check-ingest.ts",
     "check:evolution": "tsx scripts/check-evolution.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:web": "bash scripts/build-web.sh",
+    "preview:web": "node scripts/serve-web.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",

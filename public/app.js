@@ -53,6 +53,8 @@ let brand = null;
 let roasMin = 3.5;
 /** El volcado de backlog no debe marcar 12 tarjetas como "nuevas". */
 let firstPaintDone = false;
+/** true = servidor local con SSE · false = deploy estático reproduciendo el NDJSON. */
+let hasBackend = false;
 
 /* ───────────────────────── organigrama ───────────────────────── */
 
@@ -389,12 +391,20 @@ function addArtifact(env) {
 
   const btn = el("button", null, "GO");
   btn.disabled = env.status === "approved";
-  btn.onclick = () =>
-    fetch("/api/go", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ artifact_id: env.id }),
-    });
+  btn.onclick = () => {
+    if (hasBackend) {
+      // El servidor responde con un evento `go` que dispara markApproved.
+      fetch("/api/go", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ artifact_id: env.id }),
+      });
+    } else {
+      // Sin backend no hay a quién aprobarle. Se marca local — que es
+      // exactamente lo que hace el servidor: prender una bandera en memoria.
+      markApproved(env.id);
+    }
+  };
   card.appendChild(btn);
 
   const n = box.querySelectorAll(".art").length;
@@ -588,29 +598,9 @@ function renderSummary() {
 
 /* ─────────────────────────────── SSE ─────────────────────────────── */
 
-function connect() {
-  const es = new EventSource("/events");
-  const conn = $("conn");
-
-  es.onopen = () => {
-    conn.textContent = "en vivo";
-    conn.className = "pill on";
-  };
-  es.onerror = () => {
-    conn.textContent = "reconectando";
-    conn.className = "pill off";
-  };
-
-  const on = (type, fn) =>
-    es.addEventListener(type, (ev) => {
-      try {
-        fn(JSON.parse(ev.data));
-      } catch (err) {
-        console.error(type, err);
-      }
-    });
-
-  on("phase", (e) => {
+/** Un solo despachador para las dos fuentes: SSE en vivo y replay en el cliente. */
+const HANDLERS = {
+  phase: (e) => {
     if (e.name === "replay") {
       const b = $("banner");
       b.hidden = false;
@@ -622,31 +612,159 @@ function connect() {
     $("phase").textContent = e.detail ? `${e.name} · ${e.detail}` : e.name;
     if (e.name === "evolution") ensureEvoGrid();
     enqueue("darwin", `— ${e.name}${e.detail ? " · " + e.detail : ""} —`, "phase");
-  });
-  on("agent", (e) => setAgent(e.role, e.state, e.note));
-  on("log", (e) => enqueue(e.role, e.line, e.kind));
-  on("cost", (e) => {
+  },
+  agent: (e) => setAgent(e.role, e.state, e.note),
+  log: (e) => enqueue(e.role, e.line, e.kind),
+  cost: (e) => {
     $("cost").textContent = `$${e.total_usd.toFixed(2)}`;
-  });
-  on("coverage", (e) => renderCoverage(e.entries));
-  on("artifact", (e) => addArtifact(e.envelope));
-  on("go", (e) => markApproved(e.artifact_id));
-  on("sim", renderSim);
-  on("verdict", renderVerdict);
-  on("memory", renderMemory);
-  on("done", () => {
+  },
+  coverage: (e) => renderCoverage(e.entries),
+  artifact: (e) => addArtifact(e.envelope),
+  go: (e) => markApproved(e.artifact_id),
+  sim: renderSim,
+  verdict: renderVerdict,
+  memory: renderMemory,
+  done: () => {
     $("phase").textContent = "listo";
     setStage("review");
     renderSummary();
-  });
+  },
+};
+
+function handle(e) {
+  const fn = HANDLERS[e.type];
+  if (!fn) return;
+  try {
+    fn(e);
+  } catch (err) {
+    console.error(e.type, err);
+  }
 }
 
-buildOrg();
-buildStepper();
-connect();
-setTimeout(() => {
-  firstPaintDone = true;
-}, 1500);
+/* ── fuente A: el servidor local, en vivo por SSE ── */
+function connectSSE() {
+  const es = new EventSource("/events");
+  const conn = $("conn");
+  es.onopen = () => {
+    conn.textContent = "en vivo";
+    conn.className = "pill on";
+  };
+  es.onerror = () => {
+    conn.textContent = "reconectando";
+    conn.className = "pill off";
+  };
+  for (const type of Object.keys(HANDLERS)) {
+    es.addEventListener(type, (ev) => {
+      try {
+        handle(JSON.parse(ev.data));
+      } catch (err) {
+        console.error(type, err);
+      }
+    });
+  }
+}
+
+/* ── fuente B: replay en el navegador, sin backend ──
+ * Es lo que corre en el deploy estático. Misma lógica de tiempos que
+ * src/replay.ts: solo los `log` traen `ts`, y el que no tiene hereda el
+ * offset del último que sí. Si las dos implementaciones divergen, el demo
+ * hospedado deja de coincidir con el local — mantenerlas iguales.
+ */
+async function replayInBrowser(url) {
+  const conn = $("conn");
+  conn.textContent = "cargando";
+  conn.className = "pill off";
+
+  const raw = await fetch(url, { cache: "no-store" }).then((r) => {
+    if (!r.ok) throw new Error(`${r.status} al leer ${url}`);
+    return r.text();
+  });
+
+  const events = [];
+  let t0 = null;
+  for (const line of raw.split("\n")) {
+    if (!line) continue;
+    let e;
+    try {
+      e = JSON.parse(line);
+    } catch {
+      continue;
+    }
+    const ts = e.type === "log" ? e.ts : null;
+    if (ts !== null && t0 === null) t0 = ts;
+    events.push({ e, offset: ts !== null && t0 !== null ? ts - t0 : -1 });
+  }
+  let last = 0;
+  for (const r of events) {
+    if (r.offset < 0) r.offset = last;
+    else last = r.offset;
+  }
+  if (!events.length) throw new Error("el fixture está vacío");
+
+  const speed = Math.max(1, Number(new URLSearchParams(location.search).get("speed")) || 8);
+  conn.textContent = `replay ${speed}×`;
+  conn.className = "pill on";
+  handle({
+    type: "phase",
+    name: "replay",
+    detail: `corrida real pre-grabada · ${speed}× · ${events.length} eventos`,
+  });
+
+  let clock = 0;
+  for (const { e, offset } of events) {
+    const wait = Math.max(0, (offset - clock) / speed);
+    if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+    clock = offset;
+    handle(e);
+  }
+}
+
+/**
+ * ¿Hay backend de verdad?
+ *
+ * NO basta con que /api/health devuelva 200: los hosts estáticos suelen servir
+ * index.html con 200 para CUALQUIER ruta desconocida. Con esa sonda ingenua el
+ * deploy elegía SSE, EventSource intentaba parsear HTML y la página se quedaba
+ * en "reconectando" — cargando bien y sin reproducir nada.
+ *
+ * Solo nuestro servidor responde JSON con ok:true.
+ */
+async function probeBackend() {
+  try {
+    const r = await fetch("/api/health", { cache: "no-store" });
+    if (!r.ok) return false;
+    if (!(r.headers.get("content-type") || "").includes("application/json")) return false;
+    return (await r.json())?.ok === true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Elige la fuente y arranca. Se decide con una petición explícita en vez de
+ * esperar a que EventSource falle: EventSource reintenta solo, para siempre.
+ */
+async function boot() {
+  buildOrg();
+  buildStepper();
+  setTimeout(() => {
+    firstPaintDone = true;
+  }, 1500);
+
+  hasBackend = await probeBackend();
+  if (hasBackend) return connectSSE();
+
+  try {
+    await replayInBrowser("events.ndjson");
+  } catch (err) {
+    console.error(err);
+    const b = $("banner");
+    b.hidden = false;
+    b.textContent = `✕ no se pudo cargar la corrida: ${err.message}`;
+  }
+}
+
+boot();
 
 // El ticker reabre el terminal: en el Q&A siempre preguntan "¿qué hizo ahí?".
 $("ticker").onclick = () => setStage("run");
