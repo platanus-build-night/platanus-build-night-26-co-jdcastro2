@@ -1042,7 +1042,16 @@ body.landing header {
   opacity: 0.4;
 }
 
-/* El recordatorio que queda al descartar. Reversible de un clic. */
+/* El recordatorio que queda al descartar. Reversible de un clic.
+ *
+ * [hidden] solo trae `display:none` del user-agent, asi que CUALQUIER regla de
+ * autor con display lo pisa y el elemento se pinta igual. Pasa silencioso: el
+ * atributo se lee `true` en JS mientras el boton ocupa 35px en pantalla.
+ * Esta regla tiene que ir ANTES y ceder ante [hidden]. */
+.ask-mini[hidden],
+.ask[hidden] {
+  display: none !important;
+}
 .ask-mini {
   display: block;
   width: 100%;
