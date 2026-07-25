@@ -20,12 +20,22 @@ import { DarwinLLMError } from "../llm";
 import { Insight, type Conversation } from "../schemas";
 
 /**
- * Máximo de lotes en vuelo. El Oído domina el tiempo de la corrida: 8 lotes a
- * ~100s con concurrencia 4 son ~4 minutos de los ~6 totales. Subirlo lo parte
- * casi a la mitad; el techo real es el 429 del proveedor, no el nuestro.
- * Configurable para poder medirlo sin recompilar.
+ * Máximo de lotes en vuelo.
+ *
+ * MEDIDO, no supuesto. Subirlo de 4 a 8 sobre el mismo subconjunto de 100
+ * conversaciones hizo la corrida MÁS LENTA, no más rápida:
+ *
+ *     conc 4   377s · llamadas del Oído: 18 37 79 96 100 123s  (mediana 96s)
+ *     conc 8   487s · llamadas del Oído: 46 60 98 134 145 268s (mediana 134s)
+ *
+ * El proveedor limita por cuenta: disparar los 6 lotes a la vez no los corre en
+ * paralelo, los encola — y cada llamada individual tarda el doble. La suma de
+ * tiempo de API pasó de 453s a 750s haciendo exactamente el mismo trabajo.
+ *
+ * O sea: el cuello de botella no era nuestro. Queda en 4 y configurable por si
+ * algún día se corre contra un proveedor con más cupo.
  */
-const CONCURRENCY = Number(process.env.DARWIN_MINER_CONCURRENCY ?? 8);
+const CONCURRENCY = Number(process.env.DARWIN_MINER_CONCURRENCY ?? 4);
 
 const MapOut = z.object({
   insights: z
