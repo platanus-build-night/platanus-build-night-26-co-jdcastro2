@@ -16,7 +16,11 @@
 # worktree de esta máquina. Ahorra 67 MB y ~20s por worktree.
 set -euo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Anclado al checkout PRINCIPAL, no a donde se invoque. Si se resolviera con
+# BASH_SOURCE, correr el script desde dentro de un worktree crearía
+# darwin-wt/darwin-wt/<nombre>. `--git-common-dir` apunta siempre al .git del
+# repo principal, incluso desde un worktree.
+ROOT="$(cd "$(dirname "$(git rev-parse --git-common-dir)")" && pwd)"
 WT_HOME="$(dirname "$ROOT")/darwin-wt"
 cd "$ROOT"
 
