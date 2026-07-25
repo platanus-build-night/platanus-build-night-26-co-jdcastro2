@@ -11,15 +11,16 @@
  * que el bus (un singleton de módulo) llegue al SSE. Sin él la corrida solo
  * queda grabada en runs/<id>/events.ndjson, lista para `npm run demo`.
  */
-import { runArmy, toSimAds } from "../army";
+import { config } from "../../config/darwin.config";
+import { runArmy, toSimAdsWithFit } from "../army";
 import { bus } from "../bus";
 import type { RunContext } from "../contract";
 import { runSimulation } from "../evolution/engine";
 import { cost } from "../llm";
 import { commitMemory, digestMemory, loadMemory } from "../memory/store";
-import type { ArtifactKind, CoverageEntry, Role } from "../schemas";
+import type { ArtifactKind, ContentFormat, CoverageEntry, Role } from "../schemas";
 import { angles as buildAngles } from "./angles";
-import { ingest } from "./ingest";
+import { htmlToText, ingest } from "./ingest";
 import { miner } from "./miner";
 import { panorama } from "./panorama";
 import { strategist } from "./strategist";
@@ -57,6 +58,31 @@ function art(kind: ArtifactKind, by: Role, payload: unknown, source_quote?: stri
   });
 }
 
+/**
+ * Descarga la web de la marca. Es la ÚNICA salida a red del pipeline y falla
+ * sola: sin sitio, el Panorama deduce la marca de las conversaciones y la
+ * corrida sigue (invariante #3).
+ */
+async function fetchSite(url: string): Promise<string> {
+  if (!url) return "";
+  const full = /^https?:\/\//.test(url) ? url : `https://${url}`;
+  try {
+    const res = await fetch(full, {
+      signal: AbortSignal.timeout(config.panorama_timeout_ms),
+      headers: { "user-agent": "DARWIN/0.1 (+https://github.com/platanus-build-night)" },
+      redirect: "follow",
+    });
+    if (!res.ok) {
+      bus.say("ingesta", `la web respondió ${res.status} — sigo sin ella`);
+      return "";
+    }
+    return htmlToText(await res.text(), 16000);
+  } catch (err) {
+    bus.say("ingesta", `no pude leer ${full}: ${String((err as Error).message)} — sigo sin ella`);
+    return "";
+  }
+}
+
 async function main() {
   if (flag("serve")) {
     // Importar server.ts lo arranca. Debe ir ANTES de emitir nada para que el
@@ -68,13 +94,23 @@ async function main() {
 
   /* ── 1. ingesta ── */
   bus.phase("ingesta", "leyendo lo que ya existe · sin red");
-  const data = ingest({
+  const base = ingest({
     conversations: arg("conversations"),
     posts: arg("posts"),
     reviews: arg("reviews"),
     site: arg("site"),
     brandName,
   });
+
+  // El sitio puede venir de un archivo (--site) o de la URL (--url).
+  let site_text = base.site_text;
+  if (!site_text && brandUrl) {
+    bus.say("ingesta", `descargando ${brandUrl}`);
+    site_text = await fetchSite(brandUrl);
+    if (site_text) bus.show("ingesta", "web", `${site_text.length} caracteres leídos`);
+  }
+  const data = { ...base, site_text };
+
   bus.say("ingesta", `${data.stats.conversations_total} conversaciones abiertas`);
   bus.show(
     "ingesta",
@@ -162,7 +198,14 @@ async function main() {
   /* ── 6. selección natural ──
    * runSimulation emite su propio phase/sim/verdict. paceMs le da ritmo en
    * pantalla; el motor es determinista, la pausa es solo presentación. */
-  const outcome = await runSimulation(toSimAds(out.ads, angleBank), { paceMs: 900 });
+  /* format_fit sale del ranking real del Panorama, no de un número inventado:
+   * es el segundo factor que decide quién sobrevive en el motor. */
+  const formatScores = new Map<ContentFormat, number>(
+    research.formats_ranked.map((f) => [f.format, f.confidence]),
+  );
+  const outcome = await runSimulation(toSimAdsWithFit(out.ads, angleBank, formatScores), {
+    paceMs: 900,
+  });
   bus.tally("mutator", outcome.children.length, "hijos");
 
   /* ── 7. la memoria ── */
