@@ -236,6 +236,17 @@ beat(2200);
 
 /* ── 2. panorama ── */
 bus.phase("panorama", "qué vende la marca y qué formato le rinde");
+
+/* La propuesta de inversión sale del playbook, no de la evidencia: puede
+ * mostrarse desde el primer segundo. Sin esto ③el plan se quedaba mudo toda
+ * la fase 1 y la pantalla parecía congelada. */
+bus.say("strategist", "mientras leo tu web, esta es la ronda de prueba que propongo");
+bus.show("strategist", "volumen", "6 ads · 1 ad = 1 ad set");
+beat(900);
+bus.show("strategist", "inversión", "$5/día por ad set · $30/día · $210 la semana");
+beat(900);
+bus.show("strategist", "gradúa", "ROAS 3.5x con 3 compras · escala +25%/día");
+beat(1200);
 bus.say("panorama", "recorriendo el sitio para entender qué vende exactamente");
 beat(2900);
 bus.show("panorama", "leyendo", "dosmicos.co/collections/sleeping-bags · 4.812 caracteres");

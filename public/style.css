@@ -1192,3 +1192,29 @@ body.landing { min-width: 0; }
   color: var(--accent);
   opacity: 0.75;
 }
+
+/* ── la narración vive en la zona que trabaja ──
+ * El ticker de 32px es el resumen; esto es lo que evita que una zona se quede
+ * 60 segundos en blanco mientras su agente piensa. */
+.zone-live { margin-bottom: 10px; }
+.zone-live:empty { margin: 0; }
+.lv {
+  font-size: 12.5px;
+  line-height: 1.5;
+  padding: 1px 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+  animation: lvIn 0.25s ease;
+}
+.lv.say { color: var(--accent); }
+.lv.say::before { content: "> "; opacity: 0.6; }
+.lv.literal { color: var(--warn); padding-left: 2ch; }
+.lv.phase { display: none; }
+@keyframes lvIn { from { opacity: 0; transform: translateY(-2px) } to { opacity: 1 } }
+.from-playbook {
+  margin-left: 6px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text);
+  opacity: 0.4;
+}

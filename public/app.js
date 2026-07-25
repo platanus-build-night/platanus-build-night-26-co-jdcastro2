@@ -140,6 +140,7 @@ function paint(item, animate, done) {
   while (box.childElementCount > 500) box.removeChild(box.firstChild);
 
   setTicker(item.line, item.kind);
+  liveLine(item.role, item.line, item.kind);
 
   const stick = () => {
     if (wasBottom) box.scrollTop = box.scrollHeight;
@@ -169,6 +170,36 @@ function paint(item, animate, done) {
     }
   };
   tick();
+}
+
+/* Cada agente narra EN SU ZONA, no solo en el ticker de arriba.
+ * Sin esto la fase 1 son ~60 segundos de skeleton mudo: el usuario ve una
+ * pantalla congelada mientras el Panorama de verdad está leyendo la web. */
+const ZONE_OF = {
+  panorama: "fuente", ingesta: "fuente",
+  miner_map: "cadena", miner_reduce: "cadena", angles: "cadena",
+  strategist: "plan", paid: "plan", organic: "plan",
+  creators: "plan", email: "plan", blog: "plan", generator: "plan",
+  evolution: "arena", mutator: "arena",
+  memory: "memoria",
+};
+
+function liveLine(role, line, kind) {
+  const zone = ZONE_OF[role];
+  if (!zone) return;
+  const box = $(`live-${zone}`);
+  if (!box) return;
+  const row = el("div", `lv ${kind || "say"}`, line);
+  box.appendChild(row);
+  // Solo las últimas 4: es un latido, no un log. El log completo va al cajón.
+  while (box.childElementCount > 4) box.removeChild(box.firstChild);
+  box.scrollTop = box.scrollHeight;
+}
+
+/** Al llegar el resultado de una zona, su narración deja de tener sentido. */
+function clearLive(zone) {
+  const box = $(`live-${zone}`);
+  if (box) box.textContent = "";
 }
 
 function setTicker(line, kind) {
@@ -287,6 +318,7 @@ function summarize(kind, p) {
 function threadFor(id) {
   let t = threads.get(id);
   if (t) return t;
+  clearLive("cadena");
   for (const n of $("chain").querySelectorAll(".skel-thread")) n.remove();
   $("chain-promise").hidden = true;
   const wrap = el("section", "thread");
@@ -326,6 +358,7 @@ function addArtifact(env) {
   if (env.kind === "brand_research" && p0.brand_brief) {
     brand = p0.brand_brief;
     renderBrand(p0);
+    clearLive("fuente");
   }
   if (env.kind === "angle" && p0.id) {
     angles.set(p0.id, p0);
@@ -340,6 +373,7 @@ function addArtifact(env) {
     if (p0.testing_plan?.graduation?.roas_min) roasMin = p0.testing_plan.graduation.roas_min;
     renderPlan(p0);
     renderCiclo(p0);
+    clearLive("plan");
   }
 
   let card = $(`art-${env.id}`);
@@ -494,7 +528,10 @@ function renderPlan(p) {
 
   const t = p.testing_plan;
   if (!t) return;
-  $("pt-budget").textContent = `$${t.budget_per_adset_usd}/día · ${t.n_ads} ads`;
+  const total = (t.budget_per_adset_usd || 0) * (t.n_ads || 0);
+  $("pt-ads").textContent = `${t.n_ads} ads · primera ronda`;
+  $("pt-budget").textContent = `$${t.budget_per_adset_usd}/día por ad set`;
+  $("pt-total").textContent = `$${total}/día · $${total * 7} la semana`;
   $("pt-lane").textContent = `${Math.round((t.lane_pct_max || 0) * 100)}% del spend`;
   $("pt-grad").textContent = `ROAS ${t.graduation?.roas_min}x · ${t.graduation?.purchases_min} compras`;
   const k = $("pt-kills");

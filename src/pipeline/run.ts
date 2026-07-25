@@ -131,6 +131,25 @@ export async function runPanorama(opts: RunOptions) {
 
   bus.phase("panorama", "qué vende la marca y qué formato le rinde");
   bus.agent("panorama", "thinking");
+
+  /* La propuesta de inversión NO necesita evidencia: sale del playbook. Sin
+   * esto, ③el plan se quedaba mudo los ~60s de la fase 1 mientras el Panorama
+   * pensaba, y la pantalla parecía congelada. */
+  const t = config.testing;
+  const total = t.budget_per_adset_usd * t.n_ads_first_round;
+  bus.say("strategist", "mientras leo tu web, esta es la ronda de prueba que propongo");
+  bus.show("strategist", "volumen", `${t.n_ads_first_round} ads · 1 ad = 1 ad set`);
+  bus.show(
+    "strategist",
+    "inversión",
+    `$${t.budget_per_adset_usd}/día por ad set · $${total}/día · $${total * 7} la semana`,
+  );
+  bus.show(
+    "strategist",
+    "gradúa",
+    `ROAS ${config.graduation.roas_min}x con ${config.graduation.purchases_min} compras · escala +${config.graduation.scale_pct_day}%/día`,
+  );
+
   const research = await panorama(ctx);
   art("brand_research", "panorama", research);
   bus.tally("panorama", research.formats_ranked.length, "formatos");
