@@ -107,8 +107,8 @@ costo.
 npm run check      # valida el contrato sin gastar un token
 npm run gen        # regraba runs/demo/events.ndjson (cero tokens, ~5s)
 npm run server     # war room en :3000
-npm run demo       # replay de la corrida oficial a 8x  (~60s)
-SPEED=4 npm run demo   # el mismo replay a 4x (~2 min), para el escenario
+npm run demo       # replay de la corrida oficial a 8x  (~72s)
+SPEED=4 npm run demo   # el mismo replay a 4x (~2,5 min), para el escenario
 npm run typecheck
 ```
 

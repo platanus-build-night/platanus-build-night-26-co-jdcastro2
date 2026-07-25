@@ -41,8 +41,19 @@ bus.record(OUT);
  */
 let T = Date.parse("2026-07-25T09:12:00-05:00");
 bus.useClock(() => T);
+
+/**
+ * Ritmo global de la corrida grabada.
+ *
+ * Multiplica TODOS los huecos, así que `?speed=N` sigue significando lo mismo
+ * y cualquier enlace que ya exista se hace más lento por igual — no hay que
+ * repartir un número nuevo. A 1.2 la corrida pasa de 48s a 58s en el enlace
+ * de la landing (`speed=10`), que es el ritmo con el que se lee en proyector
+ * sin que la gente pierda el hilo.
+ */
+const PACE = Number(process.env.DARWIN_PACE ?? 1.2);
 const beat = (ms: number) => {
-  T += ms;
+  T += Math.round(ms * PACE);
 };
 const stamp = () => new Date(T).toISOString();
 
@@ -777,9 +788,9 @@ console.log(`\n  SEED DEL DEMO: ${seed}\n`);
  */
 const DAY_GAP = [0, 25_000, 25_000, 28_000, 30_000, 55_000, 30_000, 70_000];
 const unheartbeat = bus.subscribe((e) => {
-  T += 400;
+  beat(400);
   if (e.type !== "sim") return;
-  T += (DAY_GAP[e.day] ?? 25_000) - 400;
+  beat((DAY_GAP[e.day] ?? 25_000) - 400);
   const dead = e.ads.filter((a) => a.verdict === "kill").length;
   const grad = e.ads.filter((a) => a.verdict === "graduate").length;
   const alive = e.ads.length - dead;

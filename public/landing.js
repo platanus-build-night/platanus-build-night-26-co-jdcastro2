@@ -19,7 +19,7 @@ const $ = (id) => document.getElementById(id);
  * Existe porque en un escenario la corrida de verdad es una mala demo: la
  * primera fase son ~60 segundos donde no pasa casi nada en pantalla, y depende
  * de que el worker esté despierto y de que el wifi del venue aguante. El modo
- * demo enseña el circuito completo en 48 segundos, sin red y sin gastar tokens.
+ * demo enseña el circuito completo en 58 segundos, sin red y sin gastar tokens.
  *
  * No es un "modo mentira": el war room rotula la grabación con la marca real de
  * la que salió, y dice qué dirección se pidió. Lo que se enseña es una corrida
