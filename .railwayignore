@@ -1,0 +1,11 @@
+# railway up sube la carpeta. Esto es la red de seguridad: los secretos van
+# por Variables, nunca dentro del código desplegado.
+.env
+.env.*
+.vercel
+node_modules
+web
+runs
+.frontend-slides
+presentation
+*.log

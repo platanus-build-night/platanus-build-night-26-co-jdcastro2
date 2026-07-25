@@ -947,49 +947,39 @@ body.landing header {
 }
 
 /* ═══════════ pedir las conversaciones ═══════════
- * No es un modal de error: es el argumento del producto. Por eso ocupa la
- * pantalla y por eso el texto dice explícitamente qué NO sabe todavía. */
+ * Tarjeta DENTRO del panel, no modal a pantalla completa. Quien acaba de lanzar
+ * un producto no tiene clientes todavía: taparle el panorama que sí acaba de
+ * recibir lo deja sin salida. Prominente, pero descartable.
+ */
 
 .ask {
-  position: fixed;
-  inset: 0;
-  z-index: 20;
-  display: grid;
-  place-items: center;
-  background: rgba(10, 12, 15, 0.93);
-  padding: 24px;
-}
-.ask-box {
-  max-width: 560px;
-  width: 100%;
-  background: var(--panel);
   border: 1px solid var(--line);
   border-left: 2px solid var(--accent);
-  border-radius: 4px;
-  padding: 28px;
+  border-radius: 3px;
+  padding: 14px;
+  margin-bottom: 18px;
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
 }
 .ask-eyebrow {
   margin: 0;
-  font-size: 11px;
-  letter-spacing: 0.2em;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--dim);
 }
 .ask-title {
-  margin: 8px 0 14px;
-  font-size: 21px;
-  line-height: 1.3;
-  letter-spacing: 0;
-  text-transform: none;
+  margin: 6px 0 8px;
+  font-size: 15px;
+  line-height: 1.35;
   color: var(--accent);
   font-weight: 400;
 }
 .ask-body {
-  margin: 0 0 20px;
-  font-size: 14px;
-  line-height: 1.65;
+  margin: 0 0 12px;
+  font-size: 12.5px;
+  line-height: 1.55;
   color: var(--text);
-  opacity: 0.85;
+  opacity: 0.8;
 }
 .ask-body em {
   color: var(--warn);
@@ -997,11 +987,11 @@ body.landing header {
 }
 .ask-drop {
   display: block;
-  padding: 26px 16px;
+  padding: 16px 10px;
   border: 1px dashed var(--line);
   border-radius: 3px;
   text-align: center;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--dim);
   cursor: pointer;
 }
@@ -1011,14 +1001,14 @@ body.landing header {
 }
 #ask-go {
   width: 100%;
-  margin-top: 14px;
-  padding: 12px;
+  margin-top: 10px;
+  padding: 9px;
   background: var(--accent);
   border: 1px solid var(--accent);
   border-radius: 3px;
   color: var(--bg);
-  font: 14px/1 var(--mono);
-  letter-spacing: 0.16em;
+  font: 12.5px/1 var(--mono);
+  letter-spacing: 0.14em;
   cursor: pointer;
 }
 #ask-go:disabled {
@@ -1027,10 +1017,46 @@ body.landing header {
   color: var(--dim);
   cursor: default;
 }
-.ask-foot {
-  margin: 16px 0 0;
-  font-size: 11.5px;
-  line-height: 1.7;
+/* La salida honesta. No es un botón secundario escondido: si no tienes
+   clientes, DARWIN no puede extraer ángulos, y decirlo vale más que insistir. */
+.ask-later {
+  width: 100%;
+  margin-top: 6px;
+  padding: 7px;
+  background: none;
+  border: 0;
+  color: var(--dim);
+  font: 12px/1 var(--mono);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.ask-later:hover {
   color: var(--text);
-  opacity: 0.45;
+}
+.ask-foot {
+  margin: 12px 0 0;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--text);
+  opacity: 0.4;
+}
+
+/* El recordatorio que queda al descartar. Reversible de un clic. */
+.ask-mini {
+  display: block;
+  width: 100%;
+  margin-bottom: 16px;
+  padding: 8px 10px;
+  background: none;
+  border: 1px dashed var(--line);
+  border-radius: 3px;
+  color: var(--dim);
+  font: 12px/1.4 var(--mono);
+  text-align: left;
+  cursor: pointer;
+}
+.ask-mini:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }

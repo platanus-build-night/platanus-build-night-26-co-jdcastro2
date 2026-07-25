@@ -820,10 +820,28 @@ async function pollSupabase(runId) {
 
 function hideAsk() {
   $("ask").hidden = true;
+  $("ask-mini").hidden = true;
 }
 
 function showAsk(runId) {
   const box = $("ask");
+  const mini = $("ask-mini");
+
+  /* "Todavía no tengo clientes" es una respuesta legítima, no una evasiva:
+   * quien acaba de lanzar un producto no tiene conversaciones que entregar.
+   * La tarjeta se pliega a un recordatorio de una línea y el panorama —que ya
+   * está listo— queda a la vista. Reversible de un clic. */
+  $("ask-later").onclick = () => {
+    box.hidden = true;
+    mini.hidden = false;
+  };
+  mini.onclick = () => {
+    mini.hidden = true;
+    box.hidden = false;
+  };
+  // Tarjeta y recordatorio son excluyentes: nunca los dos a la vez.
+  mini.hidden = true;
+
   const input = $("convs");
   const btn = $("ask-go");
   const note = (m, kind) => {
