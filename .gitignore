@@ -9,3 +9,9 @@ runs/*
 web/
 .vercel
 .env*
+
+# Exports de conversaciones: son mensajes REALES de clientas y el repo es
+# publico. data/ esta versionado por category-benchmarks.json, asi que los
+# CSV se excluyen uno a uno en vez de ignorar la carpeta.
+data/*.csv
+data/*.txt

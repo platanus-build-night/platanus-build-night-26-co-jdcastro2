@@ -19,8 +19,13 @@ import type { MinerFn, RunContext } from "../contract";
 import { DarwinLLMError } from "../llm";
 import { Insight, type Conversation } from "../schemas";
 
-/** Máximo de lotes en vuelo. Alto suficiente para ir rápido, bajo para no gatillar 429. */
-const CONCURRENCY = 4;
+/**
+ * Máximo de lotes en vuelo. El Oído domina el tiempo de la corrida: 8 lotes a
+ * ~100s con concurrencia 4 son ~4 minutos de los ~6 totales. Subirlo lo parte
+ * casi a la mitad; el techo real es el 429 del proveedor, no el nuestro.
+ * Configurable para poder medirlo sin recompilar.
+ */
+const CONCURRENCY = Number(process.env.DARWIN_MINER_CONCURRENCY ?? 8);
 
 const MapOut = z.object({
   insights: z
