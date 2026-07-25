@@ -58,19 +58,51 @@ let costUsd = 0;
 
 /* ───────────────────────── organigrama ───────────────────────── */
 
+/* El pipeline se dibuja como lo que es: un ejército. Un robot por agente, que
+ * camina mientras trabaja. Los canales (③el plan) siguen siendo filas con su
+ * barra de mix — ahí el dato es el reparto, no la actividad. */
+function bot(label) {
+  const b = el("div", "bot");
+  b.dataset.state = "idle";
+  const body = el("div", "body");
+  for (const cls of ["led", "ant", "head", "eye l", "eye r", "arm l", "arm r", "torso", "leg l", "leg r"]) {
+    body.appendChild(el("i", cls));
+  }
+  b.append(body, el("span", "lbl", label), el("span", "tally"));
+  return b;
+}
+
 function buildRoster() {
   for (const [id, label, host] of ROLES) {
-    const row = el("div", host === "army" ? "agent chrow idle" : "agent idle");
-    row.append(el("span", "dot"), el("span", "name", label), el("span", "note"));
-    if (host === "army") row.dataset.ch = id;
-    $(host).appendChild(row);
-    nodes.set(id, row);
+    if (host === "army") {
+      const row = el("div", "agent chrow idle");
+      row.append(el("span", "dot"), el("span", "name", label), el("span", "note"));
+      row.dataset.ch = id;
+      $("army").appendChild(row);
+      nodes.set(id, row);
+    } else {
+      const b = bot(label);
+      $("org").appendChild(b);
+      nodes.set(id, b);
+    }
   }
 }
 
 function setAgent(role, state, note) {
   const row = nodes.get(role);
   if (!row) return;
+
+  /* Dos representaciones del mismo evento: el pipeline son robots que caminan,
+   * los canales son filas con barra de mix. El bus no se entera. */
+  if (row.classList.contains("bot")) {
+    row.dataset.state = state;
+    if (note && /^\d/.test(note)) {
+      row.querySelector(".tally").textContent = note;
+      tallies.set(role, note);
+    }
+    return;
+  }
+
   row.className = `agent ${state}`;
   const slot = row.querySelector(".note");
   slot.className = "note";

@@ -2,14 +2,20 @@
  * Regla de legibilidad: nada cargado de significado por debajo de 12px en --dim.
  * Para texto secundario que igual hay que leer, --text con opacity. */
 :root {
-  --bg: #0a0c0f;
-  --panel: #11151a;
-  --line: #1e242c;
-  --text: #d8e0e8;
-  --dim: #6b7784;
-  --accent: #35e08a;
-  --warn: #ffb64d;
-  --dead: #ff5c5c;
+  /* Misma paleta que la landing: antes eran dos sistemas visuales y se notaba
+     al pasar de una pantalla a la otra. */
+  --bg: #0a0a0b;
+  --panel: #0d0e12;
+  --line: #1a1b22;
+  --text: #d6d9e0;
+  --dim: #6b7080;
+  --accent: #6fcf87;
+  --warn: #d8a05c;
+  --dead: #e8623a;
+  --line-2: #262833;
+  --panel-2: #14151a;
+  --green-bg: #0f1712;
+  --green-line: #2c5f3c;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 }
 
@@ -1218,3 +1224,87 @@ body.landing { min-width: 0; }
   color: var(--text);
   opacity: 0.4;
 }
+
+/* ══════════════ el ejército, literal ══════════════
+ * Un robot por agente. Camina cuando trabaja, se queda quieto cuando espera.
+ * Los tres estados son los mismos que ya emite el bus: thinking · done · idle,
+ * así que setAgent() no cambia.
+ */
+#org {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 4px;
+  padding-top: 4px;
+}
+.bot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 46px;
+  opacity: 0.34;
+  transition: opacity 0.35s;
+}
+.bot .body { position: relative; width: 16px; height: 25px; margin-top: 8px; }
+.bot i { position: absolute; display: block; background: #2c2f3b; }
+.bot .head { left: 0; top: 7px; width: 16px; height: 9px; border: 1px solid #2c2f3b; background: #0b0c10; }
+.bot .eye { width: 2px; height: 2px; top: 10px; background: #2c2f3b; }
+.bot .eye.l { left: 4px; }
+.bot .eye.r { left: 10px; }
+.bot .ant { left: 7px; top: 4px; width: 2px; height: 3px; }
+.bot .led { left: 5px; top: 0; width: 5px; height: 5px; border-radius: 50%; background: #22242e; }
+.bot .torso { left: 3px; top: 16px; width: 10px; height: 5px; border: 1px solid #2c2f3b; border-top: none; background: #0b0c10; }
+.bot .arm { top: 9px; width: 2px; height: 5px; transform-origin: top center; }
+.bot .arm.l { left: -2px; }
+.bot .arm.r { left: 16px; }
+.bot .leg { top: 20px; width: 2px; height: 5px; transform-origin: top center; }
+.bot .leg.l { left: 5px; }
+.bot .leg.r { left: 9px; }
+.bot .lbl {
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  color: #4b4f5e;
+  text-align: center;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 46px;
+}
+.bot .tally { font-size: 9.5px; color: var(--accent); opacity: 0; transition: opacity 0.3s; }
+.bot[data-state="done"] .tally { opacity: 0.85; }
+
+/* trabajando */
+.bot[data-state="thinking"] { opacity: 1; }
+.bot[data-state="thinking"] i { background: var(--accent); }
+.bot[data-state="thinking"] .head,
+.bot[data-state="thinking"] .torso { border-color: var(--accent); background: var(--green-bg); }
+.bot[data-state="thinking"] .led { background: var(--accent); animation: dwPulse 0.8s ease-in-out infinite; }
+.bot[data-state="thinking"] .lbl { color: var(--accent); }
+.bot[data-state="thinking"] .body { animation: dwBob 0.34s ease-in-out infinite; }
+.bot[data-state="thinking"] .leg.l { animation: dwLegA 0.34s ease-in-out infinite; }
+.bot[data-state="thinking"] .leg.r { animation: dwLegB 0.34s ease-in-out infinite; }
+.bot[data-state="thinking"] .arm.l { animation: dwArmA 0.34s ease-in-out infinite; }
+.bot[data-state="thinking"] .arm.r { animation: dwArmB 0.34s ease-in-out infinite; }
+
+/* terminó: sigue vivo pero tranquilo */
+.bot[data-state="done"] { opacity: 0.95; }
+.bot[data-state="done"] i { background: #7b8290; }
+.bot[data-state="done"] .head,
+.bot[data-state="done"] .torso { border-color: #7b8290; background: #0b0c10; }
+.bot[data-state="done"] .eye { background: #a8aebb; }
+.bot[data-state="done"] .led { background: #4b7a58; animation: dwPulse 2.4s ease-in-out infinite; }
+.bot[data-state="done"] .lbl { color: #9aa0ac; }
+.bot[data-state="done"] .body { animation: dwBob 0.62s ease-in-out infinite; }
+.bot[data-state="done"] .leg.l { animation: dwLegA 0.62s ease-in-out infinite; }
+.bot[data-state="done"] .leg.r { animation: dwLegB 0.62s ease-in-out infinite; }
+
+.bot[data-state="error"] i { background: var(--dead); }
+.bot[data-state="error"] .head, .bot[data-state="error"] .torso { border-color: var(--dead); }
+
+@keyframes dwBob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-2.5px) } }
+@keyframes dwLegA { 0%, 100% { transform: rotate(-16deg) } 50% { transform: rotate(16deg) } }
+@keyframes dwLegB { 0%, 100% { transform: rotate(16deg) } 50% { transform: rotate(-16deg) } }
+@keyframes dwArmA { 0%, 100% { transform: rotate(12deg) } 50% { transform: rotate(-12deg) } }
+@keyframes dwArmB { 0%, 100% { transform: rotate(-12deg) } 50% { transform: rotate(12deg) } }
+@keyframes dwPulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.3 } }
