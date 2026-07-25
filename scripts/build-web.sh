@@ -29,7 +29,8 @@ FIXTURE="runs/demo/events.ndjson"
 
 rm -rf web
 mkdir -p web
-cp public/index.html public/landing.html public/app.js public/landing.js public/style.css web/
+cp public/index.html public/landing.html public/app.js public/landing.js public/style.css public/landing.css web/
+cp -R public/assets web/assets
 cp "$FIXTURE" web/events.ndjson
 
 DARWIN_ANON="${SUPABASE_ANON_KEY:-${SUPABASE_PUBLISHABLE_KEY:-}}" node -e '
@@ -41,7 +42,6 @@ fs.renameSync("web/landing.html", "web/index.html");
 
 const patch = (f, fn) => fs.writeFileSync(f, fn(fs.readFileSync(f, "utf8")));
 
-patch("web/landing.js", s => s.replace(/index\.html\?run=/g, "war-room.html?run="));
 
 // SOLO claves públicas. La anon está protegida por RLS: encola y lee, nunca
 // aprueba ni escribe eventos. La service_role no puede llegar aquí jamás.

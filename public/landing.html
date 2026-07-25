@@ -6,64 +6,258 @@
     <title>DARWIN — el marketing evoluciona solo</title>
     <meta
       name="description"
-      content="Le das la web de tu producto y DARWIN extrae tu marketing de la evidencia, no de la imaginación."
+      content="Pega la página de tu producto. DARWIN extrae tu marketing de lo que tus clientes ya te escribieron, no de la imaginación de un modelo."
     />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="landing.css" />
   </head>
-  <body class="landing">
-    <main class="gate">
-      <header class="gate-head">
-        <h1>DARWIN</h1>
-        <p class="tagline">el marketing evoluciona solo</p>
-      </header>
+  <body>
+    <div class="nav">
+      <div class="wrap nav-in">
+        <a href="#" style="display: flex; align-items: center; flex: none">
+          <img src="assets/darwin-wordmark.png" alt="DARWIN" />
+        </a>
+        <div class="nav-links">
+          <a href="#como">Cómo funciona</a>
+          <a href="#trazabilidad">Trazabilidad</a>
+          <a href="#simulacion">Simulación</a>
+        </div>
+        <div class="spacer"></div>
+        <div style="display: flex; align-items: center; gap: 10px; flex: none">
+          <a href="#empezar" class="btn-ghost">ENTRAR</a>
+          <a href="#empezar" class="btn-solid">PRUEBA GRATIS</a>
+        </div>
+      </div>
+    </div>
 
-      <p class="pitch">
-        Hoy crear aplicaciones no es el problema. El problema es la distribución.
-      </p>
+    <section class="wrap hero" style="padding-top: 96px" id="empezar">
+      <div class="eyebrow">
+        <span class="dot"></span>
+        <span>DARWIN — EL MARKETING EVOLUCIONA SOLO</span>
+      </div>
 
-      <form id="gate-form" autocomplete="off">
-        <label for="url">la web de tu producto</label>
-        <div class="field">
+      <h1>
+        Tu producto no se vende solo.<br />
+        <span class="dim">DARWIN lo vende por ti.</span>
+      </h1>
+
+      <div class="field-wrap">
+        <div class="field-label" style="text-align: center">
+          PEGA LA PÁGINA DE TU PRODUCTO — DARWIN EMPIEZA A LEER
+        </div>
+        <form id="gate-form" class="field" autocomplete="off">
+          <span class="proto">https://</span>
           <input
             id="url"
             name="url"
             type="text"
             inputmode="url"
-            placeholder="dosmicos.co"
+            placeholder="tuproducto.com"
             spellcheck="false"
             required
           />
-          <button id="go" type="submit">empezar</button>
-        </div>
-        <p id="gate-note" class="note"></p>
-      </form>
-
-      <!-- La promesa honesta: qué puede hacer con la web sola, y qué no.
-           El hueco es el argumento — se llena con las conversaciones. -->
-      <ol class="steps">
-        <li>
-          <span class="n">1</span>
-          <span>Leo tu web y descubro qué vendes y qué formato te rinde.</span>
-        </li>
-        <li>
-          <span class="n">2</span>
-          <span>Te pido tus conversaciones con clientes. Ahí dejo de adivinar.</span>
-        </li>
-        <li>
-          <span class="n">3</span>
-          <span>
-            Extraigo los ángulos de sus propias palabras, escribo los anuncios y los hago
-            competir. Nada se publica sin tu GO.
+          <!-- No sube nada: cambia la expectativa. El export se pide en el panel,
+               que es donde DARWIN puede explicar por qué lo necesita. -->
+          <span id="chat-chip" class="chip" title="el export se pide en el panel, después del análisis de tu web">
+            <span id="chip-icon">+</span> <span id="chip-label">TENGO CHAT</span>
           </span>
-        </li>
-      </ol>
+          <button id="go" type="submit">ANALIZAR GRATIS</button>
+        </form>
+        <div id="status" class="status">
+          <span class="dot"></span>
+          <span id="status-line"></span>
+        </div>
+      </div>
 
-      <p class="foot">
-        Cada anuncio carga la cita textual del cliente que lo originó.
-        <br />
-        Sin esa cita, el anuncio no existe.
+      <div class="trust">
+        <a href="#simulacion">VER SIMULACIÓN EN VIVO <span style="color: var(--green)">→</span></a>
+        <span class="sep">/</span>
+        <span>SIN INSTALACIONES</span>
+        <span class="sep">/</span>
+        <span>EXPORTAS TU CHAT EN 2 TOQUES</span>
+        <span class="sep">/</span>
+        <span>NADA SE PUBLICA SIN TU APROBACIÓN</span>
+      </div>
+
+      <div class="console">
+        <div class="console-bar">
+          <div class="lights"><span></span><span></span><span></span></div>
+          <span class="console-title">darwin / dosmicos.co · chat-export.txt</span>
+          <div class="spacer"></div>
+          <span class="tag-live"><span class="dot"></span>LEYENDO</span>
+        </div>
+        <div class="console-grid">
+          <div class="col">
+            <div class="col-head"><span>01 · CONVERSACIONES</span><span>128 CHATS</span></div>
+            <div class="stack" id="chat-col"></div>
+          </div>
+          <div class="col col-2">
+            <div class="col-head"><span>02 · SEÑALES EXTRAÍDAS</span><span>FREC.</span></div>
+            <div class="stack" id="sig-col"></div>
+            <div class="note-dash">
+              cada señal guarda la frase textual<br />del cliente y su repetición
+            </div>
+          </div>
+          <div class="col" style="display: flex; flex-direction: column">
+            <div class="col-head">
+              <span>03 · PROMESA + MATERIAL</span><span style="color: var(--green)">BORRADOR</span>
+            </div>
+            <div class="field-label">PROMESA DE VENTA</div>
+            <div class="promise" id="sel-promise"></div>
+            <div class="mini">
+              <div class="mini-head">
+                <span class="mini-head-1" id="sel-platform"></span>
+                <span class="mini-head-2" id="sel-id"></span>
+              </div>
+              <div class="mini-body">
+                <div class="mini-h" id="sel-head"></div>
+                <div class="mini-b" id="sel-body"></div>
+                <div class="mini-cta" id="sel-cta"></div>
+              </div>
+              <div class="traza">
+                <div class="traza-l">TRAZA</div>
+                <div class="traza-q">
+                  <span id="sel-quote"></span> <em id="sel-freq"></em>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap" id="como">
+      <div class="kicker">CÓMO FUNCIONA</div>
+      <h2 style="max-width: 720px">Le entregas dos cosas. El resto lo hace el sistema.</h2>
+      <p class="lede" style="max-width: 560px">
+        Tu página web y el archivo de conversaciones que ya tienes. Nada más.
       </p>
-    </main>
+      <div class="steps" id="steps"></div>
+    </section>
+
+    <section class="wrap" id="trazabilidad">
+      <div class="kicker">LO QUE LO HACE DISTINTO</div>
+      <h2>
+        Los demás asistentes se inventan el mensaje. DARWIN lo saca de lo que tus clientes ya te
+        escribieron.
+      </h2>
+
+      <div class="panelbox">
+        <div class="panelbox-head">
+          <span class="t1">TRAZABILIDAD DE MENSAJE</span>
+          <span class="div"></span>
+          <span class="t2">selecciona una frase o un anuncio para ver el vínculo</span>
+          <div class="spacer"></div>
+          <span id="trace-btn" class="trace-btn on"><span class="dot"></span
+            ><span id="trace-btn-label">RECORRIENDO TRAZAS</span></span>
+        </div>
+
+        <div class="trace-grid">
+          <div class="trace-col">
+            <div class="lbl">FRASES TEXTUALES DEL CLIENTE</div>
+            <div class="trace-col" id="q-col" style="gap: 14px"></div>
+          </div>
+
+          <div style="align-self: start; padding-top: 32px">
+            <svg viewBox="0 0 120 394" width="120" height="394" style="display: block; overflow: visible" id="wires">
+              <path id="p0" d="M0,44 C60,44 60,44 120,44" fill="none" />
+              <path id="p1" d="M0,146 C62,146 58,248 120,248" fill="none" />
+              <path id="p2" d="M0,248 C62,248 58,350 120,350" fill="none" />
+              <path id="p3" d="M0,350 C62,350 58,146 120,146" fill="none" />
+              <path id="f0" d="M0,44 C60,44 60,44 120,44" fill="none" stroke-width="1.6" stroke-dasharray="4 8" style="animation: dwDash 1.2s linear infinite" />
+              <path id="f1" d="M0,146 C62,146 58,248 120,248" fill="none" stroke-width="1.6" stroke-dasharray="4 8" style="animation: dwDash 1.2s linear infinite" />
+              <path id="f2" d="M0,248 C62,248 58,350 120,350" fill="none" stroke-width="1.6" stroke-dasharray="4 8" style="animation: dwDash 1.2s linear infinite" />
+              <path id="f3" d="M0,350 C62,350 58,146 120,146" fill="none" stroke-width="1.6" stroke-dasharray="4 8" style="animation: dwDash 1.2s linear infinite" />
+              <circle id="beat-end" cx="120" cy="44" r="2.6" fill="#6FCF87" style="animation: dwBeat 1.6s ease-in-out infinite; transition: cy 0.35s cubic-bezier(0.22, 1, 0.36, 1)" />
+              <circle id="beat-start" cx="0" cy="44" r="2.2" fill="#6FCF87" style="transition: cy 0.35s cubic-bezier(0.22, 1, 0.36, 1)" />
+            </svg>
+          </div>
+
+          <div class="trace-col">
+            <div class="lbl" style="text-align: right">MATERIAL GENERADO</div>
+            <div class="trace-col" id="a-col" style="gap: 14px"></div>
+          </div>
+        </div>
+
+        <div class="rejected">
+          <span class="badge">SIN FUENTE · RECHAZADO</span>
+          <span class="strike">“El mejor regalo para tu bebé”</span>
+          <span class="why">no apunta a ninguna frase real · el sistema no lo acepta</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap" id="simulacion">
+      <div class="kicker">SIMULACIÓN DE CAMPAÑA</div>
+      <h2 style="max-width: 760px">Los anuncios compiten entre ellos. Sobrevive el que vende.</h2>
+      <p class="lede">
+        Una semana simulada: lo que no da señal se descarta con una regla visible; lo que vende se
+        reproduce en variantes que cambian una sola cosa a la vez.
+      </p>
+
+      <div class="panelbox" style="margin-top: 44px">
+        <div class="sim-head">
+          <span class="rule-chip">REGLA DE DESCARTE · CTR &lt; 0.90% CON ≥ 1,200 IMPRESIONES</span>
+          <div class="spacer"></div>
+          <div class="days" id="days"></div>
+          <span id="play" class="play">❙❙ PAUSA</span>
+        </div>
+        <div class="sim-cols">
+          <span>VARIANTE</span><span>MENSAJE</span><span>CTR</span><span>IMPR.</span
+          ><span style="text-align: right">ESTADO</span>
+        </div>
+        <div class="sim-body">
+          <div id="sim-rows"></div>
+          <div class="daynote" id="daynote"></div>
+        </div>
+        <div class="sim-foot">
+          <span class="a">SIMULACIÓN BASADA EN SUPUESTOS DE CATEGORÍA · NO ES UNA PROMESA DE RESULTADOS</span>
+          <span class="b">TODO QUEDA EN BORRADOR HASTA QUE TÚ LO APRUEBAS</span>
+        </div>
+      </div>
+
+      <div class="trio">
+        <div>
+          <div class="t">DESCARTE</div>
+          <div class="d">Regla fija y visible. Si no da señal, se apaga: sin corazonadas.</div>
+        </div>
+        <div>
+          <div class="t">REPRODUCCIÓN</div>
+          <div class="d">El ganador se copia cambiando una sola cosa, para saber qué la movió.</div>
+        </div>
+        <div>
+          <div class="t">MEMORIA</div>
+          <div class="d">Lo aprendido se guarda. La próxima campaña no empieza de cero.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="wrap">
+      <div class="cta">
+        <div class="glow"></div>
+        <div class="in">
+          <div class="kicker">DARWIN</div>
+          <h2>El marketing evoluciona solo.</h2>
+          <p>
+            Sube tu web y tu chat. Recibe promesas, anuncios y campañas con la frase real de tu
+            cliente al lado.
+          </p>
+          <div class="cta-btns">
+            <a href="#empezar" class="p">INICIAR PRUEBA GRATIS</a>
+            <a href="#simulacion" class="s">VER LA SIMULACIÓN</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="wrap">
+      <img src="assets/darwin-wordmark.png" alt="DARWIN" />
+      <div class="spacer"></div>
+      <nav>
+        <a href="#como">CÓMO FUNCIONA</a>
+        <a href="#trazabilidad">TRAZABILIDAD</a>
+        <a href="#simulacion">SIMULACIÓN</a>
+      </nav>
+    </footer>
 
     <script src="landing.js"></script>
   </body>
