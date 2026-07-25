@@ -31,7 +31,8 @@ como hilo visual.
 
 ## Notes
 
-- Conservar la estética editorial monocromática: hueso cálido, tinta y coral.
+- Aplicar la estética exacta de la app: negro con retícula, paneles de consola,
+  Inter + JetBrains Mono y verde de estado.
 - Conservar las seis ideas del deck actual y el texto de fuentes.
 - Nada debe publicarse ni ejecutarse sobre la app.
-- No usar el logo descartado; DARWIN se presenta como wordmark tipográfico.
+- Usar el wordmark oficial transparente de DARWIN, sin deformarlo ni redibujarlo.

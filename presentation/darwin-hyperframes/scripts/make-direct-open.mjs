@@ -9,6 +9,7 @@ const gsapPath =
   "/Users/juliancastro/.hermes/hermes-agent/node_modules/gsap/dist/gsap.min.js";
 const localGsapPath = path.join(projectDir, "assets", "gsap.min.js");
 const fontDir = path.join(projectDir, "assets", "fonts");
+const appFontDir = path.resolve(projectDir, "../../public/assets/fonts");
 
 const externalGsap =
   '    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>';
@@ -21,7 +22,7 @@ const standaloneStyles = `
         height: 100%;
         min-width: 0;
         min-height: 0;
-        background: #090908;
+        background: #0a0a0b;
       }
 
       html.standalone body {
@@ -61,8 +62,8 @@ const standaloneStyles = `
         z-index: 50;
         display: block;
         pointer-events: none;
-        font-family: "IBM Plex Mono", monospace;
-        color: #f1efe8;
+        font-family: "JetBrains Mono", monospace;
+        color: #edeef2;
       }
 
       .standalone-progress {
@@ -72,14 +73,14 @@ const standaloneStyles = `
         left: 24px;
         height: 2px;
         overflow: hidden;
-        background: rgba(241, 239, 232, 0.18);
+        background: rgba(237, 238, 242, 0.12);
       }
 
       .standalone-progress > span {
         display: block;
         width: calc(var(--standalone-progress, 1) * 100%);
         height: 100%;
-        background: #dc8059;
+        background: #6fcf87;
         transform-origin: left center;
         transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
       }
@@ -89,8 +90,8 @@ const standaloneStyles = `
         position: absolute;
         bottom: 31px;
         padding: 7px 10px;
-        border: 1px solid rgba(241, 239, 232, 0.18);
-        background: rgba(17, 17, 15, 0.74);
+        border: 1px solid #262833;
+        background: rgba(13, 14, 18, 0.9);
         backdrop-filter: blur(12px);
         font-size: 10px;
         line-height: 1;
@@ -351,6 +352,23 @@ const fonts = [
   "ibm-plex-mono-medium.ttf",
 ];
 
+const appFonts = [
+  "inter-400.woff2",
+  "inter-500.woff2",
+  "inter-600.woff2",
+  "inter-700.woff2",
+  "jetbrains-mono-400.woff2",
+  "jetbrains-mono-500.woff2",
+  "jetbrains-mono-700.woff2",
+];
+
+fs.mkdirSync(fontDir, { recursive: true });
+appFonts.forEach((filename) => {
+  const source = path.join(appFontDir, filename);
+  const target = path.join(fontDir, filename);
+  if (fs.existsSync(source)) fs.copyFileSync(source, target);
+});
+
 fonts.forEach((filename) => {
   const relativeUrl = `url("assets/fonts/${filename}")`;
   if (!html.includes(relativeUrl)) return;
@@ -359,6 +377,25 @@ fonts.forEach((filename) => {
     fs.readFileSync(path.join(fontDir, filename)).toString("base64");
   html = html.replace(relativeUrl, `url("${fontData}")`);
 });
+
+appFonts.forEach((filename) => {
+  const relativeUrl = `url("assets/fonts/${filename}")`;
+  if (!html.includes(relativeUrl)) return;
+  const fontData =
+    "data:font/woff2;base64," +
+    fs.readFileSync(path.join(fontDir, filename)).toString("base64");
+  html = html.replaceAll(relativeUrl, `url("${fontData}")`);
+});
+
+const logoSrc = 'src=".media/images/logo_002.png"';
+if (html.includes(logoSrc)) {
+  const logoData =
+    "data:image/png;base64," +
+    fs
+      .readFileSync(path.join(projectDir, ".media", "images", "logo_002.png"))
+      .toString("base64");
+  html = html.replaceAll(logoSrc, `src="${logoData}"`);
+}
 
 fs.writeFileSync(entryPath, html);
 console.log(`Built direct-open deck: ${entryPath}`);

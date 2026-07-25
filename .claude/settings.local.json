@@ -3,7 +3,10 @@
     "allow": [
       "WebFetch(domain:okara.ai)",
       "mcp__claude-in-chrome__tabs_context_mcp",
-      "mcp__claude-in-chrome__navigate"
+      "mcp__claude-in-chrome__navigate",
+      "Bash(node -e ' *)",
+      "WebFetch(domain:www.wordware.ai)",
+      "mcp__visualize__read_me"
     ]
   }
 }

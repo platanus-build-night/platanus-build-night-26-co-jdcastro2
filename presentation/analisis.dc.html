@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  html { color-scheme: dark; }
+  body { margin:0; background:#0A0A0B; color:#EDEEF2; font-family:'Inter',system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+  * { box-sizing:border-box; }
+  a { color:#EDEEF2; text-decoration:none; }
+  a:hover { color:#6FCF87; }
+  ::selection { background:#22452C; color:#DFF6E6; }
+  ::-webkit-scrollbar { width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb { background:#22242E; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  @keyframes dwPulse { 0%,100% { opacity:1 } 50% { opacity:.3 } }
+  @keyframes dwDash { to { stroke-dashoffset:-24 } }
+  @keyframes dwBob { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-2.5px) } }
+  @keyframes dwLegA { 0%,100% { transform:rotate(-16deg) } 50% { transform:rotate(16deg) } }
+  @keyframes dwLegB { 0%,100% { transform:rotate(16deg) } 50% { transform:rotate(-16deg) } }
+  @keyframes dwArmA { 0%,100% { transform:rotate(12deg) } 50% { transform:rotate(-12deg) } }
+  @keyframes dwArmB { 0%,100% { transform:rotate(-12deg) } 50% { transform:rotate(12deg) } }
+  @keyframes dwIdle { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-1.5px) } }
+  @keyframes dwTypeA { 0%,100% { transform:rotate(4deg) } 50% { transform:rotate(38deg) } }
+  @keyframes dwTypeB { 0%,100% { transform:rotate(-38deg) } 50% { transform:rotate(-4deg) } }
+  @keyframes dwScan { from { background-position:-60% 0 } to { background-position:180% 0 } }
+  @keyframes dwSpark { 0%,100% { opacity:.2; transform:translateY(0) } 50% { opacity:1; transform:translateY(-3px) } }
+  @keyframes dwWalk { 0% { transform:translateX(-9px) } 49.9% { transform:translateX(9px) } 50% { transform:translateX(9px) scaleX(-1) } 99.9% { transform:translateX(-9px) scaleX(-1) } 100% { transform:translateX(-9px) } }
+  @keyframes dwCaret { 0%,49% { opacity:1 } 50%,100% { opacity:0 } }
+  @keyframes dwTread { to { background-position:-16px 0 } }
+</style>
+</helmet>
+
+<div style="height:100vh;overflow:auto;background:#0A0A0B">
+<div style="height:100vh;min-height:812px;min-width:1280px;display:grid;grid-template-rows:58px 78px minmax(0,1fr);background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:64px 64px">
+
+  <div style="display:flex;align-items:center;gap:20px;padding:0 20px;border-bottom:1px solid #1A1B22;background:rgba(13,14,18,.9)">
+    <div style="display:flex;align-items:center;gap:11px;flex:none">
+      <img src="assets/darwin-wordmark.png" alt="DARWIN" style="height:17px;width:auto;display:block" />
+    </div>
+    <span style="width:1px;height:18px;background:#22242E;flex:none"></span>
+    <div style="display:flex;align-items:baseline;gap:10px;min-width:0;overflow:hidden">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#EDEEF2;flex:none">dosmicos.co</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#838996;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0">sleeping bags · 128 conversaciones</span>
+    </div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:8px;flex:none">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:#8A8F9C;border:1px solid #262833;padding:6px 11px;border-radius:100px">día {{ dayLabel }}</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:#8A8F9C;border:1px solid #262833;padding:6px 11px;border-radius:100px">{{ liveLabel }} ads vivos</span>
+      <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:#D8A05C;border:1px solid #3A2C17;background:#161108;padding:6px 11px;border-radius:100px">{{ spendLabel }}</span>
+      <sc-if value="{{ showCost }}" hint-placeholder-val="{{ true }}">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.06em;color:#838996;border:1px solid #262833;padding:6px 11px;border-radius:100px">run {{ costLabel }}</span>
+      </sc-if>
+      <span style="display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;color:{{ stateColor }};border:1px solid {{ stateBorder }};background:{{ stateBg }};padding:6px 11px;border-radius:100px"><span style="width:5px;height:5px;border-radius:50%;background:{{ stateColor }};animation:{{ stateAnim }}"></span>{{ stateLabel }}</span>
+    </div>
+  </div>
+
+  <div style="display:flex;align-items:stretch;gap:16px;padding:10px 20px;border-bottom:1px solid #1A1B22;background:#0B0C10">
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:3px">
+      <div style="display:flex;align-items:baseline;gap:10px;min-width:0">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#3A3D4C;flex:none">·</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5A5F6B;flex:none;min-width:78px">{{ log0.who }}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5A5F6B;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ log0.text }}</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:10px;min-width:0">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#3A3D4C;flex:none">·</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#6B7080;flex:none;min-width:78px">{{ log1.who }}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#6B7080;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ log1.text }}</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:10px;min-width:0">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#6FCF87;flex:none">&gt;</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#6FCF87;flex:none;min-width:78px">{{ log2.who }}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#DFF6E6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0">{{ log2.text }}</span>
+        <span style="width:7px;height:14px;background:#6FCF87;flex:none;animation:dwCaret 1s steps(1) infinite"></span>
+      </div>
+    </div>
+    <div style="flex:none;display:flex;align-items:center;gap:5px;border-left:1px solid #1A1B22;padding-left:16px">
+      <sc-for list="{{ dayChips }}" as="d" hint-placeholder-count="7">
+        <span onClick="{{ d.onSelect }}" style="cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;padding:6px 9px;border:1px solid {{ d.border }};color:{{ d.color }};background:{{ d.bg }};transition:all .18s">{{ d.label }}</span>
+      </sc-for>
+      <span onClick="{{ togglePlay }}" style="cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;margin-left:6px;padding:6px 13px;border:1px solid #2C5F3C;background:#0F1712;color:#6FCF87">{{ playLabel }}</span>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:308px minmax(0,1fr) 330px;grid-template-rows:minmax(330px,1fr) minmax(318px,.9fr) 76px;grid-template-areas:'fuente cadena plan' 'arena arena memoria' 'ciclo ciclo ciclo';gap:1px;background:#1A1B22;min-height:0">
+
+    <div style="grid-area:fuente;background:#0D0E12;display:flex;flex-direction:column;min-height:0;overflow:hidden">
+      <div style="flex:none;padding:14px 16px 10px;display:flex;align-items:center;gap:9px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6FCF87">①</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;color:#9AA0AC">LA FUENTE</span>
+        <div style="flex:1"></div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#838996">6/6</span>
+      </div>
+      <div style="flex:1;min-height:0;overflow-y:auto;padding:0 16px 16px">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:#838996;margin-bottom:9px">ENTRADAS LEÍDAS</div>
+        <div style="display:flex;flex-direction:column;gap:1px;background:#1A1B22;border:1px solid #1A1B22">
+          <div style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:#101115">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6FCF87;flex:none">✓</span>
+            <span style="font-size:13px;color:#D6D9E0;flex:1">web</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#838996">dosmicos.co</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:#101115">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6FCF87;flex:none">✓</span>
+            <span style="font-size:13px;color:#D6D9E0;flex:1">conversaciones</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#838996">128 chats</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:#101115">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6FCF87;flex:none">✓</span>
+            <span style="font-size:13px;color:#D6D9E0;flex:1">posts CSV</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#838996">64 posts</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:#101115">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6FCF87;flex:none">✓</span>
+            <span style="font-size:13px;color:#D6D9E0;flex:1">reseñas CSV</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#838996">212 reseñas</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:#101115">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6FCF87;flex:none">✓</span>
+            <span style="font-size:13px;color:#D6D9E0;flex:1">benchmarks de categoría</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#838996">baby · CO</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;padding:9px 11px;background:#101115">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6FCF87;flex:none">✓</span>
+            <span style="font-size:13px;color:#D6D9E0;flex:1">IG scraping</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#838996">9 cuentas</span>
+          </div>
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:#838996;margin:20px 0 9px">EL PIPELINE</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <sc-for list="{{ pipeline }}" as="p" hint-placeholder-count="11">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="width:5px;height:5px;border-radius:50%;flex:none;background:{{ p.dot }};animation:{{ p.anim }}"></span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ p.nameColor }};flex:1">{{ p.role }}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ p.outColor }}">{{ p.out }}</span>
+              <sc-if value="{{ showCost }}" hint-placeholder-val="{{ true }}">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#5A5F6B;min-width:34px;text-align:right">{{ p.cost }}</span>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <div style="margin-top:14px;padding-top:12px;border-top:1px dashed #1F2129;font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.7;color:#838996">nada se publica solo<br />todo queda en borrador</div>
+      </div>
+    </div>
+
+    <div style="grid-area:cadena;background:#0D0E12;display:flex;flex-direction:column;min-height:0;overflow:hidden">
+      <div style="flex:none;padding:14px 18px 10px;display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6FCF87">②</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;color:#9AA0AC">LA CADENA</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#838996">· lo que dijo tu clienta → el ad que salió de ahí</span>
+        <div style="flex:1"></div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#838996">{{ chainCount }}</span>
+      </div>
+
+      <div style="flex:none;padding:0 18px 12px;display:flex;gap:6px;flex-wrap:wrap">
+        <sc-for list="{{ chainTabs }}" as="t" hint-placeholder-count="6">
+          <span onClick="{{ t.onSelect }}" style="cursor:pointer;display:inline-flex;align-items:center;gap:7px;font-family:'JetBrains Mono',monospace;font-size:10px;padding:6px 9px;border:1px solid {{ t.border }};background:{{ t.bg }};color:{{ t.color }};opacity:{{ t.opacity }};transition:all .25s">{{ t.id }} <span style="color:{{ t.freqColor }}">{{ t.freq }}</span></span>
+        </sc-for>
+      </div>
+
+      <div style="flex:1;min-height:0;overflow-y:auto;padding:0 18px 18px;display:flex;flex-direction:column;gap:0">
+        <div style="border:1px solid #2C5F3C;background:#14151A;padding:14px 16px;box-shadow:0 0 30px -12px rgba(111,207,135,.5)">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:9px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:#838996">FRASE TEXTUAL</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#5A5F6B">{{ chain.conv }}</span>
+          </div>
+          <div style="font-size:17px;line-height:1.45;color:#F4F5F7;text-wrap:pretty">“{{ chain.quote }}”</div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;padding:7px 0 7px 22px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#6FCF87">↓</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;color:#838996">MINER · AGRUPA Y CUENTA</span>
+        </div>
+
+        <div style="border:1px solid #1F2129;background:#101115;padding:13px 16px">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;padding:3px 7px;color:{{ chain.kindColor }};background:{{ chain.kindBg }};border:1px solid {{ chain.kindBorder }}">{{ chain.kind }}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#EDEEF2">{{ chain.insightId }}</span>
+            <div style="flex:1"></div>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#D6D9E0">{{ chain.freqFull }}</span>
+          </div>
+          <div style="margin-top:9px;font-size:14px;line-height:1.5;color:#8A8F9C;text-wrap:pretty">{{ chain.summary }}</div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;padding:7px 0 7px 22px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#6FCF87">↓</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;color:#838996">ANGLES · TRADUCE A PROMESA</span>
+        </div>
+
+        <div style="border:1px solid #1F2129;background:#101115;padding:13px 16px">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#EDEEF2">{{ chain.angleId }}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#838996">{{ chain.family }}</span>
+            <div style="flex:1"></div>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#838996">confianza</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ chain.confColor }}">{{ chain.conf }}</span>
+          </div>
+          <div style="margin-top:10px;font-size:19px;line-height:1.3;letter-spacing:-.01em;font-weight:500;color:#F4F5F7;text-wrap:pretty">{{ chain.hook }}</div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:10px;padding:7px 0 7px 22px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:{{ chain.adArrowColor }}">↓</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;color:#838996">{{ chain.step3 }}</span>
+        </div>
+
+        <sc-if value="{{ chain.hasAds }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ chain.ads }}" as="ad" hint-placeholder-count="1">
+              <div style="border:1px solid {{ ad.border }};background:#14151A">
+                <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #1F2129;flex-wrap:wrap">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#EDEEF2">{{ ad.id }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;color:#838996;border:1px solid #262833;padding:3px 7px">{{ ad.format }}</span>
+                  <div style="flex:1"></div>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;color:{{ ad.stColor }};border:1px solid {{ ad.stBorder }};background:{{ ad.stBg }};padding:3px 8px">{{ ad.status }}</span>
+                </div>
+                <div style="padding:13px 14px">
+                  <div style="font-size:16px;line-height:1.35;font-weight:500;color:#EDEEF2;text-wrap:pretty">{{ ad.headline }}</div>
+                  <div style="margin-top:6px;font-size:14px;line-height:1.5;color:#8A8F9C;text-wrap:pretty">{{ ad.sub }}</div>
+                </div>
+                <div style="padding:9px 14px;border-top:1px dashed #262833;background:#101115;display:flex;align-items:center;gap:9px;flex-wrap:wrap">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.1em;color:#6FCF87">CITA VERIFICADA</span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.5;color:#838996;min-width:0">“{{ ad.quote }}” · evidence[{{ ad.evIndex }}] de {{ ad.insight }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ chain.noAds }}" hint-placeholder-val="{{ false }}">
+          <div style="border:1px dashed #2C2F3B;background:#101115;padding:16px">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;color:#D8A05C">0 ADS · EL ESTRATEGA NO LE ASIGNÓ PRESUPUESTO</div>
+            <div style="margin-top:9px;font-size:14px;line-height:1.55;color:#8A8F9C;text-wrap:pretty">El ángulo existe y queda guardado, pero no compite esta corrida: la evidencia no alcanzó para pagarle un ad set propio.</div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <div style="grid-area:plan;background:#0D0E12;display:flex;flex-direction:column;min-height:0;overflow:hidden">
+      <div style="flex:none;padding:14px 16px 10px;display:flex;align-items:center;gap:9px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6FCF87">③</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;color:#9AA0AC">EL PLAN</span>
+        <div style="flex:1"></div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ planCountColor }}">{{ planCount }}</span>
+      </div>
+      <div style="flex:1;min-height:0;overflow-y:auto;padding:0 16px 16px">
+        <div style="display:flex;flex-direction:column;gap:1px;background:#1A1B22;border:1px solid #1A1B22">
+          <sc-for list="{{ channels }}" as="c" hint-placeholder-count="5">
+            <div style="position:relative;background:#101115;overflow:hidden">
+              <div style="position:absolute;left:0;top:0;bottom:0;width:{{ c.fill }};background:{{ c.fillBg }};transition:width .6s ease"></div>
+              <div style="position:relative;display:flex;align-items:center;gap:10px;padding:11px 12px">
+                <span style="width:6px;height:6px;border-radius:50%;flex:none;background:{{ c.dot }};animation:{{ c.anim }}"></span>
+                <span style="font-size:14px;color:{{ c.nameColor }};flex:1;transition:color .3s">{{ c.name }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ c.outColor }};transition:color .3s">{{ c.out }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="margin-top:14px;font-size:13px;line-height:1.6;color:#8A8F9C;text-wrap:pretty">Solo corren los canales que el mix activó. El mix lo decide el Estratega, y el Estratega necesita tus conversaciones.</div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:#838996;margin:20px 0 10px">PLAN DE TESTING</div>
+        <div style="border:1px solid #262833;background:#14151A;padding:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#D6D9E0">1 ad</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5A5F6B">=</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#D6D9E0">1 ad set</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5A5F6B">=</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#6FCF87">$20.000/día</span>
+          </div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px dashed #262833;font-size:13px;line-height:1.6;color:#8A8F9C;text-wrap:pretty">Presupuesto parejo para todos. Nadie gana por tener más plata encima: gana por comprar.</div>
+        </div>
+
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:#838996;margin:20px 0 10px">MUTACIÓN</div>
+        <div style="font-size:13px;line-height:1.6;color:#8A8F9C;text-wrap:pretty">El que gradúa se reproduce en 2 hijos. Cada hijo muta UNA sola variable — el hook o el formato — y de ahí sale su nombre.</div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ mutColor }};border:1px solid {{ mutBorder }};padding:5px 9px;transition:all .3s">-h → muta hook</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ mutColor }};border:1px solid {{ mutBorder }};padding:5px 9px;transition:all .3s">-f → muta formato</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="grid-area:arena;background:#0D0E12;display:flex;flex-direction:column;min-height:0;overflow:hidden">
+      <div style="flex:none;padding:14px 18px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6FCF87">④</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;color:#9AA0AC">SELECCIÓN NATURAL</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#D8A05C">· simulación con supuestos de categoría · no es un pronóstico</span>
+        <div style="flex:1"></div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;color:#8A8F9C;border:1px solid #262833;padding:5px 9px">GRADÚA · ROAS ≥ 3.0 CON 3+ COMPRAS</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;color:#8A8F9C;border:1px solid #262833;padding:5px 9px">MUERE · ROAS &lt; 1.0 AL DÍA 7</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;color:#8A8F9C;border:1px solid #262833;padding:5px 9px">MUERE · 20+ ATC SIN COMPRA</span>
+      </div>
+
+      <div style="flex:none;padding:0 18px 8px">
+        <div style="display:grid;grid-template-columns:minmax(0,1.5fr) 104px 64px 78px 52px 104px 54px minmax(0,1.4fr);gap:14px;padding-bottom:9px;border-bottom:1px solid #1F2129;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;color:#838996">
+          <span>AD</span>
+          <span>ROAS ACUM.</span>
+          <span style="text-align:right">ROAS</span>
+          <span style="text-align:right">COMPRAS</span>
+          <span style="text-align:right">ATC</span>
+          <span style="text-align:right">GASTO COP</span>
+          <span style="text-align:right">FREQ</span>
+          <span>REGLA QUE SE DISPARÓ</span>
+        </div>
+      </div>
+
+      <div style="flex:1;min-height:0;overflow-y:auto;padding:0 18px 16px">
+        <sc-if value="{{ arenaEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:38px 0;display:flex;flex-direction:column;align-items:center;gap:12px">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#6B7080">esperando la primera señal</span>
+            <span style="font-size:14px;line-height:1.6;color:#5A5F6B;max-width:420px;text-align:center;text-wrap:pretty">Los ads salen al aire cuando el Estratega cierre el mix y Paid escriba las piezas.</span>
+          </div>
+        </sc-if>
+        <sc-for list="{{ arena }}" as="r" hint-placeholder-count="6">
+          <div style="display:grid;grid-template-columns:minmax(0,1.5fr) 104px 64px 78px 52px 104px 54px minmax(0,1.4fr);gap:14px;align-items:center;padding:11px 0;border-bottom:1px solid #14151A;opacity:{{ r.opacity }};transition:opacity .4s">
+            <div style="min-width:0;display:flex;flex-direction:column;gap:3px">
+              <div style="display:flex;align-items:center;gap:8px;min-width:0">
+                <sc-if value="{{ r.isChild }}" hint-placeholder-val="{{ false }}">
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#6FCF87;flex:none">↳</span>
+                </sc-if>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:{{ r.idColor }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.id }}</span>
+              </div>
+              <span style="font-size:12px;line-height:1.35;color:{{ r.copyColor }};text-decoration:{{ r.strike }};overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.copy }}</span>
+            </div>
+            <svg viewBox="0 0 104 26" width="104" height="26" style="display:block;overflow:visible">
+              <line x1="0" y1="22.3" x2="104" y2="22.3" stroke="#22242E" stroke-width="1" stroke-dasharray="2 4" />
+              <polyline points="{{ r.spark }}" fill="none" stroke="{{ r.sparkColor }}" stroke-width="1.5" stroke-linejoin="round" />
+              <circle cx="{{ r.dotX }}" cy="{{ r.dotY }}" r="2.2" fill="{{ r.sparkColor }}" />
+            </svg>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:{{ r.roasColor }};text-align:right">{{ r.roas }}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:{{ r.buysColor }};text-align:right">{{ r.buys }}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#8A8F9C;text-align:right">{{ r.atc }}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#8A8F9C;text-align:right">{{ r.spend }}</span>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#8A8F9C;text-align:right">{{ r.freq }}</span>
+            <div style="min-width:0;display:flex;align-items:center;gap:8px">
+              <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;padding:4px 7px;flex:none;color:{{ r.stColor }};border:1px solid {{ r.stBorder }};background:{{ r.stBg }}">{{ r.status }}</span>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#838996;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.rule }}</span>
+            </div>
+          </div>
+        </sc-for>
+        <div style="padding-top:14px;font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.7;color:#838996">Cada ad se lleva su propio ad set y su propio presupuesto. A los 7 días, el que no compra muere.</div>
+      </div>
+    </div>
+
+    <div style="grid-area:memoria;background:#0D0E12;display:flex;flex-direction:column;min-height:0;overflow:hidden">
+      <div style="flex:none;padding:14px 16px 10px;display:flex;align-items:center;gap:9px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6FCF87">⑤</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;color:#9AA0AC">LA MEMORIA</span>
+        <div style="flex:1"></div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ memColor }}">{{ memState }}</span>
+      </div>
+      <div style="flex:1;min-height:0;overflow-y:auto;padding:0 16px 16px">
+        <sc-if value="{{ memReady }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="border:1px solid #2C5F3C;background:#0F1712;padding:13px 14px">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;color:#6FCF87">GRADUÓ</div>
+              <div style="margin-top:9px;font-size:14px;line-height:1.5;color:#EDEEF2;text-wrap:pretty">noche_completa × ugc × paid</div>
+              <div style="margin-top:7px;font-family:'JetBrains Mono',monospace;font-size:10px;line-height:1.6;color:#8A8F9C">ROAS 5.4x · 4 compras · el dolor de la noche es el que paga</div>
+            </div>
+            <div style="border:1px solid #262833;background:#14151A;padding:13px 14px">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;color:#E8623A">MURIÓ</div>
+              <div style="margin-top:9px;display:flex;flex-direction:column;gap:6px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8A8F9C">
+                <span>regalo_a_tiempo · ugc + static</span>
+                <span>talla_real · static</span>
+                <span>precio_justo · static</span>
+              </div>
+              <div style="margin-top:10px;padding-top:10px;border-top:1px dashed #262833;font-size:13px;line-height:1.55;color:#8A8F9C;text-wrap:pretty">El static no compró en ningún ángulo. La próxima corrida no lo prueba primero.</div>
+            </div>
+            <div style="border:1px dashed #2C2F3B;padding:13px 14px">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.12em;color:#838996">NUNCA SALIÓ</div>
+              <div style="margin-top:9px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#8A8F9C">hecho_aqui · 0 ads</div>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ memPending }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:14px;line-height:1.6;color:#8A8F9C;text-wrap:pretty">Aquí se escribe qué ángulo × formato × canal graduó y cuál murió. Se cierra cuando termine la ventana de 7 días.</div>
+        </sc-if>
+      </div>
+    </div>
+
+    <div style="grid-area:ciclo;background:#0B0C10;display:flex;align-items:center;gap:18px;padding:0 18px;overflow:hidden">
+      <div style="flex:none;display:flex;flex-direction:column;gap:5px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#6FCF87">↰</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.12em;color:#EDEEF2">CORRIDA 1</span>
+        </div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.06em;color:#838996">sin memoria previa</span>
+      </div>
+
+      <div style="flex:1;min-width:0;position:relative;height:56px">
+        <div style="position:absolute;left:0;right:0;top:33px;height:1px;background:#1F2129"></div>
+        <div style="position:absolute;left:0;top:33px;height:1px;background:#6FCF87;width:{{ trackW }};opacity:.5;transition:width .55s ease"></div>
+        <div style="position:absolute;left:0;right:0;top:33px;height:1px;background-image:linear-gradient(90deg,transparent 0%,rgba(111,207,135,.85) 6%,transparent 14%);background-size:200% 100%;background-repeat:no-repeat;animation:dwScan 3.4s linear infinite"></div>
+        <div style="position:absolute;inset:0;display:flex;align-items:flex-start;justify-content:space-between">
+          <sc-for list="{{ robots }}" as="a" hint-placeholder-count="11">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:0;opacity:{{ a.opacity }};transition:opacity .35s">
+              <div style="width:16px;height:25px;margin-top:8px;animation:{{ a.walk }}">
+                <div style="position:relative;width:16px;height:25px;animation:{{ a.bob }}">
+                  <span style="position:absolute;left:4px;top:-7px;width:2px;height:2px;border-radius:50%;background:{{ a.spark }};animation:{{ a.sparkAnim }}"></span>
+                  <span style="position:absolute;left:9px;top:-9px;width:2px;height:2px;border-radius:50%;background:{{ a.spark }};animation:{{ a.sparkAnim2 }}"></span>
+                  <span style="position:absolute;left:5px;top:0;width:5px;height:5px;border-radius:50%;background:{{ a.led }};animation:{{ a.blink }}"></span>
+                  <span style="position:absolute;left:7px;top:4px;width:2px;height:3px;background:{{ a.line }}"></span>
+                  <span style="position:absolute;left:0;top:7px;width:16px;height:9px;border:1px solid {{ a.line }};background:{{ a.bodyBg }}"></span>
+                  <span style="position:absolute;left:4px;top:10px;width:2px;height:2px;background:{{ a.eye }}"></span>
+                  <span style="position:absolute;left:10px;top:10px;width:2px;height:2px;background:{{ a.eye }}"></span>
+                  <span style="position:absolute;left:-2px;top:9px;width:2px;height:5px;background:{{ a.line }};transform-origin:top center;animation:{{ a.armA }}"></span>
+                  <span style="position:absolute;left:16px;top:9px;width:2px;height:5px;background:{{ a.line }};transform-origin:top center;animation:{{ a.armB }}"></span>
+                  <span style="position:absolute;left:3px;top:16px;width:10px;height:5px;border:1px solid {{ a.line }};border-top:none;background:{{ a.bodyBg }}"></span>
+                  <span style="position:absolute;left:5px;top:20px;width:2px;height:5px;background:{{ a.line }};transform-origin:top center;animation:{{ a.legA }}"></span>
+                  <span style="position:absolute;left:9px;top:20px;width:2px;height:5px;background:{{ a.line }};transform-origin:top center;animation:{{ a.legB }}"></span>
+                </div>
+              </div>
+              <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.04em;color:{{ a.labelColor }};white-space:nowrap;transition:color .3s">{{ a.label }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="flex:none;display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:{{ phaseColor }}">{{ phaseLabel }}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#838996">esta corrida escribe la memoria</span>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1680,&quot;height&quot;:1000},&quot;autoplay&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Comportamiento&quot;},&quot;simSpeed&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:1400,&quot;min&quot;:600,&quot;max&quot;:3000,&quot;step&quot;:100,&quot;unit&quot;:&quot;ms&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Comportamiento&quot;},&quot;showCosts&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Contenido&quot;}}">
+const GREEN = '#6FCF87', ORANGE = '#E8623A', AMBER = '#D8A05C';
+
+const CHAINS = [
+  { id: 'duerme_destapada', freq: 23, kind: 'OBJECIÓN', conv: 'conv_0412',
+    quote: 'se le destapa toda la noche y amanece heladita, no sé qué hacer',
+    summary: 'el bebé se destapa de noche y amanece frío',
+    angleId: 'noche_completa', family: 'problem_solution', conf: '0.83',
+    hook: 'la cobijita que sí se queda puesta',
+    ads: [{ id: 'ad_noche_reel', format: 'ugc', headline: 'la cobijita que sí se queda puesta',
+      sub: 'duerme tapada toda la noche, sin cobijas sueltas', evIndex: 0,
+      quote: 'se le destapa toda la noche y amanece heladita' }] },
+  { id: 'regalo_con_fecha', freq: 31, kind: 'FRICCIÓN', conv: 'conv_0501',
+    quote: 'lo necesito antes del sábado que es el cumpleaños de mi sobrina',
+    summary: 'compran de regalo y la fecha del evento manda sobre todo lo demás',
+    angleId: 'regalo_a_tiempo', family: 'gift', conf: '0.88',
+    hook: 'el regalo que sí llega a tiempo',
+    ads: [
+      { id: 'ad_regalo_ugc', format: 'ugc', headline: 'el regalo que sí llega a tiempo',
+        sub: 'pídelo hoy, llega antes del sábado', evIndex: 0,
+        quote: 'lo necesito antes del sábado que es el cumpleaños de mi sobrina' },
+      { id: 'ad_regalo_static', format: 'static', headline: 'llega antes del baby shower',
+        sub: 'envío en 48h a toda Colombia', evIndex: 1,
+        quote: '¿alcanza a llegar para el baby shower del viernes?' }] },
+  { id: 'aguanta_lavadas', freq: 14, kind: 'MOTIVO', conv: 'conv_0233',
+    quote: 'la tela después de tres lavadas quedó igualita, muy buena',
+    summary: 'la tela aguanta el lavado y eso genera recompra',
+    angleId: 'aguanta_lavadas', family: 'social_proof', conf: '0.71',
+    hook: 'tres lavadas y quedó igualita',
+    ads: [{ id: 'ad_calidad_ugc', format: 'ugc', headline: 'tres lavadas y quedó igualita',
+      sub: 'algodón colombiano que aguanta el uso diario', evIndex: 0,
+      quote: 'la tela después de tres lavadas quedó igualita, muy buena' }] },
+  { id: 'talla_no_corresponde', freq: 11, kind: 'OBJECIÓN', conv: 'conv_0377',
+    quote: 'le queda grande la 2, ¿manejan 18 meses?',
+    summary: 'la talla del sitio no corresponde con la edad real del bebé',
+    angleId: 'talla_real', family: 'product_benefit', conf: '0.64',
+    hook: 'la talla que sí le queda',
+    ads: [{ id: 'ad_talla_carrusel', format: 'static', headline: 'la talla que sí le queda',
+      sub: 'guía real por edad, de 0 a 9 años', evIndex: 0,
+      quote: 'le queda grande la 2, ¿manejan 18 meses?' }] },
+  { id: 'objecion_precio', freq: 9, kind: 'FRENO', conv: 'conv_0290',
+    quote: 'está un poquito caro, ¿tienen combo o promoción?',
+    summary: 'el precio frena la primera compra si no hay combo',
+    angleId: 'precio_justo', family: 'offer', conf: '0.52',
+    hook: 'combo de dos, envío gratis',
+    ads: [{ id: 'ad_precio_static', format: 'static', headline: 'combo de dos, envío gratis',
+      sub: 'sale mejor que comprarlas por separado', evIndex: 0,
+      quote: 'está un poquito caro, ¿tienen combo o promoción?' }] },
+  { id: 'orgullo_local', freq: 7, kind: 'MOTIVO', conv: 'conv_0164',
+    quote: '¿es hecho en Colombia? eso es lo que estoy buscando',
+    summary: 'el origen local pesa en la decisión, sobre todo en regalo',
+    angleId: 'hecho_aqui', family: 'lifestyle', conf: '0.69',
+    hook: 'hecho en Colombia, hecho para el frío de aquí',
+    ads: [] }
+];
+
+const N = null;
+const ADS = [
+  { id: 'ad_noche_reel', copy: 'la cobijita que sí se queda puesta', born: 1, d: [
+    [20000,5,1,6.75,1.01,'c',''],[40000,10,2,6.75,1.02,'c',''],[60000,16,2,4.5,1.04,'c',''],
+    [80000,19,2,3.38,1.06,'c',''],[100000,23,4,5.4,1.07,'g','ROAS 5.4x · 4 compras → ESCALAR +25%/día'],
+    [100000,23,4,5.4,1.07,'g','ROAS 5.4x · 4 compras → ESCALAR +25%/día'],
+    [100000,23,4,5.4,1.07,'g','ROAS 5.4x · 4 compras → ESCALAR +25%/día']] },
+  { id: 'ad_noche_reel-h', copy: 'así dormía antes · muta el hook', born: 6, child: true, d: [
+    N,N,N,N,N,[20000,1,0,0,1.01,'c','1 ATC sin compra · ventana abierta'],
+    [40000,8,0,0,1.03,'c','8 ATC sin compra · ventana abierta']] },
+  { id: 'ad_noche_reel-f', copy: 'la cobijita que sí se queda puesta · muta a static', born: 6, child: true, d: [
+    N,N,N,N,N,[20000,4,0,0,1.02,'c','4 ATC sin compra · ventana abierta'],
+    [40000,12,0,0,1.03,'c','12 ATC sin compra · ventana abierta']] },
+  { id: 'ad_calidad_ugc', copy: 'tres lavadas y quedó igualita', born: 1, d: [
+    [20000,2,0,0,1.02,'c','2 ATC sin compra · ventana abierta'],
+    [40000,6,0,0,1.03,'c','6 ATC sin compra · ventana abierta'],
+    [60000,7,0,0,1.04,'c','7 ATC sin compra · ventana abierta'],
+    [80000,10,1,1.69,1.06,'c',''],[100000,12,1,1.35,1.07,'c',''],[120000,13,1,1.13,1.08,'c',''],
+    [140000,17,2,1.93,1.09,'c','ROAS 1.9x · sostiene, no escala']] },
+  { id: 'ad_regalo_ugc', copy: 'el regalo que sí llega a tiempo', born: 1, d: [
+    [20000,3,0,0,1.01,'c','3 ATC sin compra · ventana abierta'],
+    [40000,5,0,0,1.02,'c','5 ATC sin compra · ventana abierta'],
+    [60000,8,0,0,1.04,'c','8 ATC sin compra · ventana abierta'],
+    [80000,11,0,0,1.05,'c','11 ATC sin compra · ventana abierta'],
+    [100000,14,0,0,1.06,'c','14 ATC sin compra · ventana abierta'],
+    [120000,19,1,1.13,1.08,'c',''],[140000,25,1,0.96,1.10,'k','ROAS 1.0x tras 7 días → KILL']] },
+  { id: 'ad_regalo_static', copy: 'llega antes del baby shower', born: 1, d: [
+    [20000,5,0,0,1.01,'c','5 ATC sin compra · ventana abierta'],
+    [40000,12,0,0,1.03,'c','12 ATC sin compra · ventana abierta'],
+    [60000,16,0,0,1.04,'c','16 ATC sin compra · ventana abierta'],
+    [80000,19,1,1.69,1.06,'c',''],[100000,22,1,1.35,1.07,'c',''],[120000,24,1,1.13,1.09,'c',''],
+    [140000,28,1,0.96,1.11,'k','ROAS 1.0x tras 7 días → KILL']] },
+  { id: 'ad_talla_carrusel', copy: 'la talla que sí le queda', born: 1, d: [
+    [20000,2,0,0,1.01,'c','2 ATC sin compra · ventana abierta'],
+    [40000,3,0,0,1.03,'c','3 ATC sin compra · ventana abierta'],
+    [60000,8,0,0,1.04,'c','8 ATC sin compra · ventana abierta'],
+    [80000,14,0,0,1.06,'c','14 ATC sin compra · ventana abierta'],
+    [100000,15,0,0,1.07,'c','15 ATC sin compra · ventana abierta'],
+    [120000,18,0,0,1.09,'c','18 ATC sin compra · ventana abierta'],
+    [140000,22,0,0,1.10,'k','22 ATC, 0 compras en ventana completa → KILL']] },
+  { id: 'ad_precio_static', copy: 'combo de dos, envío gratis', born: 1, d: [
+    [20000,7,0,0,1.01,'c','7 ATC sin compra · ventana abierta'],
+    [40000,7,0,0,1.03,'c','7 ATC sin compra · ventana abierta'],
+    [60000,11,0,0,1.04,'c','11 ATC sin compra · ventana abierta'],
+    [80000,15,0,0,1.06,'c','15 ATC sin compra · ventana abierta'],
+    [100000,16,0,0,1.07,'c','16 ATC sin compra · ventana abierta'],
+    [120000,19,0,0,1.08,'c','19 ATC sin compra · ventana abierta'],
+    [140000,26,0,0,1.09,'k','26 ATC, 0 compras en ventana completa → KILL']] }
+];
+
+// 9 agentes de preparación (t 0..8) + mutator y memory, que corren dentro de la ventana
+const AGENTS = [
+  { role: 'panorama', label: 'panorama', out: 'web leída', cost: 0.21,
+    log: 'leyendo dosmicos.co · producto, precio y objeciones declaradas' },
+  { role: 'miner', label: 'miner', out: '18 señales', cost: 0.54,
+    log: 'cruzando 128 conversaciones · frases que se repiten → 18 señales' },
+  { role: 'angles', label: 'angles', out: '6 ángulos', cost: 0.31,
+    log: 'traduciendo señales a promesas · 6 ángulos, cada uno con su cita' },
+  { role: 'strategist', label: 'strategist', out: 'mix de 5 canales', cost: 0.22,
+    log: 'repartiendo presupuesto · activa paid, orgánico, creators, email y blog' },
+  { role: 'paid', label: 'paid', out: '6 ads', cost: 0.19,
+    log: 'escribiendo 6 ads · 1 ad = 1 ad set = $20.000/día' },
+  { role: 'organic', label: 'organic', out: '10 posts', cost: 0.12,
+    log: 'armando calendario · 10 publicaciones en 14 días' },
+  { role: 'creators', label: 'creators', out: '2 prospectos', cost: 0.11,
+    log: 'buscando creadoras que ya hablan del tema · 2 DM en borrador' },
+  { role: 'email', label: 'email', out: '1 flujo', cost: 0.07,
+    log: 'flujo de carrito abandonado · 3 correos con la fecha del evento' },
+  { role: 'blog', label: 'blog', out: '1 artículo', cost: 0.09,
+    log: 'artículo TOG por temperatura · 5 secciones, keywords de Bogotá' },
+  { role: 'mutator', label: 'mutator', out: '2 hijos', cost: 0.06,
+    log: 'el ganador se reproduce · 2 hijos, una variable mutada cada uno' },
+  { role: 'memory', label: 'memory', out: 'corrida 1', cost: 0.08,
+    log: 'escribiendo la memoria · qué ángulo × formato × canal sobrevivió' }
+];
+
+const NARR = [
+  'ad_noche_reel abre con ROAS 6.75x · 1 compra · los otros 5 sin señal',
+  '6 ads al aire · nadie alcanza todavía el umbral de descarte',
+  'ad_regalo_static acumula 16 ATC sin compra · ventana abierta',
+  'tres ads registran su primera compra · nadie gradúa aún',
+  'ad_noche_reel gradúa · ROAS 5.4x con 4 compras → escala +25%/día',
+  'nacen ad_noche_reel-h y ad_noche_reel-f · una variable mutada cada uno',
+  'cierra la ventana · 1 graduado, 4 muertos, 2 hijos en prueba, 1 sostiene'
+];
+
+const CHANNELS = [
+  { name: 'Paid', out: '6 ads · 6 ad sets', agent: 4 },
+  { name: 'Orgánico', out: '10 posts · 14 días', agent: 5 },
+  { name: 'Creators', out: '2 prospectos', agent: 6 },
+  { name: 'Email', out: '1 flujo · 3 correos', agent: 7 },
+  { name: 'Blog', out: '1 artículo', agent: 8 }
+];
+
+const T_MAX = 15; // 0..8 agentes · 9..15 días 1..7
+
+class Component extends DCLogic {
+  state = { t: T_MAX, chain: 0, play: false };
+
+  componentDidMount() {
+    if (this.props.autoplay !== false) this.setState({ t: 0, play: true }, () => this.tick());
+  }
+
+  componentWillUnmount() { clearTimeout(this._to); }
+
+  tick() {
+    clearTimeout(this._to);
+    if (!this.state.play) return;
+    const base = this.props.simSpeed || 1400;
+    const delay = this.state.t <= 8 ? Math.round(base * 0.62) : base;
+    this._to = setTimeout(() => {
+      if (!this.state.play) return;
+      if (this.state.t >= T_MAX) { this.setState({ play: false }); return; }
+      this.setState(s => ({ t: s.t + 1 }), () => this.tick());
+    }, delay);
+  }
+
+  jump(t) { clearTimeout(this._to); this.setState({ t, play: false }); }
+
+  toggle() {
+    const restart = this.state.t >= T_MAX;
+    this.setState(s => ({ play: !s.play, t: restart ? 0 : s.t }), () => this.tick());
+  }
+
+  renderVals() {
+    const { t, chain, play } = this.state;
+    const showCost = this.props.showCosts !== false;
+    const day = t <= 8 ? 0 : t - 8;
+    const i = day - 1;
+    const money = n => '$' + n.toLocaleString('es-CO');
+
+    // ─ pipeline / robots
+    const stateOf = k => {
+      if (k <= 8) return t > k ? 'done' : t === k ? 'run' : 'wait';
+      if (k === 9) return day >= 6 ? 'done' : day === 5 ? 'run' : 'wait';
+      return day >= 7 ? 'done' : day === 6 ? 'run' : 'wait';
+    };
+    const robots = AGENTS.map((a, k) => {
+      const st = stateOf(k);
+      const run = st === 'run', done = st === 'done';
+      const dl = (-k * 0.19).toFixed(2) + 's';
+      const line = run ? GREEN : done ? '#7B8290' : '#2C2F3B';
+      return {
+        label: a.label,
+        opacity: run ? 1 : done ? 0.95 : 0.34,
+        line, eye: run ? GREEN : done ? '#A8AEBB' : '#2C2F3B',
+        bodyBg: run ? '#0F1712' : '#0B0C10',
+        led: run ? GREEN : done ? '#4B7A58' : '#22242E',
+        blink: run ? 'dwPulse .8s ease-in-out infinite'
+          : done ? 'dwPulse 2.4s ease-in-out ' + dl + ' infinite' : 'none',
+        walk: run ? 'dwWalk 2.2s linear infinite'
+          : done ? 'dwWalk 5.4s linear ' + dl + ' infinite' : 'none',
+        bob: run ? 'dwBob .34s ease-in-out infinite'
+          : done ? 'dwBob .62s ease-in-out ' + dl + ' infinite' : 'none',
+        legA: run ? 'dwLegA .34s ease-in-out infinite'
+          : done ? 'dwLegA .62s ease-in-out ' + dl + ' infinite' : 'none',
+        legB: run ? 'dwLegB .34s ease-in-out infinite'
+          : done ? 'dwLegB .62s ease-in-out ' + dl + ' infinite' : 'none',
+        armA: run ? 'dwArmA .34s ease-in-out infinite'
+          : done ? 'dwArmA .62s ease-in-out ' + dl + ' infinite' : 'none',
+        armB: run ? 'dwArmB .34s ease-in-out infinite'
+          : done ? 'dwArmB .62s ease-in-out ' + dl + ' infinite' : 'none',
+        spark: run ? GREEN : done ? '#2C5F3C' : 'transparent',
+        sparkAnim: run ? 'dwSpark .7s ease-in-out infinite'
+          : done ? 'dwSpark 2.6s ease-in-out ' + dl + ' infinite' : 'none',
+        sparkAnim2: run ? 'dwSpark .7s ease-in-out -.35s infinite'
+          : done ? 'dwSpark 2.6s ease-in-out -1.3s infinite' : 'none',
+        labelColor: run ? GREEN : done ? '#9AA0AC' : '#4B4F5E',
+        pip: run ? GREEN : done ? '#2C5F3C' : '#1F2129'
+      };
+    });
+    const doneCount = AGENTS.filter((a, k) => stateOf(k) === 'done').length;
+    const runningIdx = AGENTS.findIndex((a, k) => stateOf(k) === 'run');
+
+    const pipeline = AGENTS.map((a, k) => {
+      const st = stateOf(k);
+      return {
+        role: a.role,
+        out: st === 'done' ? a.out : st === 'run' ? 'corriendo…' : 'en espera',
+        cost: st === 'done' ? '$' + a.cost.toFixed(2) : '—',
+        dot: st === 'done' ? '#2C5F3C' : st === 'run' ? GREEN : '#22242E',
+        anim: st === 'run' ? 'dwPulse .9s ease-in-out infinite' : 'none',
+        nameColor: st === 'wait' ? '#4B4F5E' : st === 'run' ? GREEN : '#D6D9E0',
+        outColor: st === 'run' ? GREEN : '#838996'
+      };
+    });
+
+    // ─ log en vivo (3 líneas)
+    const lineFor = k => {
+      if (k < 0) return { who: '', text: '' };
+      if (k <= 8) return { who: AGENTS[k].role, text: AGENTS[k].log };
+      return { who: 'día ' + (k - 8), text: NARR[k - 9] };
+    };
+
+    // ─ arena
+    const rows = day === 0 ? [] : ADS.filter(a => a.d[i]).map(a => {
+      const [spend, atc, buys, roas, freq, verdict, rule] = a.d[i];
+      const dead = verdict === 'k', grad = verdict === 'g';
+      const pts = [];
+      for (let k = 0; k <= i; k++) {
+        if (!a.d[k]) continue;
+        pts.push(((k / 6) * 104).toFixed(1) + ',' + (22.3 - Math.min(a.d[k][3], 7) / 7 * 20).toFixed(1));
+      }
+      const last = pts[pts.length - 1].split(',');
+      const color = dead ? ORANGE : grad ? GREEN : '#4B4F5E';
+      let status = 'CORRE', stColor = '#8A8F9C', stBorder = '#262833', stBg = 'transparent';
+      if (dead) { status = 'MUERTO'; stColor = ORANGE; stBorder = '#4A2317'; stBg = '#180E0A'; }
+      else if (grad) { status = 'GRADUÓ'; stColor = GREEN; stBorder = '#2C5F3C'; stBg = '#0F1712'; }
+      else if (day === a.born && a.child) { status = 'HIJO NUEVO'; stColor = GREEN; stBorder = '#2C5F3C'; stBg = '#0F1712'; }
+      return {
+        id: a.id, copy: a.copy, isChild: !!a.child,
+        opacity: dead ? 0.5 : 1, strike: dead ? 'line-through' : 'none',
+        idColor: dead ? '#6B7080' : grad ? GREEN : '#EDEEF2',
+        copyColor: dead ? '#6B7080' : '#8A8F9C',
+        spark: pts.join(' '), sparkColor: color, dotX: last[0], dotY: last[1],
+        roas: roas ? roas.toFixed(2) + 'x' : '—',
+        roasColor: dead ? ORANGE : roas >= 3 ? GREEN : roas ? '#EDEEF2' : '#5A5F6B',
+        buys: buys || '—', buysColor: buys ? '#EDEEF2' : '#5A5F6B',
+        atc: atc, spend: money(spend), freq: freq.toFixed(2),
+        rule: rule || 'sin regla disparada',
+        status, stColor, stBorder, stBg
+      };
+    });
+
+    const totalSpend = day === 0 ? 0 : ADS.reduce((s, a) => s + (a.d[i] ? a.d[i][0] : 0), 0);
+    const live = day === 0 ? 0 : ADS.filter(a => a.d[i] && a.d[i][5] !== 'k').length;
+    const runCost = AGENTS.reduce((s, a, k) => s + (stateOf(k) === 'done' ? a.cost : 0), 0);
+    const done = day === 7;
+    const c = CHAINS[chain];
+    const chainsReady = t > 2;
+    const adsReady = t > 4;
+
+    return {
+      showCost,
+      dayLabel: day === 0 ? '—/7' : day + '/7',
+      liveLabel: live,
+      spendLabel: money(totalSpend) + ' COP',
+      costLabel: '$' + runCost.toFixed(2),
+      stateLabel: done ? 'VENTANA CERRADA' : day === 0 ? 'PREPARANDO' : 'CORRIENDO',
+      stateColor: done ? GREEN : AMBER,
+      stateBorder: done ? '#2C5F3C' : '#3A2C17',
+      stateBg: done ? '#0F1712' : '#161108',
+      stateAnim: done ? 'none' : 'dwPulse 1.4s ease-in-out infinite',
+      log0: lineFor(t - 2), log1: lineFor(t - 1), log2: lineFor(t),
+      dayChips: [1, 2, 3, 4, 5, 6, 7].map(d => ({
+        label: 'D' + d,
+        border: d === day ? '#2C5F3C' : '#262833',
+        color: d === day ? GREEN : '#6B7080',
+        bg: d === day ? '#0F1712' : 'transparent',
+        onSelect: () => this.jump(8 + d)
+      })),
+      playLabel: play ? '❙❙ PAUSA' : t >= T_MAX ? '▶ CORRER DE NUEVO' : '▶ CORRER TODO',
+      togglePlay: () => this.toggle(),
+      pipeline, robots,
+      trackW: Math.round((doneCount / AGENTS.length) * 100) + '%',
+      phaseLabel: runningIdx >= 0 ? 'agente ' + (runningIdx + 1) + '/11 · ' + AGENTS[runningIdx].role
+        : doneCount === AGENTS.length ? '11/11 agentes · corrida completa' : doneCount + '/11 agentes',
+      phaseColor: runningIdx >= 0 ? GREEN : doneCount === AGENTS.length ? '#EDEEF2' : '#8A8F9C',
+      chainCount: chainsReady ? '18 señales · 6 ángulos · ' + (adsReady ? '6 ads' : '0 ads') : 'minando…',
+      chainTabs: CHAINS.map((x, k) => ({
+        id: x.angleId, freq: '×' + x.freq,
+        border: k === chain ? '#2C5F3C' : '#262833',
+        bg: k === chain ? '#0F1712' : 'transparent',
+        color: k === chain ? '#EDEEF2' : '#8A8F9C',
+        opacity: chainsReady ? 1 : 0.35,
+        freqColor: k === chain ? GREEN : '#5A5F6B',
+        onSelect: () => this.setState({ chain: k })
+      })),
+      channels: CHANNELS.map(ch => {
+        const st = stateOf(ch.agent);
+        const run = st === 'run', ok = st === 'done';
+        return {
+          name: ch.name,
+          out: ok ? ch.out : run ? 'generando…' : 'en espera',
+          fill: ok ? '100%' : run ? '55%' : '0%',
+          fillBg: ok ? 'rgba(111,207,135,.07)' : 'rgba(111,207,135,.14)',
+          dot: ok ? GREEN : run ? GREEN : '#22242E',
+          anim: run ? 'dwPulse .8s ease-in-out infinite' : 'none',
+          nameColor: ok ? '#EDEEF2' : run ? GREEN : '#4B4F5E',
+          outColor: run ? GREEN : ok ? '#838996' : '#4B4F5E'
+        };
+      }),
+      planCount: doneCount >= 9 ? '5/5 activos' : Math.max(0, Math.min(5, t - 4)) + '/5 activos',
+      planCountColor: doneCount >= 9 ? GREEN : '#838996',
+      mutColor: day >= 6 ? GREEN : '#4B4F5E',
+      mutBorder: day >= 6 ? '#2C5F3C' : '#1F2129',
+      chain: {
+        quote: c.quote, conv: c.conv, kind: c.kind,
+        kindColor: c.kind === 'MOTIVO' ? GREEN : AMBER,
+        kindBg: c.kind === 'MOTIVO' ? '#0F1712' : '#161108',
+        kindBorder: c.kind === 'MOTIVO' ? '#2C5F3C' : '#3A2C17',
+        insightId: c.id, summary: c.summary, freqFull: '×' + c.freq + ' menciones',
+        angleId: c.angleId, family: c.family, conf: c.conf,
+        confColor: parseFloat(c.conf) >= 0.7 ? GREEN : AMBER,
+        hook: c.hook,
+        step3: c.ads.length ? 'PAID · ESCRIBE EL AD' : 'STRATEGIST · SIN PRESUPUESTO',
+        adArrowColor: c.ads.length ? GREEN : '#4B4F5E',
+        hasAds: c.ads.length > 0, noAds: c.ads.length === 0,
+        ads: c.ads.map(a => {
+          const rec = ADS.find(x => x.id === a.id);
+          const row = day > 0 && rec ? rec.d[i] : null;
+          const v = row ? row[5] : null;
+          return Object.assign({}, a, { insight: c.id,
+            status: v === 'k' ? 'MUERTO D7' : v === 'g' ? 'GRADUÓ' : v ? 'EN VENTANA' : 'BORRADOR',
+            stColor: v === 'k' ? ORANGE : v === 'g' ? GREEN : '#8A8F9C',
+            stBorder: v === 'k' ? '#4A2317' : v === 'g' ? '#2C5F3C' : '#262833',
+            stBg: v === 'k' ? '#180E0A' : v === 'g' ? '#0F1712' : 'transparent',
+            border: v === 'g' ? '#2C5F3C' : '#262833' });
+        })
+      },
+      arena: rows, arenaEmpty: day === 0,
+      memReady: done, memPending: !done,
+      memState: done ? 'ESCRITA' : day === 6 ? 'ESCRIBIENDO…' : 'ESPERANDO D7',
+      memColor: done || day === 6 ? GREEN : '#838996'
+    };
+  }
+}
+</script>
+</body>
+</html>

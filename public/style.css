@@ -1,1254 +1,422 @@
-/* Sin CDN. Fuentes del sistema. El proyector del venue es lo que es: alto contraste.
- * Regla de legibilidad: nada cargado de significado por debajo de 12px en --dim.
- * Para texto secundario que igual hay que leer, --text con opacity. */
+/* ═══════════════════ DARWIN · war room ═══════════════════
+ * Port a vanilla del diseño `DARWIN Analisis.dc.html` (Claude Design).
+ * Misma paleta y tipografía que la landing: un solo sistema visual.
+ * Sin CDN — las fuentes se auto-hospedan en assets/fonts.
+ */
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 400; font-display: swap; src: url("assets/fonts/inter-400.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 500; font-display: swap; src: url("assets/fonts/inter-500.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-style: normal; font-weight: 600; font-display: swap; src: url("assets/fonts/inter-600.woff2") format("woff2"); }
+@font-face { font-family: "JetBrains Mono"; font-style: normal; font-weight: 400; font-display: swap; src: url("assets/fonts/jetbrains-mono-400.woff2") format("woff2"); }
+@font-face { font-family: "JetBrains Mono"; font-style: normal; font-weight: 500; font-display: swap; src: url("assets/fonts/jetbrains-mono-500.woff2") format("woff2"); }
+
 :root {
-  /* Misma paleta que la landing: antes eran dos sistemas visuales y se notaba
-     al pasar de una pantalla a la otra. */
   --bg: #0a0a0b;
   --panel: #0d0e12;
-  --line: #1a1b22;
-  --text: #d6d9e0;
-  --dim: #6b7080;
-  --accent: #6fcf87;
-  --warn: #d8a05c;
-  --dead: #e8623a;
-  --line-2: #262833;
   --panel-2: #14151a;
-  --green-bg: #0f1712;
+  --panel-3: #101115;
+  --line: #1a1b22;
+  --line-2: #262833;
+  --line-3: #1f2129;
+  --ink: #edeef2;
+  --ink-hi: #f4f5f7;
+  --ink-2: #d6d9e0;
+  --dim: #8a8f9c;
+  --dim-2: #838996;
+  --dim-3: #5a5f6b;
+  --dim-4: #3a3d4c;
+  --green: #6fcf87;
   --green-line: #2c5f3c;
-  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --green-bg: #0f1712;
+  --green-soft: #dff6e6;
+  --amber: #d8a05c;
+  --amber-line: #3a2c17;
+  --amber-bg: #161108;
+  --red: #e8623a;
+  --red-line: #4a2317;
+  --red-bg: #180e0a;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
-* {
-  box-sizing: border-box;
-}
-
+html { color-scheme: dark; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body {
   margin: 0;
   background: var(--bg);
-  color: var(--text);
-  font: 14px/1.5 var(--mono);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
   height: 100vh;
-  display: flex;
-  flex-direction: column;
+  overflow: hidden;
+}
+::selection { background: #22452c; color: var(--green-soft); }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: #22242e; }
+::-webkit-scrollbar-track { background: transparent; }
+
+.grow { flex: 1; }
+.mono { font-family: var(--mono); }
+.dim { color: var(--dim-3); }
+.warn { color: var(--amber); }
+
+.app {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 58px 78px auto auto minmax(0, 1fr);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 64px 64px;
 }
 
-/* ───────────────────────── header ───────────────────────── */
+/* ───────────────────── barra superior ───────────────────── */
 
-header {
+.topbar {
   display: flex;
-  align-items: baseline;
-  gap: 16px;
-  padding: 14px 20px;
+  align-items: center;
+  gap: 20px;
+  padding: 0 20px;
   border-bottom: 1px solid var(--line);
-  flex: none;
+  background: rgba(13, 14, 18, 0.9);
+  min-width: 0;
 }
-
-h1 {
-  margin: 0;
-  font-size: 22px;
-  letter-spacing: 0.34em;
-  color: var(--accent);
-  flex: none;
+.wordmark { height: 17px; width: auto; display: block; flex: none; }
+.vr { width: 1px; height: 18px; background: #22242e; flex: none; }
+.brandline { display: flex; align-items: baseline; gap: 10px; min-width: 0; overflow: hidden; }
+#brand-host { font-family: var(--mono); font-size: 13px; color: var(--ink); flex: none; }
+#brand-sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
-
-.tagline {
-  margin: 0;
-  color: var(--dim);
-  flex: none;
-}
-
-
-.meters {
-  margin-left: auto;
-  display: flex;
-  gap: 8px;
-  flex: none;
-}
-
+.pills { display: flex; align-items: center; gap: 8px; flex: none; }
 .pill {
-  padding: 3px 10px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  font-size: 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
   color: var(--dim);
+  border: 1px solid var(--line-2);
+  padding: 6px 11px;
+  border-radius: 100px;
   white-space: nowrap;
 }
-.pill.cost {
-  color: var(--warn);
-  border-color: #3a3020;
-}
-.pill.on {
-  color: var(--accent);
-  border-color: #1d4030;
-}
-.pill.off {
-  color: var(--dead);
-  border-color: #3a2020;
-}
+.pill.spend { color: var(--amber); border-color: var(--amber-line); background: var(--amber-bg); }
+.pill.state { display: inline-flex; align-items: center; gap: 7px; }
+.pill.state .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.pill.state[data-s="run"] { color: var(--green); border-color: var(--green-line); background: var(--green-bg); }
+.pill.state[data-s="run"] .dot { animation: dwPulse 1.4s ease-in-out infinite; }
+.pill.state[data-s="done"] { color: var(--green); border-color: var(--green-line); background: var(--green-bg); }
+.pill.state[data-s="err"] { color: var(--red); border-color: var(--red-line); background: var(--red-bg); }
 
+/* ───────────────────── la banda del log ───────────────────── */
 
-.banner {
-  padding: 6px 20px;
-  background: #1d2a20;
-  color: var(--accent);
+.logband {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  padding: 10px 20px;
   border-bottom: 1px solid var(--line);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  flex: none;
+  background: #0b0c10;
+  min-width: 0;
 }
+.loglines { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 3px; }
+.logline { display: flex; align-items: baseline; gap: 10px; min-width: 0; font-family: var(--mono); }
+.logline .b { flex: none; }
+.logline .who { flex: none; min-width: 78px; }
+.logline .txt { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.logline.l0 { font-size: 12px; color: var(--dim-3); }
+.logline.l0 .b { color: var(--dim-4); }
+.logline.l1 { font-size: 12px; color: #6b7080; }
+.logline.l1 .b { color: var(--dim-4); }
+.logline.l2 { font-size: 13px; }
+.logline.l2 .b, .logline.l2 .who { color: var(--green); }
+.logline.l2 .txt { color: var(--green-soft); }
+.logline.l2 .caret { width: 7px; height: 14px; background: var(--green); flex: none; animation: dwCaret 1s steps(1) infinite; }
+/* la prueba literal — la cita, el conteo — se distingue del relato */
+.logline[data-kind="literal"] .txt { color: var(--amber); }
 
-/* ───────────────────────── layout ─────────────────────────
- * Áreas nombradas: toda la transición corrida → review es CSS, cambiando un
- * solo atributo en <body>. Grid ignora los ítems en display:none, por eso
- * "org side side" es una cuadrícula válida sin tocar el DOM. */
+.logtools {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border-left: 1px solid var(--line);
+  padding-left: 16px;
+}
+.days { display: flex; align-items: center; gap: 5px; }
+.day {
+  font-family: var(--mono);
+  font-size: 11px;
+  padding: 6px 9px;
+  border: 1px solid var(--line-2);
+  color: #6b7080;
+  background: transparent;
+  transition: all 0.18s;
+}
+.day.on { border-color: var(--green-line); color: var(--green); background: var(--green-bg); }
+.runagain {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  margin-left: 6px;
+  padding: 6px 13px;
+  border: 1px solid var(--green-line);
+  background: var(--green-bg);
+  color: var(--green);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.runagain:hover { background: #143020; }
 
-/* ═════════════════════ EL CIRCUITO ═════════════════════
- * Una sola forma. No hay data-stage ni data-evo: ninguna regla en este archivo
- * reescribe grid-template-*. La forma de t=0 es la misma del Q&A.
- *
- *   ①fuente  ②cadena  ③plan     ← la corrida, de izquierda a derecha
- *      ④arena        ⑤memoria   ← lo que Okara no puede mostrar
- *          ↰ ciclo              ← el retorno: por eso "evoluciona solo"
- *
- * body:not(.landing) es obligatorio: index.html y landing.html comparten un
- * único style.css sin scoping.
- */
-body:not(.landing) main {
-  flex: 1;
-  min-height: 0;
+/* ───────────────────── el circuito ─────────────────────
+ * Una sola forma, siempre. La primera fila queda elástica: el diseño la fija
+ * en 330px y, sumada al resto, desborda un proyector de 768. */
+
+main {
+  grid-row: 5;
   display: grid;
+  grid-template-columns: 308px minmax(0, 1fr) 330px;
+  grid-template-rows: minmax(300px, 1fr) minmax(318px, 0.9fr) 76px;
+  transition: grid-template-rows 0.5s ease;
   grid-template-areas:
     "fuente cadena  plan"
     "arena  arena   memoria"
     "ciclo  ciclo   ciclo";
-  grid-template-columns: 308px minmax(320px, 1fr) 330px;
-  /* El riel del ciclo sube de 30px a los 76 del diseño: ahí vive el argumento
-     del bucle y a 30px no cabía. La primera fila queda elástica y no fija en
-     330px como el diseño — con header + tickbar + 330 + 318 + 76 se desborda
-     en un proyector de 768. */
-  grid-template-rows: minmax(0, 1fr) minmax(280px, 0.9fr) 76px;
   gap: 1px;
   background: var(--line);
+  min-height: 0;
 }
-
 #z-fuente { grid-area: fuente; }
 #z-cadena { grid-area: cadena; }
 #z-plan { grid-area: plan; }
 #z-arena { grid-area: arena; }
 #z-memoria { grid-area: memoria; }
+#z-ciclo { grid-area: ciclo; }
 
-/* Zona = cabeza fija + cuerpo con scroll propio. Define quién scrollea, que es
-   justo lo que estaba mal: .panel era el scroller y paint() medía sobre #log. */
-.zone {
-  background: var(--panel);
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  padding: 12px 14px 0;
-}
-.zone-head { flex: none; padding-bottom: 8px; }
-.zone-body { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: 14px; }
+.zone { background: var(--panel); display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.zhead { flex: none; padding: 14px 16px 10px; display: flex; align-items: center; gap: 9px; min-width: 0; }
+.zhead.wrap { flex-wrap: wrap; padding: 14px 18px 12px; }
+.zhead .num { font-family: var(--mono); font-size: 11px; color: var(--green); }
+.ztitle { font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; color: #9aa0ac; white-space: nowrap; }
+.zsub { font-family: var(--mono); font-size: 10px; color: var(--dim-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.zcount { font-family: var(--mono); font-size: 10px; color: var(--dim-2); white-space: nowrap; }
+.zbody { flex: 1; min-height: 0; overflow-y: auto; padding: 0 16px 16px; }
+#z-cadena .zbody, #z-arena .zbody { padding: 0 18px 18px; }
 
-/* La grilla de 8 columnas no cabe bajo ~1280. NO se apila la rejilla: se parte
-   la FILA del ad en dos renglones. Los 8 spans siguen existiendo, así que
-   renderSim() no se entera. */
-@media (max-width: 1280px) {
-  .evo-cols { display: none; }
-  .evorow {
-    grid-template-columns: minmax(0, 1fr) 96px 54px 56px 66px;
-    grid-template-areas:
-      "id   spark roas buys spend"
-      "rule rule  rule rule rule";
-    row-gap: 2px;
-  }
-  .evorow .adid { grid-area: id; }
-  .evorow .spark-cell { grid-area: spark; }
-  .evorow .roas { grid-area: roas; }
-  .evorow .buys { grid-area: buys; }
-  .evorow .spend { grid-area: spend; }
-  .evorow .rule { grid-area: rule; white-space: normal; }
-  .evorow .atc,
-  .evorow .freq { display: none; }
+.lbl { font-family: var(--mono); font-size: 9px; letter-spacing: 0.14em; color: var(--dim-2); margin-bottom: 9px; }
+.lbl.mt { margin-top: 20px; }
+.foot-note {
+  margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line-3);
+  font-family: var(--mono); font-size: 10px; line-height: 1.7; color: var(--dim-2);
 }
-@media (max-width: 960px) {
-  body:not(.landing) main {
-    grid-template-areas: "cadena" "fuente" "plan" "arena" "memoria" "ciclo";
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: none;
-    overflow-y: auto;
-  }
-}
+.note-body { margin: 14px 0 0; font-size: 13px; line-height: 1.6; color: var(--dim); text-wrap: pretty; }
 
-h2 {
-  margin: 0 0 10px;
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--dim);
-  font-weight: 400;
-}
-.side h2:not(:first-child) {
-  margin-top: 22px;
-}
-h2 .count {
-  color: var(--text);
-  opacity: 0.5;
-  letter-spacing: 0;
-}
+/* ───────────── ① la fuente ───────────── */
 
-/* ───────────────────────── organigrama ───────────────────────── */
+.inputs { display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.src { display: flex; align-items: center; gap: 9px; padding: 9px 11px; background: var(--panel-3); }
+.src .mk { font-family: var(--mono); font-size: 10px; flex: none; color: var(--dim-4); width: 8px; }
+.src .nm { font-size: 13px; color: var(--ink-2); flex: 1; min-width: 0; }
+.src .ct { font-family: var(--mono); font-size: 10px; color: var(--dim-2); white-space: nowrap; }
+.src.ok .mk { color: var(--green); }
+.src.skipped, .src.failed { opacity: 0.45; }
+.src.failed .mk { color: var(--red); }
 
-.agent {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 5px 0;
-  color: var(--dim);
-  transition: color 0.2s;
+.pipeline { display: flex; flex-direction: column; gap: 7px; }
+.prow { display: flex; align-items: center; gap: 10px; }
+.prow .d { width: 5px; height: 5px; border-radius: 50%; flex: none; background: var(--dim-4); }
+.prow .r { font-family: var(--mono); font-size: 11px; color: var(--dim-3); flex: 1; min-width: 0; }
+.prow .o { font-family: var(--mono); font-size: 10px; color: var(--dim-4); white-space: nowrap; }
+.prow .c { font-family: var(--mono); font-size: 10px; color: var(--dim-3); min-width: 34px; text-align: right; }
+.prow[data-s="thinking"] .d { background: var(--green); animation: dwPulse 1s ease-in-out infinite; }
+.prow[data-s="thinking"] .r { color: var(--green); }
+.prow[data-s="done"] .d { background: var(--green-line); }
+.prow[data-s="done"] .r { color: var(--ink-2); }
+.prow[data-s="done"] .o { color: var(--green); }
+.prow[data-s="error"] .d { background: var(--red); }
+
+/* ───────────── ② la cadena ───────────── */
+
+.tabs { flex: none; padding: 0 18px 12px; display: flex; gap: 6px; flex-wrap: wrap; }
+.tab {
+  cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--mono); font-size: 10px; padding: 6px 9px;
+  border: 1px solid var(--line-2); background: transparent; color: var(--dim);
+  opacity: 0.62; transition: all 0.25s;
 }
-.dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #2a323b;
-  flex: none;
+.tab:hover { opacity: 1; }
+.tab.on { border-color: var(--green-line); background: var(--green-bg); color: var(--green); opacity: 1; }
+.tab .f { color: var(--dim-3); }
+.tab.on .f { color: var(--green); }
+
+.chain-empty, .arena-empty {
+  padding: 38px 0; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center;
 }
-.agent .name {
-  flex: 0 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.agent .note {
-  margin-left: auto;
-  padding-left: 8px;
-  font-size: 12px;
-  color: var(--text);
-  opacity: 0.65;
-  white-space: nowrap;
-  flex: none;
-}
-.agent.thinking {
-  color: var(--text);
-}
-.agent.thinking .dot {
-  background: var(--warn);
-  animation: pulse 0.9s ease-in-out infinite;
-}
-.agent.done {
-  color: var(--text);
-}
-.agent.done .dot {
-  background: var(--accent);
-}
-.agent.error .dot {
-  background: var(--dead);
-}
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.25;
-    transform: scale(0.8);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.35);
-  }
+.chain-empty p, .arena-empty p {
+  margin: 0; font-size: 14px; line-height: 1.6; color: var(--dim-3); max-width: 440px; text-wrap: pretty;
 }
 
-/* Skeleton = promesa de inventario, no "cargando". */
-.skel {
-  display: block;
-  width: 58px;
-  height: 8px;
-  border-radius: 2px;
-  background: var(--line);
-  animation: skel 1.3s ease-in-out infinite;
+/* el eslabón: la cita, arriba y con halo — es el diferenciador */
+.quote-box {
+  border: 1px solid var(--green-line); background: var(--panel-2); padding: 14px 16px;
+  box-shadow: 0 0 30px -12px rgba(111, 207, 135, 0.5);
 }
-@keyframes skel {
-  0%,
-  100% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 0.85;
-  }
-}
+.quote-box .meta { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; font-family: var(--mono); }
+.quote-box .meta .k { font-size: 9px; letter-spacing: 0.14em; color: var(--dim-2); }
+.quote-box .meta .c { font-size: 9px; color: var(--dim-3); }
+.quote-box .q { font-size: 17px; line-height: 1.45; color: var(--ink-hi); text-wrap: pretty; }
 
-/* ───────────────────────── el terminal ───────────────────────── */
+.step-arrow { display: flex; align-items: center; gap: 10px; padding: 7px 0 7px 22px; font-family: var(--mono); }
+.step-arrow .a { font-size: 12px; color: var(--green); }
+.step-arrow .t { font-size: 9px; letter-spacing: 0.12em; color: var(--dim-2); }
 
-#terminal {
-  padding-top: 18px;
+.link-box { border: 1px solid var(--line-3); background: var(--panel-3); padding: 13px 16px; }
+.link-box .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-family: var(--mono); }
+.link-box .id { font-size: 12px; color: var(--ink); }
+.link-box .fam { font-size: 10px; color: var(--dim-2); }
+.link-box .freq { font-size: 11px; color: var(--ink-2); }
+.link-box .conf-l { font-size: 10px; color: var(--dim-2); }
+.link-box .conf { font-size: 11px; color: var(--green); }
+.link-box .summary { margin-top: 9px; font-size: 14px; line-height: 1.5; color: var(--dim); text-wrap: pretty; }
+.link-box .hook {
+  margin-top: 10px; font-size: 19px; line-height: 1.3; letter-spacing: -0.01em;
+  font-weight: 500; color: var(--ink-hi); text-wrap: pretty;
 }
-#log {
-  font-size: 15px;
-  line-height: 1.6;
+.kchip {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; padding: 3px 7px;
+  border: 1px solid var(--amber-line); background: var(--amber-bg); color: var(--amber);
 }
-.rolediv {
-  margin-top: 12px;
-  font-size: 10.5px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--dim);
-  opacity: 0.55;
-}
-.rolediv:first-child {
-  margin-top: 0;
-}
-.line {
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-/* narración: la voz del agente */
-.line[data-kind="say"] .what::before {
-  content: "> ";
-  color: var(--accent);
-}
-/* la prueba literal: la cita, la url, el conteo. El anti-alucinación. */
-.line[data-kind="literal"] {
-  padding-left: 2ch;
-  color: var(--warn);
-}
-.line[data-kind="phase"] {
-  color: var(--accent);
-  opacity: 0.8;
-  margin: 10px 0 2px;
-  letter-spacing: 0.06em;
-}
-.line.typing .what::after {
-  content: "▋";
-  color: var(--accent);
-  animation: blink 1s steps(2) infinite;
-}
-@keyframes blink {
-  50% {
-    opacity: 0;
-  }
-}
+.kchip.pos { border-color: var(--green-line); background: var(--green-bg); color: var(--green); }
 
-/* ───────────────────────── cobertura ───────────────────────── */
+.adcard { border: 1px solid var(--line-3); background: var(--panel-2); margin-bottom: 10px; }
+.adcard.grad { border-color: var(--green-line); }
+.adcard.dead { border-color: var(--red-line); }
+.adcard .top {
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px;
+  border-bottom: 1px solid var(--line-3); flex-wrap: wrap; font-family: var(--mono);
+}
+.adcard .top .id { font-size: 11px; color: var(--ink); }
+.adcard .top .fmt { font-size: 9px; letter-spacing: 0.1em; color: var(--dim-2); border: 1px solid var(--line-2); padding: 3px 7px; }
+.adcard .top .st { font-size: 9px; letter-spacing: 0.1em; padding: 3px 8px; border: 1px solid var(--line-2); color: var(--dim); }
+.adcard.grad .top .st { color: var(--green); border-color: var(--green-line); background: var(--green-bg); }
+.adcard.dead .top .st { color: var(--red); border-color: var(--red-line); background: var(--red-bg); }
+.adcard .body { padding: 13px 14px; }
+.adcard .h { font-size: 16px; line-height: 1.35; font-weight: 500; color: var(--ink); text-wrap: pretty; }
+.adcard .s { margin-top: 6px; font-size: 14px; line-height: 1.5; color: var(--dim); text-wrap: pretty; }
+.adcard .verified {
+  padding: 9px 14px; border-top: 1px dashed var(--line-2); background: var(--panel-3);
+  display: flex; align-items: center; gap: 9px; flex-wrap: wrap; font-family: var(--mono);
+}
+.adcard .verified .k { font-size: 9px; letter-spacing: 0.1em; color: var(--green); }
+.adcard .verified .q { font-size: 10px; line-height: 1.5; color: var(--dim-2); min-width: 0; }
+.noads { border: 1px dashed #2c2f3b; background: var(--panel-3); padding: 16px; }
+.noads .k { font-family: var(--mono); font-size: 10px; letter-spacing: 0.1em; color: var(--amber); }
+.noads p { margin: 9px 0 0; font-size: 14px; line-height: 1.55; color: var(--dim); text-wrap: pretty; }
+.go {
+  width: 100%; margin: 0 0 10px; padding: 9px; background: transparent;
+  border: 1px solid var(--green-line); color: var(--green);
+  font: 11px/1 var(--mono); letter-spacing: 0.18em; cursor: pointer;
+}
+.go:hover:not(:disabled) { background: var(--green-bg); }
+.go:disabled { border-color: var(--line-2); color: var(--dim-3); cursor: default; }
 
-.cov {
-  display: flex;
-  gap: 8px;
-  padding: 3px 0;
-  font-size: 12.5px;
-}
-.cov .mark {
-  width: 14px;
-}
-.cov.ok {
-  color: var(--accent);
-}
-.cov.skipped {
-  color: var(--text);
-  opacity: 0.45;
-}
-.cov.failed {
-  color: var(--dead);
-}
+/* ───────────── ③ el plan ───────────── */
 
-/* ───────────────────────── artefactos ───────────────────────── */
+.channels { display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.ch { position: relative; background: var(--panel-3); overflow: hidden; }
+.ch .fill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: rgba(111, 207, 135, 0.09); transition: width 0.6s ease; }
+.ch .in { position: relative; display: flex; align-items: center; gap: 10px; padding: 11px 12px; }
+.ch .d { width: 6px; height: 6px; border-radius: 50%; flex: none; background: var(--dim-4); }
+.ch .n { font-size: 14px; color: var(--dim-3); flex: 1; transition: color 0.3s; }
+.ch .o { font-family: var(--mono); font-size: 10px; color: var(--dim-4); transition: color 0.3s; }
+.ch[data-on="1"] .d { background: var(--green); }
+.ch[data-on="1"] .n { color: var(--ink-2); }
+.ch[data-on="1"] .o { color: var(--dim); }
+.ch[data-s="thinking"] .d { animation: dwPulse 1s ease-in-out infinite; }
 
-.empty {
-  color: var(--dim);
-  font-size: 12px;
-  opacity: 0.5;
-}
+.card { border: 1px solid var(--line-2); background: var(--panel-2); padding: 14px; }
+.card .eq { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+.card .eq .dim { color: var(--dim-3); }
+.card .eq .hi { color: var(--green); }
+.card-note { margin: 12px 0 0; padding-top: 12px; border-top: 1px dashed var(--line-2); font-size: 13px; line-height: 1.6; color: var(--dim); text-wrap: pretty; }
+.mutchips { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.mutchip { font-family: var(--mono); font-size: 10px; color: var(--dim-3); border: 1px solid var(--line-2); padding: 5px 9px; transition: all 0.3s; }
+.mutchip.on { color: var(--green); border-color: var(--green-line); background: var(--green-bg); }
 
+/* ───────────── ④ la arena ───────────── */
 
-.art {
-  border: 1px solid var(--line);
-  border-left: 2px solid var(--warn);
-  border-radius: 3px;
-  padding: 11px;
-  margin-bottom: 10px;
-  transition: border-color 0.3s;
+.rulechip {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em;
+  color: var(--dim); border: 1px solid var(--line-2); padding: 5px 9px; white-space: nowrap;
 }
-.art[data-status="approved"] {
-  border-left-color: var(--accent);
-}
-.art.flash {
-  border-color: var(--accent);
-}
-.art-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  color: var(--dim);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-.badges {
-  display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-.badge {
-  padding: 1px 7px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  font-size: 10px;
-  letter-spacing: 0.04em;
-  text-transform: none;
-  color: var(--dim);
-  white-space: nowrap;
-}
-.badge.new {
-  color: var(--accent);
-  border-color: #1d4030;
-}
-.badge.sev-hi {
-  color: var(--accent);
-  border-color: #1d4030;
-}
-.badge.sev-mid {
-  color: var(--warn);
-  border-color: #3a3020;
-}
-.badge.cat {
-  color: var(--text);
-  opacity: 0.55;
-}
-
-/* ── el inverse-blur ──
- * Okara difumina el payload para cobrarlo. Aquí la cita del cliente es el
- * elemento más grande de la tarjeta: es lo que prueba que el ad no se inventó. */
-.ev-label {
-  margin-top: 10px;
-  font-size: 10px;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-  color: var(--dim);
-}
-.art .quote {
-  margin: 4px 0 0;
-  font-size: 19px;
-  line-height: 1.35;
-  color: var(--accent);
-  font-style: normal;
-}
-.art .quote.sm {
-  font-size: 13px;
-  color: var(--warn);
-  font-style: italic;
-  margin: 8px 0;
-  padding-left: 9px;
-  border-left: 2px solid #2c3742;
-}
-.art .arrow {
-  color: var(--dim);
-  font-size: 15px;
-  line-height: 1.2;
-  margin: 2px 0 2px 2px;
-}
-.art .promise {
-  font-size: 15px;
-  color: var(--text);
-}
-.art .meta {
-  margin-top: 4px;
-  font-size: 12px;
-  color: var(--text);
-  opacity: 0.5;
-}
-.art .sum {
-  margin-top: 5px;
-  font-size: 13px;
-  color: var(--text);
-  opacity: 0.8;
-}
-
-.art details.raw {
-  margin: 9px 0 0;
-}
-.art details.raw summary {
-  font-size: 11px;
-  color: var(--dim);
-  cursor: pointer;
-  list-style: none;
-}
-.art details.raw summary::before {
-  content: "▸ ";
-}
-.art details[open].raw summary::before {
-  content: "▾ ";
-}
-.art pre {
-  margin: 6px 0 0;
-  font-size: 11px;
-  color: var(--dim);
-  white-space: pre-wrap;
-  word-break: break-word;
-  max-height: 180px;
-  overflow: auto;
-}
-
-.art .foot {
-  margin: 10px 0 8px;
-  padding-top: 8px;
-  border-top: 1px solid var(--line);
-  font-size: 10.5px;
-  color: var(--text);
-  opacity: 0.4;
-}
-
-.art button {
-  width: 100%;
-  padding: 6px;
-  background: transparent;
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  border-radius: 3px;
-  font: inherit;
-  letter-spacing: 0.2em;
-  cursor: pointer;
-}
-.art button:hover:not(:disabled) {
-  background: var(--accent);
-  color: var(--bg);
-}
-.art button:disabled {
-  border-color: var(--line);
-  color: var(--dim);
-  cursor: default;
-  letter-spacing: 0.1em;
-}
-
-/* ───────────────────────── evolución ───────────────────────── */
-
-.evo-head {
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
-  margin-bottom: 10px;
-}
-.evo-head h2 {
-  margin: 0;
-}
-/* Invariante #7: el rótulo va siempre visible, nunca en un tooltip. */
-.evo-label {
-  font-size: 11.5px;
-  color: var(--warn);
-  letter-spacing: 0.04em;
-}
-.evo-day {
-  margin-left: auto;
-  font-size: 12px;
-  color: var(--text);
-  opacity: 0.7;
-}
-.evo-tally {
-  font-size: 12px;
-  color: var(--text);
-  opacity: 0.7;
-  white-space: nowrap;
-}
-
-/* Columnas en px, NO en ch: la cabecera va a 10px y las filas a 13px, así que
-   un `ch` mide distinto en cada una y la grilla se desalinea. */
-.evo-cols,
-.evorow {
+.arena-cols, .evorow {
   display: grid;
-  grid-template-columns: 200px 96px 56px 68px 44px 72px 48px minmax(0, 1fr);
-  gap: 10px;
-  align-items: center;
-}
-.evo-cols {
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--dim);
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--line);
-}
-.evo-cols .num,
-.evorow .num {
-  text-align: right;
-}
-
-.evorow {
-  font-size: 13px;
-  padding: 6px 0 6px 8px;
-  border-left: 2px solid var(--line);
-  border-bottom: 1px solid rgba(30, 36, 44, 0.55);
-  cursor: pointer;
-  transition:
-    opacity 0.4s,
-    border-color 0.4s,
-    background 0.4s;
-}
-.evorow .adid {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.evorow .lineage {
-  color: var(--dim);
-}
-.evorow .rule {
-  font-size: 11.5px;
-  color: var(--text);
-  opacity: 0.55;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.evorow.skelrow {
-  cursor: default;
-  border-left-color: var(--line);
-}
-.evorow.skelrow .skel {
-  width: 40%;
-}
-.evorow.child .adid {
-  padding-left: 4px;
-}
-
-.evorow[data-verdict="kill"] {
-  border-left-color: var(--dead);
-  opacity: 0.5;
-}
-.evorow[data-verdict="graduate"] {
-  border-left-color: var(--accent);
-  background: color-mix(in srgb, var(--accent) 7%, transparent);
-}
-.evorow[data-verdict="graduate"] .adid::after {
-  content: " ★";
-  color: var(--accent);
-}
-.evorow[data-verdict="fatigue_rotate"] {
-  border-left-color: var(--warn);
-}
-
-.evorow.dying {
-  animation: die 0.9s ease-out;
-}
-.evorow.born {
-  animation: born 0.9s ease-out;
-}
-@keyframes die {
-  0% {
-    background: color-mix(in srgb, var(--dead) 22%, transparent);
-  }
-  100% {
-    background: transparent;
-  }
-}
-@keyframes born {
-  0% {
-    background: color-mix(in srgb, var(--accent) 24%, transparent);
-    transform: translateX(-6px);
-  }
-  100% {
-    background: color-mix(in srgb, var(--accent) 7%, transparent);
-    transform: none;
-  }
-}
-
-/* Sparkline unicode. Techo fijo en 7: los muertos quedan planos y grises,
-   el ganador queda como una torre verde. Ese contraste es todo el gráfico. */
-.spark {
-  letter-spacing: 1px;
-}
-.sp.hi {
-  color: var(--accent);
-}
-.sp.lo {
-  color: var(--warn);
-  opacity: 0.75;
-}
-.sp.zero {
-  color: var(--dim);
-  opacity: 0.6;
-}
-.sp.void {
-  color: var(--line);
-}
-
-/* ───────────────────────── memoria ───────────────────────── */
-
-#memory {
-  font-size: 12px;
-  border-left: 2px solid var(--line);
-  padding-left: 10px;
-}
-.ml {
-  white-space: pre-wrap;
-  word-break: break-word;
-  color: var(--text);
-  opacity: 0.6;
-}
-.ml.added {
-  color: var(--accent);
-  opacity: 1;
-}
-.ml.added::before {
-  content: "+ ";
-  opacity: 0.7;
-}
-
-/* ───────────────────────── tira de cierre ───────────────────────── */
-
-.summary {
-  flex: none;
-  padding: 9px 20px;
-  border-top: 1px solid var(--line);
-  background: #0d1512;
-  color: var(--accent);
-  font-size: 13px;
-  letter-spacing: 0.06em;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation: none !important;
-    transition: none !important;
-  }
-}
-
-/* ═════════════════════ la puerta de entrada ═════════════════════
- * Misma paleta y misma tipografía que el war room: quien entra por aquí y
- * pasa al dashboard tiene que sentir que es el mismo sistema, no dos productos.
- */
-
-body.landing {
-  display: block;
-  height: auto;
-  min-height: 100vh;
-}
-
-/* La landing reusa <main> y <header>, que arriba están cableados al layout del
- * war room (grid de 3 columnas y flex de encabezado). Sin este reset, el grid
- * comprime el texto a una columna de un carácter de ancho. */
-body.landing main {
-  display: block;
-  grid-template-columns: none;
-  grid-template-rows: none;
-  grid-template-areas: none;
-  background: none;
-  flex: none;
-  min-height: 0;
-  gap: 0;
-}
-body.landing header {
-  display: block;
-  padding: 0;
-  border: 0;
-  flex: none;
-}
-
-.gate {
-  max-width: 620px;
-  margin: 0 auto;
-  padding: 12vh 24px 80px;
-}
-
-.gate-head h1 {
-  font-size: 34px;
-  letter-spacing: 0.34em;
-  margin: 0;
-}
-.gate-head .tagline {
-  margin: 6px 0 0;
-  color: var(--dim);
-}
-
-.pitch {
-  margin: 40px 0 34px;
-  font-size: 17px;
-  line-height: 1.6;
-  color: var(--text);
-}
-
-#gate-form label {
-  display: block;
-  font-size: 11px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--dim);
-  margin-bottom: 8px;
-}
-
-.field {
-  display: flex;
-  gap: 8px;
-}
-
-#url {
-  flex: 1;
-  min-width: 0;
-  padding: 13px 14px;
-  background: var(--panel);
-  border: 1px solid var(--line);
-  border-radius: 3px;
-  color: var(--text);
-  font: 16px/1.4 var(--mono);
-}
-#url:focus {
-  outline: none;
-  border-color: var(--accent);
-}
-#url::placeholder {
-  color: var(--dim);
-  opacity: 0.6;
-}
-
-#go {
-  padding: 13px 22px;
-  background: var(--accent);
-  border: 1px solid var(--accent);
-  border-radius: 3px;
-  color: var(--bg);
-  font: 14px/1 var(--mono);
-  letter-spacing: 0.16em;
-  cursor: pointer;
-  white-space: nowrap;
-}
-#go:hover:not(:disabled) {
-  background: transparent;
-  color: var(--accent);
-}
-#go:disabled {
-  background: var(--line);
-  border-color: var(--line);
-  color: var(--dim);
-  cursor: default;
-}
-
-.note {
-  margin: 10px 0 0;
-  min-height: 18px;
-  font-size: 12.5px;
-  color: var(--dim);
-}
-.note[data-kind="err"] {
-  color: var(--dead);
-}
-
-.steps {
-  list-style: none;
-  margin: 44px 0 0;
-  padding: 0;
-}
-.steps li {
-  display: flex;
+  grid-template-columns: minmax(0, 1.5fr) 104px 64px 78px 52px 104px 54px minmax(0, 1.4fr);
   gap: 14px;
-  padding: 13px 0;
-  border-top: 1px solid var(--line);
-  font-size: 14px;
-  line-height: 1.55;
-  color: var(--text);
-  opacity: 0.85;
 }
-/* El paso 2 es el argumento del producto: es el único que se resalta. */
-.steps li:nth-child(2) {
-  opacity: 1;
-  color: var(--text);
+.arena-cols {
+  flex: none; margin: 0 18px 8px; padding-bottom: 9px; border-bottom: 1px solid var(--line-3);
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; color: var(--dim-2);
 }
-.steps li:nth-child(2) .n {
-  background: var(--accent);
-  color: var(--bg);
-  border-color: var(--accent);
-}
-.steps .n {
-  flex: none;
-  width: 22px;
-  height: 22px;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 11px;
-  color: var(--dim);
-}
+.arena-cols .r, .evorow .r { text-align: right; }
+.evorow { align-items: center; padding: 6px 0; border-bottom: 1px solid var(--panel-2); transition: opacity 0.4s; }
+.evorow .idcell { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.evorow .idline { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.evorow .lineage { font-family: var(--mono); font-size: 10px; color: var(--green); flex: none; }
+.evorow .adid { font-family: var(--mono); font-size: 12px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.evorow .copy { font-size: 11px; line-height: 1.3; color: var(--dim-3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.evorow .num { font-family: var(--mono); font-size: 12px; color: var(--dim); }
+.evorow .roas { font-family: var(--mono); font-size: 13px; color: var(--dim); }
+.evorow .rulecell { min-width: 0; display: flex; align-items: center; gap: 8px; }
+.evorow .st { font-family: var(--mono); font-size: 9px; letter-spacing: 0.08em; padding: 4px 7px; flex: none; color: var(--dim); border: 1px solid var(--line-2); }
+.evorow .rule { font-family: var(--mono); font-size: 10px; color: var(--dim-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.evorow[data-v="graduate"] .adid, .evorow[data-v="graduate"] .roas { color: var(--green); }
+.evorow[data-v="graduate"] .st { color: var(--green); border-color: var(--green-line); background: var(--green-bg); }
+.evorow[data-v="kill"] { opacity: 0.45; }
+.evorow[data-v="kill"] .copy { text-decoration: line-through; }
+.evorow[data-v="kill"] .roas { color: var(--red); }
+.evorow[data-v="kill"] .st { color: var(--red); border-color: var(--red-line); background: var(--red-bg); }
 
-.foot {
-  margin: 40px 0 0;
-  padding-top: 18px;
-  border-top: 1px solid var(--line);
-  font-size: 12.5px;
-  line-height: 1.7;
-  color: var(--warn);
-}
+/* ───────────── ⑤ la memoria ───────────── */
 
-@media (max-width: 560px) {
-  .gate {
-    padding-top: 7vh;
-  }
-  .field {
-    flex-direction: column;
-  }
-}
+.memcard { border: 1px solid var(--line-2); background: var(--panel-2); padding: 13px 14px; margin-bottom: 12px; }
+.memcard.grad { border-color: var(--green-line); background: var(--green-bg); }
+.memcard .k { font-family: var(--mono); font-size: 9px; letter-spacing: 0.12em; color: var(--green); }
+.memcard.died .k { color: var(--red); }
+.memcard.never { border-style: dashed; border-color: #2c2f3b; background: transparent; }
+.memcard.never .k { color: var(--dim-2); }
+.memcard .t { margin-top: 9px; font-size: 14px; line-height: 1.5; color: var(--ink); text-wrap: pretty; }
+.memcard .s { margin-top: 7px; font-family: var(--mono); font-size: 10px; line-height: 1.6; color: var(--dim); }
+.memcard .list { margin-top: 9px; display: flex; flex-direction: column; gap: 6px; font-family: var(--mono); font-size: 11px; color: var(--dim); }
 
-/* ═══════════ pedir las conversaciones ═══════════
- * Tarjeta DENTRO del panel, no modal a pantalla completa. Quien acaba de lanzar
- * un producto no tiene clientes todavía: taparle el panorama que sí acaba de
- * recibir lo deja sin salida. Prominente, pero descartable.
- */
+/* ───────────── ⑥ el ciclo y el ejército ───────────── */
 
-.ask {
-  border: 1px solid var(--line);
-  border-left: 2px solid var(--accent);
-  border-radius: 3px;
-  padding: 14px;
-  margin-bottom: 18px;
-  background: color-mix(in srgb, var(--accent) 4%, transparent);
-}
-.ask-eyebrow {
-  margin: 0;
-  font-size: 10.5px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--dim);
-}
-.ask-title {
-  margin: 6px 0 8px;
-  font-size: 15px;
-  line-height: 1.35;
-  color: var(--accent);
-  font-weight: 400;
-}
-.ask-body {
-  margin: 0 0 12px;
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: var(--text);
-  opacity: 0.8;
-}
-.ask-body em {
-  color: var(--warn);
-  font-style: normal;
-}
-.ask-drop {
-  display: block;
-  padding: 16px 10px;
-  border: 1px dashed var(--line);
-  border-radius: 3px;
-  text-align: center;
-  font-size: 12px;
-  color: var(--dim);
-  cursor: pointer;
-}
-.ask-drop:hover {
-  border-color: var(--accent);
-  color: var(--text);
-}
-#ask-go {
-  width: 100%;
-  margin-top: 10px;
-  padding: 9px;
-  background: var(--accent);
-  border: 1px solid var(--accent);
-  border-radius: 3px;
-  color: var(--bg);
-  font: 12.5px/1 var(--mono);
-  letter-spacing: 0.14em;
-  cursor: pointer;
-}
-#ask-go:disabled {
-  background: transparent;
-  border-color: var(--line);
-  color: var(--dim);
-  cursor: default;
-}
-/* La salida honesta. No es un botón secundario escondido: si no tienes
-   clientes, DARWIN no puede extraer ángulos, y decirlo vale más que insistir. */
-.ask-later {
-  width: 100%;
-  margin-top: 6px;
-  padding: 7px;
-  background: none;
-  border: 0;
-  color: var(--dim);
-  font: 12px/1 var(--mono);
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.ask-later:hover {
-  color: var(--text);
-}
-.ask-foot {
-  margin: 12px 0 0;
-  font-size: 11px;
-  line-height: 1.6;
-  color: var(--text);
-  opacity: 0.4;
-}
+#z-ciclo { background: #0b0c10; display: flex; align-items: center; gap: 18px; padding: 0 18px; overflow: hidden; }
+.ciclo-head { flex: none; display: flex; flex-direction: column; gap: 5px; }
+.ciclo-run { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; }
+.ciclo-run .back { color: var(--green); }
+.ciclo-run #ciclo-run { letter-spacing: 0.12em; color: var(--ink); }
+.ciclo-sub { font-family: var(--mono); font-size: 9px; letter-spacing: 0.06em; color: var(--dim-2); }
+.ciclo-end { flex: none; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; font-family: var(--mono); max-width: 300px; }
+.ciclo-end #ciclo-phase { font-size: 11px; color: var(--green); }
+.ciclo-end #summary { text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 300px; }
 
-/* El recordatorio que queda al descartar. Reversible de un clic.
- *
- * [hidden] solo trae `display:none` del user-agent, asi que CUALQUIER regla de
- * autor con display lo pisa y el elemento se pinta igual. Pasa silencioso: el
- * atributo se lee `true` en JS mientras el boton ocupa 35px en pantalla.
- * Esta regla tiene que ir ANTES y ceder ante [hidden]. */
-.ask-mini[hidden],
-.ask[hidden] {
-  display: none !important;
+.ciclo-track { flex: 1; min-width: 0; position: relative; height: 56px; }
+.ciclo-track .rail { position: absolute; left: 0; right: 0; top: 33px; height: 1px; background: var(--line-3); }
+.ciclo-track .rail.fill { right: auto; width: 0; background: var(--green); opacity: 0.5; transition: width 0.55s ease; }
+.ciclo-track .rail.scan {
+  background-image: linear-gradient(90deg, transparent 0%, rgba(111, 207, 135, 0.85) 6%, transparent 14%);
+  background-size: 200% 100%;
+  background-repeat: no-repeat;
+  animation: dwScan 3.4s linear infinite;
 }
-.ask-mini {
-  display: block;
-  width: 100%;
-  margin-bottom: 16px;
-  padding: 8px 10px;
-  background: none;
-  border: 1px dashed var(--line);
-  border-radius: 3px;
-  color: var(--dim);
-  font: 12px/1.4 var(--mono);
-  text-align: left;
-  cursor: pointer;
-}
-.ask-mini:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
+.bots { position: absolute; inset: 0; display: flex; align-items: flex-start; justify-content: space-between; }
 
-/* ═════════════════ el circuito · piezas ═════════════════ */
-
-h1 { font-size: 17px; }  /* la cita del cliente tiene que ganarle al logo */
-
-#tickbar {
-  flex: none;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 20px;
-  border-bottom: 1px solid var(--line);
-  background: var(--panel);
-}
-#ticker {
-  flex: 1;
-  min-width: 0;
-  background: none;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  font: 14.5px/1 var(--mono);
-  color: var(--accent);
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-#ticker[data-kind="literal"] { color: var(--warn); }
-.tick-hint { flex: none; font-size: 12px; color: var(--dim); }
-
-/* El cajón del terminal: overlay, NO zona de la rejilla. Abrirlo no cambia
-   la forma de nada. */
-#logdrawer {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 46vh;
-  z-index: 40;
-  background: var(--panel);
-  border-top: 1px solid var(--line);
-  transform: translateY(101%);
-  transition: transform 0.28s ease;
-}
-body[data-log="open"] #logdrawer { transform: none; }
-/* Aquí vive el arreglo del autoscroll: paint() mide y escribe sobre #log, que
-   hasta ahora no era el scroller — el guard wasBottom siempre daba true. */
-#log {
-  height: 100%;
-  overflow-y: auto;
-  min-height: 0;
-  padding: 16px 20px;
-  font-size: 15px;
-  line-height: 1.6;
-}
-
-/* ── el hilo: cita → hook → ad ── */
-.thread {
-  border-left: 2px solid var(--line);
-  padding: 0 0 2px 12px;
-  margin-bottom: 18px;
-}
-.thread:hover { border-left-color: color-mix(in srgb, var(--accent) 45%, var(--line)); }
-.thread-ads {
-  padding-left: 14px;
-  border-left: 1px dashed var(--line);
-  margin-top: 6px;
-}
-/* Solo al cerrar la corrida: durante la corrida los ads siguen llegando y el
-   mensaje aparecía sobre hilos que sí iban a recibir uno. */
-body[data-done="1"] .thread-ads:empty::before {
-  content: "sin ad en esta ronda";
-  display: block;
-  font-size: 12.5px;
-  color: var(--dim);
-  padding: 6px 0;
-}
-.thread .art { border: 0; padding: 6px 0; }
-.art[data-kind="angle"] .quote { font-size: 19px; }
-.ev-note { font-size: 12.5px; color: var(--accent); opacity: 0.8; margin-top: 4px; }
-.ev-note.bad { color: var(--warn); opacity: 1; }
-.ev-inherit { font-size: 12.5px; color: var(--dim); margin: 2px 0 6px; }
-.freq-chip { font-size: 12.5px; color: var(--text); opacity: 0.7; }
-
-/* ── el plan: la barra ES la fila ── */
-.agent.chrow {
-  --share: 0;
-  position: relative;
-  padding: 7px 8px;
-  margin-bottom: 2px;
-  background: linear-gradient(
-    to right,
-    color-mix(in srgb, var(--accent) 16%, transparent) calc(var(--share) * 1%),
-    transparent calc(var(--share) * 1%)
-  );
-}
-.agent.chrow .pct { margin-left: auto; font-size: 12.5px; color: var(--text); opacity: 0.75; }
-.agent.chrow.off { opacity: 0.42; }
-.kv > div { display: flex; justify-content: space-between; font-size: 12.5px; padding: 3px 0; }
-.kv span { color: var(--dim); }
-#pt-kills { font-size: 12.5px; color: var(--text); opacity: 0.7; line-height: 1.5; }
-
-/* ── el riel de retorno: el bucle, dibujado ── */
-#z-ciclo {
-  grid-area: ciclo;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 20px;
-  background: var(--panel);
-  font-size: 12.5px;
-  color: var(--dim);
-  overflow: hidden;
-  white-space: nowrap;
-}
-.ciclo-back { color: var(--accent); font-size: 17px; line-height: 1; }
-.ciclo-rail {
-  flex: 1;
-  border-top: 1px dashed color-mix(in srgb, var(--accent) 35%, var(--line));
-}
-#ciclo-run { color: var(--text); letter-spacing: 0.12em; text-transform: uppercase; }
-#ciclo-applied { color: var(--accent); overflow: hidden; text-overflow: ellipsis; }
-#ciclo-applied:empty::before {
-  content: "sin memoria previa · esta corrida la escribe";
-  color: var(--dim);
-}
-
-/* ── promesas: el skeleton dice qué FORMA tendrá la respuesta ── */
-.promise-copy {
-  font-size: 12.5px;
-  line-height: 1.55;
-  color: var(--text);
-  opacity: 0.55;
-  margin: 10px 0;
-  max-width: 62ch;
-}
-.skel-block {
-  height: 46px;
-  border-radius: 3px;
-  background: var(--line);
-  animation: skel 1.4s ease-in-out infinite;
-}
-.skel-thread { display: flex; flex-direction: column; gap: 6px; opacity: 0.35; margin-bottom: 18px; }
-.skel-thread .skel { display: block; }
-.skel-thread .q { height: 20px; width: 78%; }
-.skel-thread .h { height: 15px; width: 52%; }
-.skel-thread .a { height: 34px; width: 88%; }
-.skel-thread .arrow { color: var(--dim); font-size: 12px; }
-.cov.pending .mark { color: var(--dim); }
-.cov-note { margin-left: auto; padding-left: 8px; font-size: 12px; color: var(--text); opacity: 0.45; }
-
-/* ── legibilidad de proyector ── */
-.evorow .rule { font-size: 12.5px; opacity: 0.68; }
-.evo-label { font-size: 12.5px; }
-.evo-cols { font-size: 11px; }
-h3 {
-  margin: 16px 0 6px;
-  font-size: 11px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--dim);
-  font-weight: 400;
-}
-.h2sub { text-transform: none; letter-spacing: 0; opacity: 0.7; }
-#z-arena .zone-body { padding-bottom: 4px; }
-#arena-promise { flex: none; margin: 6px 0 10px; }
-
-body.landing { min-width: 0; }
-
-/* ── ① la fuente: la marca y sus formatos con evidencia rotulada ── */
-.brand-name { font-size: 15px; color: var(--accent); }
-.brand-meta { font-size: 12.5px; color: var(--text); opacity: 0.75; margin-top: 2px; }
-.brand-tone { font-size: 12.5px; color: var(--dim); margin-top: 6px; line-height: 1.5; }
-.fmt { padding: 6px 0; border-bottom: 1px solid var(--line); }
-.fmt-name { font-size: 12.5px; color: var(--text); }
-.fmt-signal { font-size: 12px; color: var(--text); opacity: 0.55; line-height: 1.45; margin-top: 2px; }
-/* La jerarquía de evidencia, en color: métrica propia > benchmark > visible. */
-.badge.ev-own_metrics { color: var(--accent); border-color: #1d4030; }
-.badge.ev-category_benchmark { color: var(--warn); border-color: #3a3020; }
-.badge.ev-visible_content { color: var(--dim); border-color: var(--line); }
-.kill { padding: 3px 0; }
-
-/* ── la mutación: qué cambió cada hijo ── */
-.mut {
-  margin-left: 8px;
-  font-size: 11.5px;
-  color: var(--accent);
-  opacity: 0.75;
-}
-
-/* ── la narración vive en la zona que trabaja ──
- * El ticker de 32px es el resumen; esto es lo que evita que una zona se quede
- * 60 segundos en blanco mientras su agente piensa. */
-.zone-live { margin-bottom: 10px; }
-.zone-live:empty { margin: 0; }
-.lv {
-  font-size: 12.5px;
-  line-height: 1.5;
-  padding: 1px 0;
-  white-space: pre-wrap;
-  word-break: break-word;
-  animation: lvIn 0.25s ease;
-}
-.lv.say { color: var(--accent); }
-.lv.say::before { content: "> "; opacity: 0.6; }
-.lv.literal { color: var(--warn); padding-left: 2ch; }
-.lv.phase { display: none; }
-@keyframes lvIn { from { opacity: 0; transform: translateY(-2px) } to { opacity: 1 } }
-.from-playbook {
-  margin-left: 6px;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--text);
-  opacity: 0.4;
-}
-
-/* ══════════════ el ejército, literal ══════════════
- * Un robot por agente. Camina cuando trabaja, se queda quieto cuando espera.
- * Los tres estados son los mismos que ya emite el bus: thinking · done · idle,
- * así que setAgent() no cambia.
- */
-#org {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px 4px;
-  padding-top: 4px;
-}
-.bot {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 5px;
-  width: 46px;
-  opacity: 0.34;
-  transition: opacity 0.35s;
-}
+.bot { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; min-width: 0; opacity: 0.34; transition: opacity 0.35s; }
 .bot .body { position: relative; width: 16px; height: 25px; margin-top: 8px; }
 .bot i { position: absolute; display: block; background: #2c2f3b; }
 .bot .head { left: 0; top: 7px; width: 16px; height: 9px; border: 1px solid #2c2f3b; background: #0b0c10; }
@@ -1264,79 +432,202 @@ body.landing { min-width: 0; }
 .bot .leg { top: 20px; width: 2px; height: 5px; transform-origin: top center; }
 .bot .leg.l { left: 5px; }
 .bot .leg.r { left: 9px; }
-.bot .lbl {
-  font-size: 9px;
-  letter-spacing: 0.04em;
-  color: #4b4f5e;
-  text-align: center;
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 46px;
-}
-.bot .tally { font-size: 9.5px; color: var(--accent); opacity: 0; transition: opacity 0.3s; }
-.bot[data-state="done"] .tally { opacity: 0.85; }
+.bot .lbl2 { font-family: var(--mono); font-size: 9px; letter-spacing: 0.04em; color: #4b4f5e; white-space: nowrap; transition: color 0.3s; }
 
-/* trabajando */
 .bot[data-state="thinking"] { opacity: 1; }
-.bot[data-state="thinking"] i { background: var(--accent); }
-.bot[data-state="thinking"] .head,
-.bot[data-state="thinking"] .torso { border-color: var(--accent); background: var(--green-bg); }
-.bot[data-state="thinking"] .led { background: var(--accent); animation: dwPulse 0.8s ease-in-out infinite; }
-.bot[data-state="thinking"] .lbl { color: var(--accent); }
+.bot[data-state="thinking"] i { background: var(--green); }
+.bot[data-state="thinking"] .head, .bot[data-state="thinking"] .torso { border-color: var(--green); background: var(--green-bg); }
+.bot[data-state="thinking"] .led { background: var(--green); animation: dwPulse 0.8s ease-in-out infinite; }
+.bot[data-state="thinking"] .lbl2 { color: var(--green); }
 .bot[data-state="thinking"] .body { animation: dwBob 0.34s ease-in-out infinite; }
 .bot[data-state="thinking"] .leg.l { animation: dwLegA 0.34s ease-in-out infinite; }
 .bot[data-state="thinking"] .leg.r { animation: dwLegB 0.34s ease-in-out infinite; }
 .bot[data-state="thinking"] .arm.l { animation: dwArmA 0.34s ease-in-out infinite; }
 .bot[data-state="thinking"] .arm.r { animation: dwArmB 0.34s ease-in-out infinite; }
 
-/* terminó: sigue vivo pero tranquilo */
 .bot[data-state="done"] { opacity: 0.95; }
 .bot[data-state="done"] i { background: #7b8290; }
-.bot[data-state="done"] .head,
-.bot[data-state="done"] .torso { border-color: #7b8290; background: #0b0c10; }
+.bot[data-state="done"] .head, .bot[data-state="done"] .torso { border-color: #7b8290; }
 .bot[data-state="done"] .eye { background: #a8aebb; }
 .bot[data-state="done"] .led { background: #4b7a58; animation: dwPulse 2.4s ease-in-out infinite; }
-.bot[data-state="done"] .lbl { color: #9aa0ac; }
+.bot[data-state="done"] .lbl2 { color: #9aa0ac; }
 .bot[data-state="done"] .body { animation: dwBob 0.62s ease-in-out infinite; }
 .bot[data-state="done"] .leg.l { animation: dwLegA 0.62s ease-in-out infinite; }
 .bot[data-state="done"] .leg.r { animation: dwLegB 0.62s ease-in-out infinite; }
 
-.bot[data-state="error"] i { background: var(--dead); }
-.bot[data-state="error"] .head, .bot[data-state="error"] .torso { border-color: var(--dead); }
+.bot[data-state="error"] i { background: var(--red); }
+.bot[data-state="error"] .head, .bot[data-state="error"] .torso { border-color: var(--red); }
 
+/* ───────────────────── el cajón de la narración ───────────────────── */
+
+#logdrawer {
+  position: fixed; left: 0; right: 0; bottom: 0; height: 46vh; z-index: 40;
+  background: var(--panel); border-top: 1px solid var(--line-2);
+  transform: translateY(101%); transition: transform 0.28s ease;
+}
+body[data-log="open"] #logdrawer { transform: none; }
+/* #log ES el scroller: paint() mide sobre él. */
+#log { height: 100%; overflow-y: auto; min-height: 0; padding: 16px 20px; font-family: var(--mono); font-size: 14px; line-height: 1.6; }
+.rolediv { margin-top: 12px; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--dim-2); opacity: 0.55; }
+.rolediv:first-child { margin-top: 0; }
+.line { white-space: pre-wrap; word-break: break-word; }
+.line[data-kind="say"] .what::before { content: "> "; color: var(--green); }
+.line[data-kind="literal"] { padding-left: 2ch; color: var(--amber); }
+.line[data-kind="phase"] { color: var(--green); opacity: 0.8; margin: 10px 0 2px; }
+
+/* ───────────────────── animaciones ───────────────────── */
+
+@keyframes dwPulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.3 } }
 @keyframes dwBob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-2.5px) } }
 @keyframes dwLegA { 0%, 100% { transform: rotate(-16deg) } 50% { transform: rotate(16deg) } }
 @keyframes dwLegB { 0%, 100% { transform: rotate(16deg) } 50% { transform: rotate(-16deg) } }
 @keyframes dwArmA { 0%, 100% { transform: rotate(12deg) } 50% { transform: rotate(-12deg) } }
 @keyframes dwArmB { 0%, 100% { transform: rotate(-12deg) } 50% { transform: rotate(12deg) } }
-@keyframes dwPulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.3 } }
+@keyframes dwCaret { 0%, 49% { opacity: 1 } 50%, 100% { opacity: 0 } }
+@keyframes dwScan { from { background-position: -60% 0 } to { background-position: 180% 0 } }
 
-/* El riel ganó altura: que el contenido la use en vez de quedar centrado en el aire. */
-#z-ciclo {
+@media (prefers-reduced-motion: reduce) { * { animation: none !important } }
+
+/* Proyector: bajo 1280 la fila de la arena se parte en dos renglones en vez de
+   romper la rejilla. Los 8 hijos siguen existiendo: renderSim no se entera. */
+@media (max-width: 1280px) {
+  /* La cabecera no se esconde: un número sin rótulo en un proyector no dice
+     nada. Se recorta a las 5 columnas que sobreviven. */
+  .arena-cols {
+    grid-template-columns: minmax(0, 1fr) 104px 64px 78px 104px;
+  }
+  .arena-cols .c-atc, .arena-cols .c-freq, .arena-cols .c-rule { display: none; }
+  .evorow {
+    grid-template-columns: minmax(0, 1fr) 104px 64px 78px 104px;
+    grid-template-areas: "id spark roas buys spend" "rule rule rule rule rule";
+    row-gap: 4px;
+  }
+  .evorow .idcell { grid-area: id; }
+  .evorow .sparkcell { grid-area: spark; }
+  .evorow .roas { grid-area: roas; }
+  .evorow .buys { grid-area: buys; }
+  .evorow .spend { grid-area: spend; }
+  .evorow .rulecell { grid-area: rule; }
+  .evorow .atc, .evorow .freq { display: none; }
+}
+@media (max-width: 1100px) {
+  main { grid-template-columns: 260px minmax(0, 1fr) 280px; }
+  #brand-sub, #p-cost { display: none; }
+}
+
+
+/* ───────────────── banner y tarjeta de conversaciones ─────────────────
+ * Dos filas opcionales entre la banda del log y el circuito. Con [hidden]
+ * miden 0 y la rejilla ni se entera. */
+
+#banner {
+  grid-row: 3;
+  padding: 9px 22px;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--warn) 9%, var(--bg));
+  color: var(--warn);
+  font: 500 11px/1.4 var(--mono);
+  letter-spacing: 0.06em;
+}
+#banner[hidden] { display: none; }
+
+#ask {
+  grid-row: 4;
+  padding: 18px 22px; border-bottom: 1px solid var(--line); }
+#ask[hidden] { display: none; }
+.ask-card {
+  max-width: 620px;
+  padding: 18px 20px 16px;
+  border: 1px solid color-mix(in srgb, var(--accent) 34%, var(--line));
+  border-radius: 10px;
+  background: var(--panel);
+}
+.ask-k {
+  font: 500 9.5px/1 var(--mono);
+  letter-spacing: 0.16em;
+  color: var(--accent);
+}
+.ask-card h3 { margin: 9px 0 6px; font: 600 16px/1.25 var(--sans); color: var(--text); }
+.ask-card p { margin: 0; font: 400 12.5px/1.55 var(--sans); color: var(--dim); }
+.ask-file {
+  display: flex;
   align-items: center;
-  border-top: 1px solid var(--line-2);
+  gap: 10px;
+  margin: 14px 0 12px;
+  cursor: pointer;
 }
-#z-ciclo #summary { color: var(--text); opacity: 0.75; }
+.ask-file input { position: absolute; width: 0; height: 0; opacity: 0; }
+.ask-btn-file {
+  padding: 7px 13px;
+  border: 1px solid var(--line2);
+  border-radius: 6px;
+  background: var(--bg);
+  font: 500 11px/1 var(--mono);
+  color: var(--text);
+}
+.ask-file:hover .ask-btn-file { border-color: var(--accent); color: var(--accent); }
+#convs-label { font: 400 11px/1 var(--mono); color: var(--dim); }
+.ask-row { display: flex; align-items: center; gap: 12px; }
+.ask-primary {
+  padding: 9px 18px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--accent);
+  font: 600 12px/1 var(--sans);
+  color: #06170d;
+  cursor: pointer;
+}
+.ask-primary:disabled { opacity: 0.4; cursor: default; }
+.ask-ghost {
+  padding: 9px 4px;
+  border: 0;
+  background: none;
+  font: 400 12px/1 var(--sans);
+  color: var(--dim);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.ask-ghost:hover { color: var(--text); }
+#ask-note { margin-top: 9px; font: 400 11.5px/1.4 var(--mono); color: var(--dim); }
+#ask-note[data-kind="err"] { color: var(--dead); }
+.ask-priv { margin-top: 12px !important; font-size: 11px !important; opacity: 0.72; }
 
-/* ── el header no puede empujar fuera de pantalla ──
- * La píldora de fase lleva el `detail` completo ("panorama · qué vende la marca
- * y qué formato le rinde") con nowrap. A 1600px cabe; a 1024 —el proyector—
- * empujaba el costo y la conexión fuera del viewport. Se descubrió midiendo,
- * no mirando: a 1600 no se nota. */
-#phase {
-  max-width: 42ch;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
+/* Bug ya cazado una vez: `display` en la regla base gana sobre [hidden] y el
+ * botón se pintaba de 35px en producción. Se mide con getBoundingClientRect,
+ * no con el.hidden. */
+#ask-mini {
+  grid-row: 4;
+  display: block;
+  margin: 12px 22px;
+  padding: 8px 14px;
+  border: 1px dashed var(--line2);
+  border-radius: 6px;
+  background: none;
+  font: 500 11px/1 var(--mono);
+  color: var(--dim);
+  cursor: pointer;
 }
-header { min-width: 0; }
-.meters { min-width: 0; }
-@media (max-width: 1200px) {
-  .tagline { display: none; }
-  #phase { max-width: 26ch; }
+#ask-mini:hover { border-color: var(--accent); color: var(--accent); }
+#ask-mini[hidden] { display: none !important; }
+
+/* La arena es el argumento del nombre: cuando corre, manda ella. */
+body[data-phase="evolution"] main,
+body[data-phase="memoria"] main {
+  grid-template-rows: minmax(260px, 0.82fr) minmax(318px, 1.18fr) 76px;
 }
-@media (max-width: 900px) {
-  #phase { display: none; }
+
+/* Proyector corto (1024×768 es el caso real del venue): los mínimos del diseño
+   suman 694 y no caben en los 598 que quedan bajo la barra, la banda y el
+   banner de replay. El cockpit no puede tener scroll de página: se bajan los
+   mínimos y cada zona sigue recortando por dentro, como ya hace. */
+@media (max-height: 860px) {
+  .app { grid-template-rows: 54px 66px auto auto minmax(0, 1fr); }
+  main { grid-template-rows: minmax(210px, 1fr) minmax(230px, 0.95fr) 68px; }
+  body[data-phase="evolution"] main,
+  body[data-phase="memoria"] main {
+    grid-template-rows: minmax(190px, 0.78fr) minmax(230px, 1.22fr) 68px;
+  }
+  .logband { padding-top: 6px; padding-bottom: 6px; }
+  #banner { padding: 6px 22px; }
 }
