@@ -23,97 +23,108 @@ const GREEN = "#6fcf87";
 
 /* ─────────────────────────── los datos de la demo ─────────────────────────── */
 
+/* Los datos son la corrida real de Dosmicos que reproduce el war room —
+ * demo/generate.ts, el mismo fixture. Landing y dashboard cuentan la misma
+ * historia, con los mismos números.
+ *
+ * NO se usan las citas de la corrida contra el export real: traen
+ * circunstancias personales de clientas ("viajaré el domingo", "me veo con mi
+ * papá que vive en Bogotá") y esta es una página pública. Redactamos nombres y
+ * teléfonos; publicar la vida de la gente es otra cosa. */
+
 const SIGNALS = [
   {
-    id: "S-01", who: "Cliente · WhatsApp", time: "21:04", kind: "FRENO", freq: 47,
-    quote: "se le destapa toda la noche y amanece heladita",
-    short: "se destapa · amanece fría",
+    id: "ad_noche_reel", who: "Clienta · WhatsApp", time: "21:04", kind: "FRENO", freq: 23,
+    quote: "se le destapa toda la noche y amanece heladita, no sé qué hacer",
+    short: "se destapa · amanece helada",
     promise: "La cobijita que sí se queda puesta",
-    platform: "META · FEED", head: "Se destapa toda la noche. Esta no.",
-    body: "Cierre lateral que no se suelta. Amanece tapada, tú amaneces dormida.",
-    cta: "Ver la cobijita",
+    platform: "META · REEL", head: "la cobijita que sí se queda puesta",
+    body: "duerme tapada toda la noche, sin cobijas sueltas",
+    cta: "Ver más",
   },
   {
-    id: "S-02", who: "Cliente · WhatsApp", time: "08:12", kind: "FRENO", freq: 31,
-    quote: "¿es segura para recién nacido? me da miedo que se le suba a la cara",
-    short: "miedo · se sube a la cara",
-    promise: "Nunca sobre la carita",
-    platform: "META · REELS", head: "“Me da miedo que se le suba a la cara.”",
-    body: "Largo fijo y peso ligero: se queda en el pecho. Uso desde el día uno.",
-    cta: "Ver ficha de seguridad",
+    id: "ad_regalo_ugc", who: "Clienta · WhatsApp", time: "08:12", kind: "FRENO", freq: 31,
+    quote: "lo necesito antes del sábado que es el cumpleaños de mi sobrina",
+    short: "regalo con fecha · urgencia",
+    promise: "El regalo que sí llega a tiempo",
+    platform: "META · UGC", head: "el regalo que sí llega a tiempo",
+    body: "pídelo hoy, llega antes del sábado",
+    cta: "Comprar ahora",
   },
   {
-    id: "S-03", who: "Cliente · WhatsApp", time: "13:47", kind: "FRENO", freq: 18,
-    quote: "la mando a la guarde y siempre me la pierden",
-    short: "se pierde en la guardería",
-    promise: "Con su nombre. Vuelve de la guarde.",
-    platform: "TIKTOK · CREADORAS", head: "Se va a la guarde y regresa.",
-    body: "Nombre bordado a mano en el dobladillo. Nadie más se la lleva por error.",
-    cta: "Pedir con nombre",
+    id: "ad_calidad_ugc", who: "Clienta · WhatsApp", time: "19:33", kind: "MOTIVO", freq: 14,
+    quote: "la tela después de tres lavadas quedó igualita, muy buena",
+    short: "aguanta lavadas · sigue igual",
+    promise: "Tres lavadas y quedó igualita",
+    platform: "META · UGC", head: "tres lavadas y quedó igualita",
+    body: "algodón colombiano que aguanta el uso diario",
+    cta: "Ver más",
   },
   {
-    id: "S-04", who: "Cliente · WhatsApp", time: "19:33", kind: "MOTIVO", freq: 24,
-    quote: "la lavé como veinte veces y sigue igual de suavecita",
-    short: "aguanta lavadas · sigue suave",
-    promise: "Veinte lavadas. Igual de suave.",
-    platform: "EMAIL · FLUJO 2", head: "Veinte lavadas después, igual de suave.",
-    body: "Algodón de fibra larga. Lo dijeron tus clientas antes que nosotros.",
-    cta: "Leer las reseñas",
+    id: "ad_talla_carrusel", who: "Clienta · WhatsApp", time: "13:47", kind: "FRENO", freq: 9,
+    quote: "le queda grande la 2, ¿manejan 18 meses?",
+    short: "la talla no corresponde",
+    promise: "La talla que sí le queda",
+    platform: "META · ESTÁTICO", head: "la talla que sí le queda",
+    body: "guía real por edad, de 0 a 9 años",
+    cta: "Más información",
   },
 ];
 
 const STEPS = [
   { num: "01", tag: "INGESTA", title: "Conecta tu web y sube tu chat de WhatsApp",
     body: "Sin instalaciones ni permisos complejos. El chat se exporta desde el propio teléfono en dos toques.",
-    detail: "input: sitio.com + chat.txt · export nativo de WhatsApp" },
+    detail: "input: dosmicos.co + chat-export.txt · 412 conversaciones" },
   { num: "02", tag: "LECTURA", title: "Lee los mensajes y anota por qué la gente compra",
-    body: "Detecta motivadores, preguntas y frenos. De cada uno guarda la frase textual del cliente y cuántas veces se repite.",
-    detail: "salida: señal + frase textual + frecuencia" },
+    body: "Detecta motivos, preguntas y frenos. De cada uno guarda la frase textual de la clienta y cuántas veces se repite.",
+    detail: "salida: 18 insights · cada uno con su cita y su frecuencia" },
   { num: "03", tag: "TRADUCCIÓN", title: "Convierte los problemas en promesas de venta",
-    body: "El dolor dicho con las palabras del cliente se vuelve el ángulo del anuncio.",
+    body: "El dolor dicho con las palabras de la clienta se vuelve el ángulo del anuncio.",
     isTransform: true },
   { num: "04", tag: "PRODUCCIÓN", title: "Escribe todo el material con esas promesas",
-    body: "Anuncios pagados, publicaciones para redes, correos, un artículo de blog y a qué creadoras contactar. Cada pieza vinculada a su frase de origen.",
-    detail: "ads · posts · emails · blog · lista de creadoras" },
+    body: "Anuncios pagados, calendario de contenido, correos, un artículo y a qué creadoras contactar. Cada pieza vinculada a su frase de origen.",
+    detail: "6 ads · 10 piezas · 2 prospectos · 3 emails · 1 borrador" },
 ];
 
 const TRACES = [
-  { slot: 0, kind: "FRENO", freq: 47, quote: "se le destapa toda la noche y amanece heladita",
-    copy: "La cobijita que sí se queda puesta", channel: "META · FEED" },
-  { slot: 2, kind: "FRENO", freq: 31, quote: "me da miedo que se le suba a la cara",
-    copy: "Nunca sobre la carita.", channel: "META · REELS" },
-  { slot: 3, kind: "FRENO", freq: 18, quote: "la mando a la guarde y siempre me la pierden",
-    copy: "Con su nombre. Vuelve de la guarde.", channel: "TIKTOK · CREADORAS" },
-  { slot: 1, kind: "MOTIVO", freq: 24, quote: "la lavé como veinte veces y sigue igual de suavecita",
-    copy: "Veinte lavadas. Igual de suave.", channel: "EMAIL · FLUJO 2" },
+  { slot: 0, kind: "FRENO", freq: 23, quote: "se le destapa toda la noche y amanece heladita",
+    copy: "la cobijita que sí se queda puesta", channel: "META · REEL" },
+  { slot: 2, kind: "FRENO", freq: 31, quote: "lo necesito antes del sábado que es el cumpleaños",
+    copy: "el regalo que sí llega a tiempo", channel: "META · UGC" },
+  { slot: 3, kind: "FRENO", freq: 9, quote: "le queda grande la 2, ¿manejan 18 meses?",
+    copy: "la talla que sí le queda", channel: "META · ESTÁTICO" },
+  { slot: 1, kind: "MOTIVO", freq: 14, quote: "la tela después de tres lavadas quedó igualita",
+    copy: "tres lavadas y quedó igualita", channel: "META · UGC" },
 ];
 
+/* La evolución real del fixture: 4 mueren, ad_noche_reel gradúa a 5.4x y se
+ * reproduce en dos hijos que mutan UNA variable cada uno. */
 const SIM = [
-  { id: "A1", copy: "La cobijita que sí se queda puesta", src: "frase ×47", born: 1,
+  { id: "noche", copy: "la cobijita que sí se queda puesta", src: "cita ×23", born: 1,
     ctr: [0, 1.2, 1.8, 2.4, 2.7, 3.0, 3.1, 3.2] },
-  { id: "B1", copy: "Nunca sobre la carita", src: "frase ×31", born: 1,
+  { id: "calidad", copy: "tres lavadas y quedó igualita", src: "cita ×14", born: 1,
     ctr: [0, 0.9, 1.1, 1.3, 1.4, 1.5, 1.6, 1.6] },
-  { id: "B2", copy: "Segura desde el día uno", src: "frase ×31", born: 1, dies: 3, dieCtr: "0.42",
-    ctr: [0, 0.6, 0.5, 0.42, 0.42, 0.42, 0.42, 0.42] },
-  { id: "C1", copy: "Veinte lavadas. Igual de suave.", src: "frase ×24", born: 1,
-    ctr: [0, 0.8, 1.0, 1.2, 1.3, 1.4, 1.4, 1.5] },
-  { id: "D1", copy: "Con su nombre bordado", src: "frase ×18", born: 1, dies: 4, dieCtr: "0.38",
+  { id: "regalo·ugc", copy: "el regalo que sí llega a tiempo", src: "cita ×31", born: 1, dies: 7, dieCtr: "0.96",
+    ctr: [0, 1.0, 1.0, 0.98, 0.96, 0.96, 0.96, 0.96] },
+  { id: "talla", copy: "la talla que sí le queda", src: "cita ×9", born: 1, dies: 4, dieCtr: "0.38",
     ctr: [0, 0.5, 0.45, 0.38, 0.38, 0.38, 0.38, 0.38] },
-  { id: "A1·v2", copy: "La cobijita que sí se queda puesta", parent: "A1", born: 5,
-    src: "CAMBIO: foto fija → video 6s", ctr: [0, 0, 0, 0, 0, 1.9, 3.4, 3.6] },
-  { id: "A1·v3", copy: "La cobijita que sí se queda puesta", parent: "A1", born: 6,
-    src: "CAMBIO: prueba social en la línea 1", ctr: [0, 0, 0, 0, 0, 0, 2.1, 3.9] },
+  { id: "precio", copy: "combo de dos, envío gratis", src: "cita ×6", born: 1, dies: 3, dieCtr: "0.42",
+    ctr: [0, 0.6, 0.5, 0.42, 0.42, 0.42, 0.42, 0.42] },
+  { id: "noche·h", copy: "la cobijita que sí se queda puesta", parent: "noche", born: 5,
+    src: "MUTÓ EL HOOK", ctr: [0, 0, 0, 0, 0, 1.9, 3.4, 3.6] },
+  { id: "noche·f", copy: "la cobijita que sí se queda puesta", parent: "noche", born: 6,
+    src: "MUTÓ EL FORMATO", ctr: [0, 0, 0, 0, 0, 0, 2.1, 3.9] },
 ];
 
 const NOTES = [
-  "D0 · variantes en cola · presupuesto por reparto igual",
-  "D1 · 5 variantes al aire · recolectando señal",
-  "D2 · sin descartes todavía · umbral de impresiones no alcanzado",
-  "D3 · B2 descartada por regla · presupuesto redistribuido",
-  "D4 · D1 descartada por regla · A1 lidera",
-  "D5 · A1 gana · se reproduce en A1·v2 (una sola cosa cambia)",
-  "D6 · A1·v2 supera al padre · se genera A1·v3",
-  "D7 · A1·v3 es el nuevo ganador · aprendizaje guardado",
+  "D0 · 6 anuncios en cola · 1 ad = 1 ad set · $5/día cada uno",
+  "D1 · al aire · recolectando señal",
+  "D2 · sin descartes todavía · ventana de evaluación abierta",
+  "D3 · precio descartado por regla · presupuesto redistribuido",
+  "D4 · talla descartada: 22 carritos y 0 compras",
+  "D5 · noche gradúa a ROAS 5.4x · se reproduce mutando el hook",
+  "D6 · noche·h supera al padre · nace noche·f mutando el formato",
+  "D7 · 4 muertos · 1 graduado · 2 hijos vivos · aprendizaje guardado",
 ];
 
 /* ─────────────────────────── estado ─────────────────────────── */
@@ -141,7 +152,8 @@ function renderHero() {
 
   const sig = $("sig-col");
   sig.textContent = "";
-  const maxFreq = 47;
+  // Se calcula del dataset: hardcodearlo dejaba todas las barras cortas al cambiar los datos.
+  const maxFreq = Math.max(...SIGNALS.map((x) => x.freq));
   SIGNALS.forEach((s, i) => {
     const d = el("div", `sig${i === S.sig ? " on" : ""}`);
     const top = el("div", "sig-top");
