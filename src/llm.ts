@@ -21,6 +21,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { z } from "zod";
 import { bus } from "./bus";
+import { callOpenRouter } from "./llm-openrouter";
 import type { Role } from "./schemas";
 
 /* ─────────────────────────── modelos y precios ─────────────────────────── */
@@ -39,6 +40,12 @@ export const MODELS = {
   /** juicio: miner reduce, ángulos, estratega, paid, mutaciones, memoria */
   judge: process.env.DARWIN_JUDGE_MODEL ?? "claude-fable-5",
 } as const;
+
+/**
+ * Qué cable se usa. Los gotchas documentados arriba son de la API de Anthropic;
+ * bajo "openrouter" no aplica ninguno y el transporte vive en llm-openrouter.ts.
+ */
+export const PROVIDER = (process.env.DARWIN_PROVIDER ?? "anthropic").toLowerCase();
 
 /** Modelos que aceptan output_config.effort (haiku-4-5 NO). */
 const SUPPORTS_EFFORT = new Set([
@@ -64,6 +71,21 @@ class CostMeter {
     this.total += usd;
     this.byRole[role] = (this.byRole[role] ?? 0) + usd;
     this.calls++;
+    bus.emit({ type: "cost", total_usd: this.total, by_role: { ...this.byRole } });
+    return usd;
+  }
+
+  /**
+   * Gasto ya calculado por el proveedor. OpenRouter devuelve el costo real en
+   * USD, que es más fiable que estimarlo con una tabla de precios que se
+   * desactualiza cada vez que alguien cambia su pricing.
+   */
+  addUsd(role: string, usd: number, inTok = 0, outTok = 0) {
+    this.total += usd;
+    this.byRole[role] = (this.byRole[role] ?? 0) + usd;
+    this.calls++;
+    void inTok;
+    void outTok;
     bus.emit({ type: "cost", total_usd: this.total, by_role: { ...this.byRole } });
     return usd;
   }
@@ -178,6 +200,35 @@ export async function callRole<T>(opts: CallRoleOptions<T>): Promise<T> {
   const started = Date.now();
 
   const input_schema = toolSchema(schema);
+
+  /* ── ruta OpenRouter ──
+   * Mismo contrato (tool-use forzado → Zod), otro cable. Se separa aquí para
+   * que la ruta de Anthropic quede intacta con todos sus gotchas. */
+  if (PROVIDER === "openrouter") {
+    try {
+      const out = await callOpenRouter({
+        role,
+        model,
+        system,
+        user,
+        schema,
+        jsonSchema: input_schema,
+        toolName,
+        toolDescription,
+        maxTokens,
+        onCost: (r, usd, i, o) => cost.addUsd(r, usd, i, o),
+      });
+      const ms = Date.now() - started;
+      bus.agent(role, "done", `${(ms / 1000).toFixed(1)}s`);
+      bus.log(role, `ok en ${(ms / 1000).toFixed(1)}s · $${cost.total.toFixed(3)} acumulado`);
+      return out;
+    } catch (err) {
+      bus.agent(role, "error");
+      const msg = err instanceof Error ? err.message : String(err);
+      bus.log(role, `error: ${msg}`);
+      throw err instanceof DarwinLLMError ? err : new DarwinLLMError(`${role}: ${msg}`, "api");
+    }
+  }
   const messages: Anthropic.MessageParam[] = [{ role: "user", content: user }];
 
   let lastErr: unknown;

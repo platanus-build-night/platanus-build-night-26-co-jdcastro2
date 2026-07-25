@@ -20,7 +20,9 @@
     "build:web": "bash scripts/build-web.sh",
     "preview:web": "node scripts/serve-web.mjs",
     "check:fetch": "tsx scripts/check-fetch.ts",
-    "worker": "tsx src/worker.ts"
+    "worker": "tsx src/worker.ts",
+    "check:keys": "tsx scripts/check-keys.ts",
+    "check:models": "tsx scripts/check-models.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",
